@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_INTF" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOINTERF>
+    <CLSNAME>ZIF_LLM_CLIENT_JSON_SCHEMA</CLSNAME>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Structured Output</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <UNICODE>X</UNICODE>
+   </VSEOINTERF>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>ADD_ARRAY</CMPNAME>
+     <SCONAME>ARRAY</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Array to add</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>ADD_OBJECT</CMPNAME>
+     <SCONAME>OBJECT</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Object with parameters to add</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>ADD_PROPERTY</CMPNAME>
+     <SCONAME>PROPERTY</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Property to add</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>NEW_FORMAT</CMPNAME>
+     <SCONAME>RESULT</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>JSON Schema</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>NEW_FORMAT</CMPNAME>
+     <SCONAME>TITLE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>JSON Schema Title</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
+  </asx:values>
+ </asx:abap>
+</abapGit>

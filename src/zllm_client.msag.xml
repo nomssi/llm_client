@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZLLM_CLIENT</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Messages</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Validation error &amp;1 &amp;2 &amp;3 &amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Model &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Value out of range &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Data type &amp;1 not supported</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>No &amp;1 client configuration for model &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>HTTP Client Initialization Error: &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>HTTP Communication Error. Code &amp;1 Message &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>HTTP Communication Failed. Code &amp;1 Message &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>009</MSGNR>
+     <TEXT>Other http error. Code &amp;1 Message &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>010</MSGNR>
+     <TEXT>Error creating http destination &amp;1 &amp;2</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
