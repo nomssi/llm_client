@@ -53,6 +53,33 @@ public section.
       attr3 type scx_attrname value '',
       attr4 type scx_attrname value '',
     end of HTTP_DESTINATION_ERROR .
+  constants:
+    begin of ENCRYPTION_SETUP,
+      msgid type symsgid value 'ZLLM_CLIENT',
+      msgno type symsgno value '012',
+      attr1 type scx_attrname value 'MV_ATTR1',
+      attr2 type scx_attrname value 'MV_ATTR2',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of ENCRYPTION_SETUP .
+  constants:
+    begin of ENCRYPTION_FAILED,
+      msgid type symsgid value 'ZLLM_CLIENT',
+      msgno type symsgno value '013',
+      attr1 type scx_attrname value 'MV_ATTR1',
+      attr2 type scx_attrname value '',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of ENCRYPTION_FAILED .
+  constants:
+    begin of DECRYPTION_FAILED,
+      msgid type symsgid value 'ZLLM_CLIENT',
+      msgno type symsgno value '014',
+      attr1 type scx_attrname value 'MV_ATTR1',
+      attr2 type scx_attrname value '',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of DECRYPTION_FAILED .
   data MV_ATTR1 type STRING .
   data MV_ATTR2 type STRING .
   data MV_ATTR3 type STRING .

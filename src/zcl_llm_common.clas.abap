@@ -1,7 +1,7 @@
 CLASS zcl_llm_common DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     CLASS-METHODS:
@@ -10,14 +10,12 @@ CLASS zcl_llm_common DEFINITION
       from_json IMPORTING json TYPE string CHANGING data TYPE data.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CLASS-DATA: config TYPE zllm_config.
-    CONSTANTS:
-        def_json_class TYPE zllm_json_class VALUE '/UI2/CL_JSON'.
+    CLASS-DATA: json_class type seoclname.
 ENDCLASS.
 
 CLASS zcl_llm_common IMPLEMENTATION.
   METHOD from_json.
-    CALL METHOD (config-json_class)=>deserialize
+    CALL METHOD (json_class)=>deserialize
       EXPORTING
         json        = json
         pretty_name = /ui2/cl_json=>pretty_mode-low_case
@@ -26,7 +24,7 @@ CLASS zcl_llm_common IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD to_json.
-    CALL METHOD (config-json_class)=>serialize
+    CALL METHOD (json_class)=>serialize
       EXPORTING
         data        = data
         pretty_name = /ui2/cl_json=>pretty_mode-low_case
@@ -36,10 +34,9 @@ CLASS zcl_llm_common IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD class_constructor.
-    SELECT SINGLE * FROM zllm_config INTO config.
-    IF config-json_class IS INITIAL.
-      config-json_class = def_json_class.
-    ENDIF.
+    DATA enc_handler TYPE REF TO zllm_implementation.
+    GET BADI enc_handler.
+    CALL BADI enc_handler->get_json_impl RECEIVING result = json_class.
   ENDMETHOD.
 
 ENDCLASS.

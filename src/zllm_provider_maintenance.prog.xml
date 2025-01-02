@@ -59,6 +59,7 @@
    <CUA>
     <ADM>
      <ACTCODE>000001</ACTCODE>
+     <MENCODE>000015</MENCODE>
      <PFKCODE>000001</PFKCODE>
     </ADM>
     <STA>
@@ -86,6 +87,7 @@
       <TEXTNO>001</TEXTNO>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Back</FUN_TEXT>
+      <PATH>B</PATH>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>CANCEL</CODE>
@@ -142,6 +144,241 @@
       <FUN_TEXT>Save</FUN_TEXT>
      </RSMPE_FUNT>
     </FUN>
+    <MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>01</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;01&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>02</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;02&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>03</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;03&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>04</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;04&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>05</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;05&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>06</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>07</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;06&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>08</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>09</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;09&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>10</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>11</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;10&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000011</CODE>
+      <NO>12</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;11&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>01</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;12&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>02</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;13&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>03</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;24&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>04</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;14&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>05</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>06</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;16&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>07</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;17&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>08</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;18&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>09</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>10</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;26&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>11</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;27&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>12</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;20&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>13</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000012</CODE>
+      <NO>14</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>&lt;22&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000013</CODE>
+      <NO>01</NO>
+      <REF_TYPE>S</REF_TYPE>
+      <REF_CODE>&lt;S1&gt;</REF_CODE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000013</CODE>
+      <NO>02</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>BACK</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+    </MEN>
+    <MTX>
+     <RSMPE_MNLT>
+      <CODE>000011</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>&lt;Object&gt;</TEXT>
+      <PATH>O</PATH>
+      <INT_NOTE>Standard Supplement</INT_NOTE>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000012</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Edit</TEXT>
+      <PATH>E</PATH>
+      <INT_NOTE>Standard Supplement</INT_NOTE>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000013</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Goto</TEXT>
+      <PATH>G</PATH>
+      <INT_NOTE>Standard Supplement</INT_NOTE>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000014</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Extras</TEXT>
+      <PATH>A</PATH>
+      <INT_NOTE>Standard Supplement</INT_NOTE>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000015</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Environment</TEXT>
+      <PATH>V</PATH>
+      <INT_NOTE>Standard Supplement</INT_NOTE>
+     </RSMPE_MNLT>
+    </MTX>
+    <ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>01</NO>
+      <MENUCODE>000011</MENUCODE>
+     </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>02</NO>
+      <MENUCODE>000012</MENUCODE>
+     </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>03</NO>
+      <MENUCODE>000013</MENUCODE>
+     </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>04</NO>
+      <MENUCODE>000014</MENUCODE>
+     </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>05</NO>
+      <MENUCODE>000015</MENUCODE>
+     </RSMPE_ACT>
+    </ACT>
     <BUT>
      <RSMPE_BUT>
       <PFK_CODE>000001</PFK_CODE>
@@ -245,6 +482,7 @@
       <OBJ_TYPE>A</OBJ_TYPE>
       <OBJ_CODE>000001</OBJ_CODE>
       <MODAL>D</MODAL>
+      <NORM>X</NORM>
       <INT_NOTE>Screen 100 Status</INT_NOTE>
      </RSMPE_ATRT>
      <RSMPE_ATRT>
@@ -269,6 +507,72 @@
     </TIT>
    </CUA>
    <TPOOL>
+    <item>
+     <ID>I</ID>
+     <KEY>001</KEY>
+     <ENTRY>Provider Name</ENTRY>
+     <LENGTH>23</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>002</KEY>
+     <ENTRY>Implementation Class</ENTRY>
+     <LENGTH>40</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>003</KEY>
+     <ENTRY>RFC Destination</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>004</KEY>
+     <ENTRY>Auth Type</ENTRY>
+     <LENGTH>19</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>005</KEY>
+     <ENTRY>Auth Value</ENTRY>
+     <LENGTH>20</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>006</KEY>
+     <ENTRY>Add Provider Configuration</ENTRY>
+     <LENGTH>52</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>007</KEY>
+     <ENTRY>Change Provider Configuration</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>008</KEY>
+     <ENTRY>Provider deleted successfully</ENTRY>
+     <LENGTH>58</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>009</KEY>
+     <ENTRY>Provider configuration saved successfully</ENTRY>
+     <LENGTH>82</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>010</KEY>
+     <ENTRY>Confirm Deletion</ENTRY>
+     <LENGTH>26</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>011</KEY>
+     <ENTRY>Delete provider</ENTRY>
+     <LENGTH>25</LENGTH>
+    </item>
     <item>
      <ID>R</ID>
      <ENTRY>Provider Maintenance - System and Client specific</ENTRY>

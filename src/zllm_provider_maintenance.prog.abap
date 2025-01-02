@@ -25,7 +25,8 @@ CLASS lcl_app DEFINITION.
     DATA:
       providers TYPE provider_configs,
       grid      TYPE REF TO cl_gui_alv_grid,
-      container TYPE REF TO cl_gui_custom_container.
+      container TYPE REF TO cl_gui_custom_container,
+      enc_class TYPE REF TO zif_llm_encryption.
 
     TYPES sval_tab TYPE STANDARD TABLE OF sval WITH EMPTY KEY.
 
@@ -34,6 +35,8 @@ CLASS lcl_app DEFINITION.
       save_provider IMPORTING config TYPE provider_config, "Save a provider to the database
       encrypt_auth_value IMPORTING plain TYPE zllm_auth_value
                          RETURNING VALUE(result) TYPE xstring, "Encrypt a value
+      decrypt_auth_value IMPORTING encrypted TYPE zllm_auth_enc
+                         RETURNING VALUE(result) TYPE zllm_auth_value,
 
       build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat, "Build ALV field catalog
       refresh_display, "Refresh displayed ALV data
@@ -47,12 +50,15 @@ ENDCLASS.
 CLASS lcl_app IMPLEMENTATION.
   METHOD constructor.
     load_providers( ).
+    DATA enc_handler TYPE REF TO zllm_implementation.
+    GET BADI enc_handler.
+    CALL BADI enc_handler->get_encryption_impl RECEIVING result = enc_class.
   ENDMETHOD.
 
   METHOD load_providers.
-    SELECT provider_name, provider_class, rfc_destination, auth_type, auth_value, auth_encrypted
+    SELECT *
       FROM zllm_providers
-      INTO CORRESPONDING FIELDS OF TABLE @providers.
+      INTO CORRESPONDING FIELDS OF TABLE @providers. "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.
@@ -86,13 +92,15 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD handle_action_add.
     DATA(fields) = VALUE sval_tab(
-      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Provider Name' field_attr = '01' field_obl = 'X' )
-      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Implementation Class' field_obl = 'X' )
-      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDERS' fieldtext = 'RFC Destination' )
-      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Auth Type' )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Auth Value' ) ).
+      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Provider Name'(001) field_attr = '01' field_obl = 'X' )
+      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) field_obl = 'X' )
+      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) )
+      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) )
+      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) ) ).
 
-    DATA(new_config) = show_popup( EXPORTING title = 'Add Provider Configuration' CHANGING values = fields ).
+    data title type string.
+    title = 'Add Provider Configuration'(006).
+    DATA(new_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
     IF new_config IS NOT INITIAL.
       new_config-auth_encrypted = encrypt_auth_value( new_config-auth_value ).
@@ -106,15 +114,17 @@ CLASS lcl_app IMPLEMENTATION.
     CHECK lines( sel_rows ) = 1.
 
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
-
+    selected_provider-auth_value = decrypt_auth_value( selected_provider-auth_encrypted ).
     DATA(fields) = VALUE sval_tab(
-      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Provider Name' field_attr = '02' field_obl = 'X' value = selected_provider-provider_name )
-      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Implementation Class' value = selected_provider-provider_class )
-      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDERS' fieldtext = 'RFC Destination' value = selected_provider-rfc_destination )
-      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Auth Type' value = selected_provider-auth_type )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDERS' fieldtext = 'Auth Value' value = selected_provider-auth_value ) ).
+      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Provider Name'(001) field_attr = '02' field_obl = 'X' value = selected_provider-provider_name )
+      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) value = selected_provider-provider_class )
+      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) value = selected_provider-rfc_destination )
+      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) value = selected_provider-auth_type )
+      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = selected_provider-auth_value ) ).
 
-    DATA(updated_config) = show_popup( EXPORTING title = 'Change Provider Configuration' CHANGING values = fields ).
+    data title type string.
+    title = 'Change Provider Configuration'(007).
+    DATA(updated_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
     IF updated_config IS NOT INITIAL.
       updated_config-auth_encrypted = encrypt_auth_value( updated_config-auth_value ).
@@ -128,15 +138,19 @@ CLASS lcl_app IMPLEMENTATION.
     CHECK lines( sel_rows ) = 1.
 
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
+    data title type string.
+    data text type string.
+    title = 'Confirm Deletion'(010).
+    text = 'Delete provider'(011).
     DATA(confirmed) = show_confirm_popup(
-      title = 'Confirm Deletion'
-      text  = |Delete provider { selected_provider-provider_name }?| ).
+      title = title
+      text  = |{ text } { selected_provider-provider_name }?| ).
 
     IF confirmed = abap_true.
       DELETE FROM zllm_providers WHERE provider_name = @selected_provider-provider_name.
       IF sy-subrc = 0.
         load_providers( ).
-        MESSAGE 'Provider deleted successfully' TYPE 'S'.
+        MESSAGE 'Provider deleted successfully'(008) TYPE 'S'.
       ENDIF.
     ENDIF.
   ENDMETHOD.
@@ -144,21 +158,22 @@ CLASS lcl_app IMPLEMENTATION.
   METHOD save_provider.
     MODIFY zllm_providers FROM @( CORRESPONDING #( config ) ).
     IF sy-subrc = 0.
-      MESSAGE 'Provider configuration saved successfully' TYPE 'S'.
+      MESSAGE 'Provider configuration saved successfully'(009) TYPE 'S'.
     ENDIF.
   ENDMETHOD.
 
   METHOD encrypt_auth_value.
-    " Placeholder for value encryption logic
-    result = ''.
+    result = enc_class->encrypt( plain ).
   ENDMETHOD.
 
   METHOD build_field_catalog.
     CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
       EXPORTING
-        i_structure_name = 'ZLLM_PROVIDERS'
+        i_structure_name = 'ZLLM_PROVIDER_DISP'
       CHANGING
         ct_fieldcat      = fieldcat.
+
+    DELETE fieldcat WHERE fieldname = 'AUTH_VALUE'.
 
     LOOP AT fieldcat ASSIGNING FIELD-SYMBOL(<fieldcat>).
       IF <fieldcat>-fieldname <> 'PROVIDER_NAME'.
@@ -208,6 +223,11 @@ CLASS lcl_app IMPLEMENTATION.
 
     result = xsdbool( answer = '1' ).
   ENDMETHOD.
+
+  METHOD decrypt_auth_value.
+    result = enc_class->decrypt( encrypted ).
+  ENDMETHOD.
+
 ENDCLASS.
 
 CLASS lcl_screen DEFINITION.
