@@ -15,14 +15,16 @@ CLASS zcl_llm_http_client_wrapper DEFINITION
     METHODS:
       constructor
         IMPORTING
-                  config TYPE zllm_clnt_config
+                  client_config   TYPE zllm_clnt_config
+                  provider_config TYPE zllm_providers
         RAISING   zcx_llm_validation.
 
   PROTECTED SECTION.
     DATA:
-      config TYPE zllm_clnt_config,
-      url    TYPE string,
-      client TYPE REF TO if_http_client.
+      client_config   TYPE zllm_clnt_config,
+      provider_config TYPE zllm_providers,
+      url             TYPE string,
+      client          TYPE REF TO if_http_client.
 
   PRIVATE SECTION.
 
@@ -31,10 +33,12 @@ ENDCLASS.
 CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
   METHOD constructor.
-    me->config = config.
+    me->client_config = client_config.
+    me->provider_config = provider_config.
+
     cl_http_client=>create_by_destination(
      EXPORTING
-       destination = config-rfc_destination
+       destination = provider_config-rfc_destination
      IMPORTING
        client = client
      EXCEPTIONS
@@ -49,7 +53,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
       RAISE EXCEPTION TYPE zcx_llm_validation
         EXPORTING
           textid = zcx_llm_validation=>http_destination_error
-          attr1  = CONV #( config-rfc_destination )
+          attr1  = CONV #( provider_config-rfc_destination )
           attr2  = SWITCH string( sy-subrc
                                   WHEN 1 THEN `Argument Not Found`
                                   WHEN 2 THEN `Destination Not Found`
@@ -61,7 +65,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_client.
-    client = NEW zcl_llm_http_client_wrapper( config = config ).
+    client = NEW zcl_llm_http_client_wrapper( client_config = client_config provider_config = provider_config ).
   ENDMETHOD.
 
   METHOD set_header.

@@ -10,8 +10,9 @@ PUBLIC .
 
   CLASS-METHODS:
     get_client
-      IMPORTING config        TYPE zllm_clnt_config
-      RETURNING VALUE(client) TYPE REF TO zif_llm_http_client_wrapper
+      IMPORTING client_config   TYPE zllm_clnt_config
+                provider_config TYPE zllm_providers
+      RETURNING VALUE(client)   TYPE REF TO zif_llm_http_client_wrapper
       RAISING   zcx_llm_validation.
   METHODS:
     set_header
