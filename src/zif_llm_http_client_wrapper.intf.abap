@@ -31,6 +31,8 @@ PUBLIC .
     communicate
       IMPORTING
         request         TYPE string
+        session_id      TYPE zllm_session_id
+        msg             TYPE i
       RETURNING
         VALUE(response) TYPE response
       RAISING

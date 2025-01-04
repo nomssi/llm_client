@@ -24,7 +24,8 @@ CLASS zcl_llm_http_client_wrapper DEFINITION
       client_config   TYPE zllm_clnt_config,
       provider_config TYPE zllm_providers,
       url             TYPE string,
-      client          TYPE REF TO if_http_client.
+      client          TYPE REF TO if_http_client,
+      call_logger type ref to zif_llm_call_logger.
 
   PRIVATE SECTION.
 
@@ -35,6 +36,10 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
   METHOD constructor.
     me->client_config = client_config.
     me->provider_config = provider_config.
+
+    DATA def_impl TYPE REF TO zllm_implementation.
+    GET BADI def_impl.
+    CALL BADI def_impl->get_call_logger_impl RECEIVING result = call_logger.
 
     cl_http_client=>create_by_destination(
      EXPORTING
@@ -115,6 +120,15 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
     response-http_response = client->response.
     client->response->get_status( IMPORTING code = response-code ).
+    response-response = client->response->get_cdata( ).
+
+    call_logger->add( value #(
+        id = session_id
+        msg = msg
+        request = request
+        response = response-response
+        uname = sy-uname
+         ) ).
 
     "Need to reset the request as otherwise the next call in this session will overwrite the
     "path prefix defined in SM59.
@@ -130,7 +144,6 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
 
     IF sy-subrc = 0.
-      response-response = client->response->get_cdata( ).
       IF response-code >= 300.
         client->get_last_error( IMPORTING message = response-message ).
         IF response-message IS INITIAL.

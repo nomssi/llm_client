@@ -77,7 +77,7 @@ CLASS ltcl_http_client_wrapper IMPLEMENTATION.
     http_client_wrapper->set_url( test_url ).
 
     TRY.
-        DATA(response) = http_client_wrapper->communicate( test_request_json ).
+        DATA(response) = http_client_wrapper->communicate( request = test_request_json msg = 1 session_id = '123123123' ).
         cl_abap_unit_assert=>assert_not_initial(
           act = response-code
           msg = 'Communication should return a response' ).
@@ -92,7 +92,7 @@ CLASS ltcl_http_client_wrapper IMPLEMENTATION.
     http_client_wrapper->set_url( test_url ).
 
     TRY.
-        DATA(response) = http_client_wrapper->communicate( test_request_json ).
+        DATA(response) = http_client_wrapper->communicate( request = test_request_json msg = 1 session_id = '123123123' ).
 
         cl_abap_unit_assert=>assert_not_initial(
           act = response

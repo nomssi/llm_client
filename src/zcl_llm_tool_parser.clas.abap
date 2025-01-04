@@ -1,21 +1,21 @@
-"! <p class="shorttext synchronized" lang="en">Default Structured Output Implementation using JSON Schema</p>
-CLASS zcl_llm_so_js DEFINITION
+"! <p class="shorttext synchronized" lang="en">Default Tool Parser using JSON Schema</p>
+CLASS zcl_llm_tool_parser DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES zif_llm_so.
+    INTERFACES zif_llm_tool_parser.
 
   PROTECTED SECTION.
     TYPES:
       BEGIN OF field_info,
         name        TYPE string,
         path        TYPE string,
-        description TYPE zif_llm_so=>def_description,
+        description TYPE zif_llm_tool_parser=>def_description,
       END OF field_info.
 
     DATA:
-      descriptions TYPE zif_llm_so=>def_descriptions,
+      descriptions TYPE zif_llm_tool_parser=>def_descriptions,
       schema       TYPE string,
       data_ref     TYPE REF TO data.
 
@@ -71,14 +71,14 @@ CLASS zcl_llm_so_js DEFINITION
           VALUE(result) TYPE string.
 
     METHODS get_enum_values
-      IMPORTING description   TYPE zif_llm_so=>def_description
+      IMPORTING description   TYPE zif_llm_tool_parser=>def_description
       RETURNING VALUE(result) TYPE string.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS zcl_llm_so_js IMPLEMENTATION.
+CLASS zcl_llm_tool_parser IMPLEMENTATION.
 
 
   METHOD append_to_schema.
@@ -196,7 +196,6 @@ CLASS zcl_llm_so_js IMPLEMENTATION.
     ENDIF.
 
     DATA(components) = structure_descriptor->get_components( ).
-    DATA(last_index) = lines( components ).
     DATA: needs_comma TYPE abap_bool.
 
     LOOP AT components REFERENCE INTO DATA(component).
@@ -288,22 +287,11 @@ CLASS zcl_llm_so_js IMPLEMENTATION.
     ENDCASE.
   ENDMETHOD.
 
-
-  METHOD zif_llm_so~get_datatype.
-    data = data_ref.
-  ENDMETHOD.
-
-
-  METHOD zif_llm_so~get_schema.
-    result = schema.
-  ENDMETHOD.
-
-
-  METHOD zif_llm_so~set_schema.
-    data_ref = REF #( data ).
-
-    DATA(type_descriptor) = cl_abap_typedescr=>describe_by_data( data ).
-    me->descriptions = description.
+  METHOD zif_llm_tool_parser~parse.
+    data_ref = data.
+    ASSIGN data_ref->* TO FIELD-SYMBOL(<data>).
+    DATA(type_descriptor) = cl_abap_typedescr=>describe_by_data( <data> ).
+    me->descriptions = descriptions.
 
     append_to_schema( |\{| ).
     pre_schema( ).
@@ -322,5 +310,6 @@ CLASS zcl_llm_so_js IMPLEMENTATION.
 
     post_schema( ).
     append_to_schema( |\}| ).
+    result = schema.
   ENDMETHOD.
 ENDCLASS.

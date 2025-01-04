@@ -13,15 +13,15 @@
    <DESCRIPTIONS_SUB>
     <SEOSUBCOTX>
      <CMPNAME>ADD_TOOL</CMPNAME>
-     <SCONAME>USE_TOOLS</SCONAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Enable tool usage (default)</DESCRIPT>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
     </SEOSUBCOTX>
     <SEOSUBCOTX>
      <CMPNAME>ADD_TOOLS</CMPNAME>
-     <SCONAME>USE_TOOLS</SCONAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
      <LANGU>E</LANGU>
-     <DESCRIPT>Enable tool usage (default)</DESCRIPT>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
     </SEOSUBCOTX>
     <SEOSUBCOTX>
      <CMPNAME>SET_STRUCTURED_OUTPUT</CMPNAME>
@@ -40,6 +40,12 @@
      <SCONAME>USE_STRUCTURED_OUTPUT</SCONAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Enable structured output (default)</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_TOOL_CHOICE</CMPNAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
     </SEOSUBCOTX>
    </DESCRIPTIONS_SUB>
   </asx:values>

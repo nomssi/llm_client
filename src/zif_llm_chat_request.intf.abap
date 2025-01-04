@@ -2,6 +2,11 @@
 INTERFACE zif_llm_chat_request
   PUBLIC.
 
+  CONSTANTS:
+    tool_choice_none     TYPE string VALUE `none`,
+    tool_choice_auto     TYPE string VALUE `auto`,
+    tool_choice_required TYPE string VALUE `required`.
+
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Add a message
   "! @parameter message | <p class="shorttext synchronized" lang="en"></p>
@@ -24,14 +29,14 @@ INTERFACE zif_llm_chat_request
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Add a tool
   "! @parameter tool | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter use_tools | <p class="shorttext synchronized" lang="en">Enable tool usage (default)</p>
-  METHODS add_tool IMPORTING tool TYPE REF TO zif_llm_tool use_tools TYPE sap_bool DEFAULT abap_true.
+  "! @parameter tool_choice | <p class="shorttext synchronized" lang="en">Tool Choice auto|none|required|tool_name</p>
+  METHODS add_tool IMPORTING tool TYPE REF TO zif_llm_tool tool_choice TYPE string DEFAULT `auto`.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Add multiple tools
   "! @parameter tools | <p class="shorttext synchronized" lang="en"></p>
-  "! @parameter use_tools | <p class="shorttext synchronized" lang="en">Enable tool usage (default)</p>
-  METHODS add_tools IMPORTING tools TYPE zllm_tools use_tools TYPE sap_bool DEFAULT abap_true.
+  "! @parameter tool_choice | <p class="shorttext synchronized" lang="en">Tool Choice auto|none|required|tool_name</p>
+  METHODS add_tools IMPORTING tools TYPE zllm_tools tool_choice TYPE sstring DEFAULT `auto`.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Get all tools
@@ -43,16 +48,23 @@ INTERFACE zif_llm_chat_request
   METHODS clear_tools.
 
   "! <p class="shorttext synchronized" lang="en"></p>
-  "! Enable/Disable tool usage
-  "! @parameter active | <p class="shorttext synchronized" lang="en"></p>
-  METHODS set_tools_active IMPORTING active TYPE sap_bool.
+  "! Set tool choice
+  "! @parameter tool_choice | <p class="shorttext synchronized" lang="en">Tool Choice auto|none|required|tool_name</p>
+  METHODS set_tool_choice IMPORTING tool_choice TYPE string.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Add the tool result to the message
   "! @parameter tool | <p class="shorttext synchronized" lang="en"></p>
   METHODS add_tool_result
     IMPORTING
-      tool TYPE REF TO zif_llm_tool.
+      tool   TYPE REF TO zif_llm_tool.
+
+  "! <p class="shorttext synchronized" lang="en"></p>
+  "! Add the tool calls to the meessage list so that the LLm knows what it called
+  "! @parameter choices | <p class="shorttext synchronized" lang="en"></p>
+  METHODS add_tool_choices
+    IMPORTING
+      choices TYPE zllm_tool_calls.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Set structured output details

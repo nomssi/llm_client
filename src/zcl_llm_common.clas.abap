@@ -10,7 +10,7 @@ CLASS zcl_llm_common DEFINITION
       from_json IMPORTING json TYPE string CHANGING data TYPE data.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CLASS-DATA: json_class type seoclname.
+    CLASS-DATA: json_class TYPE seoclname.
 ENDCLASS.
 
 CLASS zcl_llm_common IMPLEMENTATION.

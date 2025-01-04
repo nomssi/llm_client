@@ -8,8 +8,7 @@ CLASS zcl_llm_so_js_or DEFINITION
   PROTECTED SECTION.
     METHODS:
       pre_schema REDEFINITION,
-      post_schema REDEFINITION,
-      post_object REDEFINITION.
+      post_schema REDEFINITION.
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -23,10 +22,6 @@ CLASS zcl_llm_so_js_or IMPLEMENTATION.
 
   METHOD post_schema.
     append_to_schema( |\}| ).
-  ENDMETHOD.
-
-  METHOD post_object.
-    append_to_schema( |,"additionalProperties":false| ).
   ENDMETHOD.
 
 ENDCLASS.

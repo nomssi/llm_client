@@ -24,7 +24,11 @@ CLASS zcl_llm_call_logger IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD constructor.
-    SELECT SINGLE save_calls INTO @active FROM zllm_system.
+    SELECT SINGLE * INTO @DATA(system) FROM zllm_system.
+    IF system-save_calls = abap_true AND
+        ( system-call_filter_uname = '*' OR system-call_filter_uname = sy-uname ).
+      active = abap_true.
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.

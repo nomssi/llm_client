@@ -1,9 +1,10 @@
 CLASS ltcl_llm_so_default DEFINITION FOR TESTING
   DURATION SHORT
-  RISK LEVEL HARMLESS.
+  RISK LEVEL HARMLESS
+  FINAL.
 
   PRIVATE SECTION.
-    DATA: cut TYPE REF TO zcl_llm_so_js.
+    DATA: cut TYPE REF TO zcl_llm_tool_parser.
 
     METHODS:
       setup,
@@ -37,8 +38,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
            END OF element_type.
 
     DATA test TYPE element_type.
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -53,8 +53,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
            END OF simple_type.
 
     DATA test TYPE simple_type.
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -74,8 +73,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     DATA test TYPE person_type.
 
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -88,8 +86,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
            END OF test_type.
 
     DATA test TYPE test_type.
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -107,8 +104,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
            END OF test_type.
 
     DATA test TYPE test_type.
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -119,7 +115,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
     DATA test TYPE REF TO data.
 
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_tool_parser~parse( test ).
         cl_abap_unit_assert=>fail( ).
       CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
         "Expected exception
@@ -133,8 +129,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     DATA test TYPE test_type.
 
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -154,10 +149,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
       ( fieldname = 'id' description = 'Identifier' )
       ( fieldname = 'name' description = 'Full Name' ) ).
 
-    cut->zif_llm_so~set_schema(
-          data = test
-          description = descriptions ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( data = test
+          descriptions = descriptions ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -177,10 +170,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
         description = 'Current Status'
         enum_values = VALUE #( ( `NEW` ) ( `IN_PROGRESS` ) ( `DONE` ) ) ) ).
 
-    cut->zif_llm_so~set_schema(
-          data = test
-          description = descriptions ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( data = test
+          descriptions = descriptions ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -195,7 +186,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
     DATA test TYPE test_type.
 
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_tool_parser~parse( test ).
         cl_abap_unit_assert=>fail( 'Should raise exception for non-boolean CHAR1' ).
       CATCH zcx_llm_validation INTO DATA(ex).          "#EC EMPTY_CATCH
     ENDTRY.
@@ -210,7 +201,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
     DATA test TYPE test_type.
 
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_tool_parser~parse( test ).
         cl_abap_unit_assert=>fail( 'Should raise exception for unsupported type' ).
       CATCH zcx_llm_validation INTO DATA(ex).          "#EC EMPTY_CATCH
     ENDTRY.
@@ -248,10 +239,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
       ( fieldname = 'orders-items' description = 'Order Items' )
       ( fieldname = 'orders-items-details' description = 'Item Details' ) ).
 
-    cut->zif_llm_so~set_schema(
-      data = test
-      description = descriptions ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( data = test
+      descriptions = descriptions ).
 
     "Check structure hierarchy
     cl_abap_unit_assert=>assert_char_cp(
@@ -306,10 +295,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
       ( fieldname = 'items' description = 'Items List' )
       ( fieldname = 'items-code' description = 'Item Code' ) ).
 
-    cut->zif_llm_so~set_schema(
-      data = test
-      description = descriptions ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( data = test
+      descriptions = descriptions ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -326,8 +313,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     DATA test TYPE test_type.
 
-    cut->zif_llm_so~set_schema( test ).
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( test ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
@@ -343,11 +329,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
     DATA: test         TYPE test_type,
           descriptions TYPE zif_llm_so=>def_descriptions.
 
-    cut->zif_llm_so~set_schema(
-          data = test
-          description = descriptions ).
-
-    DATA(schema) = cut->zif_llm_so~get_schema( ).
+    DATA(schema) = cut->zif_llm_tool_parser~parse( data = test
+          descriptions = descriptions ).
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema

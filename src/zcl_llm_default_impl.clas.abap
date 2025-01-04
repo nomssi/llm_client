@@ -28,14 +28,14 @@ CLASS zcl_llm_default_impl IMPLEMENTATION.
     result = '/UI2/CL_JSON'.
   ENDMETHOD.
 
-  METHOD zif_llm_default_impl~get_call_logger.
+  METHOD zif_llm_default_impl~get_call_logger_impl.
     IF log_class IS NOT BOUND.
       log_class = NEW zcl_llm_call_logger( ).
     ENDIF.
     result = log_class.
   ENDMETHOD.
 
-  METHOD zif_llm_default_impl~get_statistics.
+  METHOD zif_llm_default_impl~get_statistics_impl.
     IF stat_class IS NOT BOUND.
       stat_class = NEW zcl_llm_statistics( ).
     ENDIF.
