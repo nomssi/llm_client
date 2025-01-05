@@ -50,15 +50,14 @@ ENDCLASS.
 CLASS lcl_app IMPLEMENTATION.
   METHOD constructor.
     load_providers( ).
-    DATA enc_handler TYPE REF TO zllm_implementation.
-    GET BADI enc_handler.
-    CALL BADI enc_handler->get_encryption_impl RECEIVING result = enc_class.
+    DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+    CALL BADI llm_badi->get_encryption_impl RECEIVING result = enc_class.
   ENDMETHOD.
 
   METHOD load_providers.
     SELECT *
       FROM zllm_providers
-      INTO CORRESPONDING FIELDS OF TABLE @providers. "#EC CI_GENBUFF
+      INTO CORRESPONDING FIELDS OF TABLE @providers.    "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.
@@ -96,13 +95,27 @@ CLASS lcl_app IMPLEMENTATION.
       ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) field_obl = 'X' )
       ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) )
       ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) ) ).
+      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) )
+      ( fieldname = 'AUTH_VALUE' tabname = '*ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) ) ).
 
-    data title type string.
+    DATA title TYPE string.
     title = 'Add Provider Configuration'(006).
     DATA(new_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
+    " As the field is defined twice we need to get the values directly from the fields table.
+    " The structure value will be incorrect.
+    DATA: auth_value  TYPE c LENGTH 132,
+          auth_value2 TYPE c LENGTH 132.
+    LOOP AT fields ASSIGNING FIELD-SYMBOL(<field>) WHERE fieldname = 'AUTH_VALUE'.
+      IF <field>-tabname = 'ZLLM_PROVIDER_DISP'.
+        auth_value = <field>-value.
+      ELSE.
+        auth_value2 = <field>-value.
+      ENDIF.
+    ENDLOOP.
+
     IF new_config IS NOT INITIAL.
+      new_config-auth_value = |{ auth_value }{ auth_value2 }|.
       new_config-auth_encrypted = encrypt_auth_value( new_config-auth_value ).
       save_provider( new_config ).
       load_providers( ).
@@ -111,22 +124,48 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD handle_action_change.
     grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
-    CHECK lines( sel_rows ) = 1.
+    IF lines( sel_rows ) <> 1.
+      MESSAGE 'Select one row'(014) TYPE 'E'.
+    ENDIF.
 
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
     selected_provider-auth_value = decrypt_auth_value( selected_provider-auth_encrypted ).
+
+    " OpenAI Project Keys might be longer than 132.
+    DATA: auth_value  TYPE c LENGTH 132,
+          auth_value2 TYPE c LENGTH 132.
+
+    IF strlen( selected_provider-auth_value ) > 132.
+      auth_value = selected_provider-auth_value+0(132).
+      auth_value2 = selected_provider-auth_value+132.
+    ELSE.
+      auth_value = selected_provider-auth_value.
+    ENDIF.
+
     DATA(fields) = VALUE sval_tab(
       ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Provider Name'(001) field_attr = '02' field_obl = 'X' value = selected_provider-provider_name )
       ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) value = selected_provider-provider_class )
       ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) value = selected_provider-rfc_destination )
       ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) value = selected_provider-auth_type )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = selected_provider-auth_value ) ).
+      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = auth_value )
+      ( fieldname = 'AUTH_VALUE' tabname = '*ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = auth_value2 ) ).
 
-    data title type string.
+    DATA title TYPE string.
     title = 'Change Provider Configuration'(007).
     DATA(updated_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
+    " As the field is defined twice we need to get the values directly from the fields table.
+    " The structure value will be incorrect.
+    LOOP AT fields ASSIGNING FIELD-SYMBOL(<field>) WHERE fieldname = 'AUTH_VALUE'.
+      IF <field>-tabname = 'ZLLM_PROVIDER_DISP'.
+        auth_value = <field>-value.
+      ELSE.
+        auth_value2 = <field>-value.
+      ENDIF.
+    ENDLOOP.
+
     IF updated_config IS NOT INITIAL.
+      updated_config-auth_value = |{ auth_value }{ auth_value2 }|.
       updated_config-auth_encrypted = encrypt_auth_value( updated_config-auth_value ).
       save_provider( updated_config ).
       load_providers( ).
@@ -135,11 +174,13 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD handle_action_delete.
     grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
-    CHECK lines( sel_rows ) = 1.
+    IF lines( sel_rows ) <> 1.
+      MESSAGE 'Select one row'(014) TYPE 'E'.
+    ENDIF.
 
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
-    data title type string.
-    data text type string.
+    DATA title TYPE string.
+    DATA text TYPE string.
     title = 'Confirm Deletion'(010).
     text = 'Delete provider'(011).
     DATA(confirmed) = show_confirm_popup(
@@ -163,7 +204,11 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD encrypt_auth_value.
-    result = enc_class->encrypt( plain ).
+    TRY.
+        result = enc_class->encrypt( plain ).
+      CATCH zcx_llm_authorization.
+        MESSAGE 'No Authorization to encrypt!'(012) TYPE 'E'.
+    ENDTRY.
   ENDMETHOD.
 
   METHOD build_field_catalog.
@@ -225,7 +270,11 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD decrypt_auth_value.
-    result = enc_class->decrypt( encrypted ).
+    TRY.
+        result = enc_class->decrypt( encrypted ).
+      CATCH zcx_llm_authorization.
+        MESSAGE 'No Authorization to decrypt!'(013) TYPE 'E'.
+    ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.

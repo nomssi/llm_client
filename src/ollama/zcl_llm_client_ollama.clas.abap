@@ -11,7 +11,8 @@ CLASS zcl_llm_client_ollama DEFINITION
         !client_config   TYPE zllm_clnt_config
         !provider_config TYPE zllm_providers
       RAISING
-        zcx_llm_validation .
+        zcx_llm_validation
+        zcx_llm_authorization.
   PROTECTED SECTION.
     CONSTANTS:
       BEGIN OF status,
@@ -60,7 +61,7 @@ CLASS zcl_llm_client_ollama DEFINITION
       get_http_client
         RAISING zcx_llm_validation,
 
-      set_auth,
+      set_auth RAISING zcx_llm_authorization,
 
       build_request_json
         IMPORTING
@@ -322,10 +323,8 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
     " Format is HeaderName:ApiKey
     DATA auth_value TYPE string.
     IF provider_config-auth_encrypted IS NOT INITIAL.
-      DATA: enc_handler TYPE REF TO zllm_implementation,
-            enc_class   TYPE REF TO zif_llm_encryption.
-      GET BADI enc_handler.
-      CALL BADI enc_handler->get_encryption_impl RECEIVING result = enc_class.
+      DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+      CALL BADI llm_badi->get_encryption_impl RECEIVING result = DATA(enc_class).
       auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.

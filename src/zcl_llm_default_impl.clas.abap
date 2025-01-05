@@ -11,7 +11,8 @@ CLASS zcl_llm_default_impl DEFINITION
     CLASS-DATA:
       enc_class  TYPE REF TO zif_llm_encryption,
       stat_class TYPE REF TO zif_llm_statistics,
-      log_class  TYPE REF TO zif_llm_call_logger.
+      log_class  TYPE REF TO zif_llm_call_logger,
+      auth_class TYPE REF TO zif_llm_auth.
 ENDCLASS.
 
 
@@ -40,6 +41,13 @@ CLASS zcl_llm_default_impl IMPLEMENTATION.
       stat_class = NEW zcl_llm_statistics( ).
     ENDIF.
     result = stat_class.
+  ENDMETHOD.
+
+  METHOD zif_llm_default_impl~get_authorization_impl.
+    IF auth_class IS NOT BOUND.
+      auth_class = NEW zcl_llm_auth_disabled( ).
+    ENDIF.
+    result = auth_class.
   ENDMETHOD.
 
 ENDCLASS.

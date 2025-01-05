@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_LLM_CLIENT_OPENROUTER</CLSNAME>
+    <CLSNAME>ZCL_LLM_AUTH_DISABLED</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Openrouter Client</DESCRIPT>
+    <DESCRIPT>Default Authorization Implementation with no checks</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

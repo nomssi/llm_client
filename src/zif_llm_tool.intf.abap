@@ -15,11 +15,11 @@ INTERFACE zif_llm_tool
            parameters  TYPE tool_parameters,
          END OF tool_details.
 
-  types: begin of tool_result,
-           data type ref to data,
-           tool_call_id type string,
-           name type string,
-         end of tool_result.
+  TYPES: BEGIN OF tool_result,
+           data         TYPE REF TO data,
+           tool_call_id TYPE string,
+           name         TYPE string,
+         END OF tool_result.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Get the result of the tool call

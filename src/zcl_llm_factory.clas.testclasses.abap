@@ -67,6 +67,8 @@ CLASS ltcl_llm_factory IMPLEMENTATION.
 
       CATCH zcx_llm_validation INTO DATA(error).
         cl_abap_unit_assert=>fail( 'Unexpected validation error' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
     ENDTRY.
   ENDMETHOD.
 
@@ -82,6 +84,8 @@ CLASS ltcl_llm_factory IMPLEMENTATION.
           exp = zcx_llm_validation=>model_does_not_exist
           act = error->model_does_not_exist
           msg = 'Wrong exception raised for invalid model' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
     ENDTRY.
   ENDMETHOD.
 
@@ -96,6 +100,8 @@ CLASS ltcl_llm_factory IMPLEMENTATION.
           exp = zcx_llm_validation=>provider_does_not_exist
           act = error->provider_does_not_exist
           msg = 'Wrong exception raised for invalid provider' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
     ENDTRY.
   ENDMETHOD.
 

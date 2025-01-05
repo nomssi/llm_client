@@ -23,8 +23,12 @@ CLASS ltcl_llm_encryption_test IMPLEMENTATION.
     DATA(original_text) = `Hello, World! This is a test message`.
 
     " When
-    DATA(encrypted_text) = encryption->encrypt( original_text ).
-    DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+    TRY.
+        DATA(encrypted_text) = encryption->encrypt( original_text ).
+        DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+      CATCH zcx_llm_authorization.
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
+    ENDTRY.
 
     " Then
     cl_abap_unit_assert=>assert_not_initial( encrypted_text ).
@@ -40,8 +44,12 @@ CLASS ltcl_llm_encryption_test IMPLEMENTATION.
     DATA(original_text) = ``.
 
     " When
-    DATA(encrypted_text) = encryption->encrypt( original_text ).
-    DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+    TRY.
+        DATA(encrypted_text) = encryption->encrypt( original_text ).
+        DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+      CATCH zcx_llm_authorization.
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
+    ENDTRY.
 
     " Then
     cl_abap_unit_assert=>assert_equals(
@@ -59,8 +67,12 @@ CLASS ltcl_llm_encryption_test IMPLEMENTATION.
     ).
 
     " When
-    DATA(encrypted_text) = encryption->encrypt( original_text ).
-    DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+    TRY.
+        DATA(encrypted_text) = encryption->encrypt( original_text ).
+        DATA(decrypted_text) = encryption->decrypt( encrypted_text ).
+      CATCH zcx_llm_authorization.
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
+    ENDTRY.
 
     " Then
     cl_abap_unit_assert=>assert_equals(

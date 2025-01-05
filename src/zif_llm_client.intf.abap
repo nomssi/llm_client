@@ -18,7 +18,7 @@ INTERFACE zif_llm_client
                 client_config   TYPE zllm_clnt_config
                 provider_config TYPE zllm_providers
       RETURNING VALUE(response) TYPE REF TO zif_llm_client
-      RAISING   zcx_llm_validation.
+      RAISING   zcx_llm_validation zcx_llm_authorization.
   METHODS:
     "! <p class="shorttext synchronized" lang="en"></p>
     "! Execute the chat request

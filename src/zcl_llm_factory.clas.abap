@@ -6,15 +6,16 @@ CLASS zcl_llm_factory DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_llm_factory .
     ALIASES get_client FOR zif_llm_factory~get_client.
+    CLASS-METHODS class_constructor.
   PROTECTED SECTION.
   PRIVATE SECTION.
+    CLASS-DATA auth_class TYPE REF TO zif_llm_auth.
 ENDCLASS.
-
-
 
 CLASS zcl_llm_factory IMPLEMENTATION.
 
   METHOD zif_llm_factory~get_client.
+    auth_class->check_get_client( model ).
     SELECT SINGLE * INTO @DATA(client_configuration) FROM zllm_clnt_config WHERE model = @model.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_llm_validation
@@ -37,6 +38,11 @@ CLASS zcl_llm_factory IMPLEMENTATION.
         provider_config = provider_configuration
       RECEIVING
         response        = response.
+  ENDMETHOD.
+
+  METHOD class_constructor.
+    DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+    CALL BADI llm_badi->get_authorization_impl RECEIVING result = auth_class.
   ENDMETHOD.
 
 ENDCLASS.

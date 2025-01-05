@@ -11,6 +11,7 @@ INTERFACE zif_llm_tool_parser
   METHODS parse
     IMPORTING
               data          TYPE any
+              "data_desc type ref to cl_abap_datadescr
               descriptions  TYPE def_descriptions OPTIONAL
     RETURNING VALUE(result) TYPE string
     RAISING

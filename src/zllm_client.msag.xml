@@ -110,6 +110,30 @@
      <MSGNR>017</MSGNR>
      <TEXT>Cannot map &amp;1 to any defined tool</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>Not allowed to call provider maintenance</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>LLM client for model &amp;1 not authorized</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>No access to authorization decryption</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>No access to authorization encryption</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

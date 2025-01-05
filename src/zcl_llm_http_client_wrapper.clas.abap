@@ -25,7 +25,7 @@ CLASS zcl_llm_http_client_wrapper DEFINITION
       provider_config TYPE zllm_providers,
       url             TYPE string,
       client          TYPE REF TO if_http_client,
-      call_logger type ref to zif_llm_call_logger.
+      call_logger     TYPE REF TO zif_llm_call_logger.
 
   PRIVATE SECTION.
 
@@ -37,9 +37,8 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     me->client_config = client_config.
     me->provider_config = provider_config.
 
-    DATA def_impl TYPE REF TO zllm_implementation.
-    GET BADI def_impl.
-    CALL BADI def_impl->get_call_logger_impl RECEIVING result = call_logger.
+    DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+    CALL BADI llm_badi->get_call_logger_impl RECEIVING result = call_logger.
 
     cl_http_client=>create_by_destination(
      EXPORTING
@@ -122,9 +121,12 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     client->response->get_status( IMPORTING code = response-code ).
     response-response = client->response->get_cdata( ).
 
-    call_logger->add( value #(
+    DATA timestamp TYPE timestamp.
+    GET TIME STAMP FIELD timestamp.
+    call_logger->add( VALUE #(
         id = session_id
         msg = msg
+        timestamp = timestamp
         request = request
         response = response-response
         uname = sy-uname

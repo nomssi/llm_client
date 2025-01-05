@@ -7,10 +7,12 @@ CLASS zcl_llm_common DEFINITION
     CLASS-METHODS:
       class_constructor,
       to_json IMPORTING data TYPE data RETURNING VALUE(result) TYPE string,
-      from_json IMPORTING json TYPE string CHANGING data TYPE data.
+      from_json IMPORTING json TYPE string CHANGING data TYPE data,
+      get_llm_badi RETURNING VALUE(result) TYPE REF TO zllm_implementation.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CLASS-DATA: json_class TYPE seoclname.
+    CLASS-DATA: json_class TYPE seoclname,
+                llm_badi   TYPE REF TO zllm_implementation.
 ENDCLASS.
 
 CLASS zcl_llm_common IMPLEMENTATION.
@@ -34,9 +36,12 @@ CLASS zcl_llm_common IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD class_constructor.
-    DATA enc_handler TYPE REF TO zllm_implementation.
-    GET BADI enc_handler.
-    CALL BADI enc_handler->get_json_impl RECEIVING result = json_class.
+    GET BADI llm_badi.
+    CALL BADI llm_badi->get_json_impl RECEIVING result = json_class.
+  ENDMETHOD.
+
+  METHOD get_llm_badi.
+    result = llm_badi.
   ENDMETHOD.
 
 ENDCLASS.

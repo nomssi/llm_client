@@ -6,8 +6,9 @@ CLASS zcl_llm_encryption DEFINITION
     CLASS-METHODS class_constructor.
     INTERFACES zif_llm_encryption .
   PROTECTED SECTION.
-    CLASS-DATA: subject  TYPE string,
-                addrbook TYPE ssfpab.
+    CLASS-DATA: subject    TYPE string,
+                addrbook   TYPE ssfpab,
+                auth_class TYPE REF TO zif_llm_auth.
     CONSTANTS application TYPE ssfappl VALUE 'ZLLMCT'.
 
     CONSTANTS bin_line TYPE i VALUE 255.
@@ -19,6 +20,8 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
     IF encrypted IS INITIAL.
       RETURN.
     ENDIF.
+
+    auth_class->check_encrypt( ).
 
     DATA(total_bytes) = xstrlen( encrypted ).
     DATA ssfbin_tab TYPE STANDARD TABLE OF ssfbin.
@@ -83,6 +86,8 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+    auth_class->check_decrypt( ).
+
     DATA(to_encrypt) = cl_binary_convert=>string_to_xstring_utf8( unencrypted ).
     DATA(input_len) = xstrlen( to_encrypt ).
     DATA input_data TYPE STANDARD TABLE OF ssfbin.
@@ -136,6 +141,9 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD class_constructor.
+    DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+    CALL BADI llm_badi->get_authorization_impl RECEIVING result = auth_class.
+
     DATA profile TYPE localfile.
 
     CALL FUNCTION 'SSFPSE_FILENAME'

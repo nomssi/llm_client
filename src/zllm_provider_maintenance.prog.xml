@@ -574,6 +574,24 @@
      <LENGTH>25</LENGTH>
     </item>
     <item>
+     <ID>I</ID>
+     <KEY>012</KEY>
+     <ENTRY>No Authorization to encrypt!</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>013</KEY>
+     <ENTRY>No Authorization to decrypt!</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
+    <item>
+     <ID>I</ID>
+     <KEY>014</KEY>
+     <ENTRY>Select one row</ENTRY>
+     <LENGTH>24</LENGTH>
+    </item>
+    <item>
      <ID>R</ID>
      <ENTRY>Provider Maintenance - System and Client specific</ENTRY>
      <LENGTH>49</LENGTH>

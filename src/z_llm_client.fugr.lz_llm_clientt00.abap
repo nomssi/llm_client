@@ -6,7 +6,7 @@ DATA:  BEGIN OF STATUS_ZLLM_CLNT_CONFIG              .   "state vector
          INCLUDE STRUCTURE VIMSTATUS.
 DATA:  END OF STATUS_ZLLM_CLNT_CONFIG              .
 CONTROLS: TCTRL_ZLLM_CLNT_CONFIG
-            TYPE TABLEVIEW USING SCREEN '0005'.
+            TYPE TABLEVIEW USING SCREEN '0001'.
 *...processing: ZLLM_SYSTEM.....................................*
 DATA:  BEGIN OF STATUS_ZLLM_SYSTEM                   .   "state vector
          INCLUDE STRUCTURE VIMSTATUS.
