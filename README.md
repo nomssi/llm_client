@@ -1,7 +1,7 @@
 # ABAP LLM Client
 
 ## Release Status
-**BETA** - Expect bugs outside of the current test scope --> properly test before product use. Breaking changes are possible but will be documented.
+**BETA** - Expect bugs outside of the current test scope --> properly test before production use. Breaking changes are possible but will be documented.
 
 ## Documentation
 See [Overview](docs/Overview.md) in docs folder.
