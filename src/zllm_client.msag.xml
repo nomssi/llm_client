@@ -11,6 +11,12 @@
     <T100>
      <SPRSL>E</SPRSL>
      <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>000</MSGNR>
+     <TEXT>&amp;1 &amp;2 &amp;3 &amp;4</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
      <MSGNR>001</MSGNR>
      <TEXT>Validation error &amp;1 &amp;2 &amp;3 &amp;4</TEXT>
     </T100>
@@ -67,6 +73,66 @@
      <ARBGB>ZLLM_CLIENT</ARBGB>
      <MSGNR>010</MSGNR>
      <TEXT>Error creating http destination &amp;1 &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>012</MSGNR>
+     <TEXT>Encryption setup incorrect, failed at step &amp;1 with subrc &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>013</MSGNR>
+     <TEXT>Encryption failed with sy-subrc &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>014</MSGNR>
+     <TEXT>Decryption failed with sy-subrc &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>015</MSGNR>
+     <TEXT>Provider &amp;1 does not exist</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>016</MSGNR>
+     <TEXT>Parsing response for tool &amp;1 failed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>017</MSGNR>
+     <TEXT>Cannot map &amp;1 to any defined tool</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>018</MSGNR>
+     <TEXT>Not allowed to call provider maintenance</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>019</MSGNR>
+     <TEXT>LLM client for model &amp;1 not authorized</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>020</MSGNR>
+     <TEXT>No access to authorization decryption</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>021</MSGNR>
+     <TEXT>No access to authorization encryption</TEXT>
     </T100>
    </T100>
   </asx:values>

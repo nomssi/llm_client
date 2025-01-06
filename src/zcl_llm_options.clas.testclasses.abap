@@ -36,7 +36,7 @@ CLASS ltcl_llm_options DEFINITION
     METHODS get_parameters FOR TESTING.
 
     METHODS set_custom_parameters_ovrwrte FOR TESTING.
-ENDCLASS.
+ENDCLASS.                                           "#EC NUMBER_METHODS
 
 CLASS ltcl_llm_options IMPLEMENTATION.
   METHOD setup.
@@ -53,13 +53,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_temperature( CONV decfloat16( '-0.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for temperature below 0' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_temperature( CONV decfloat16( '2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for temperature above 2' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -73,13 +73,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_top_p( CONV decfloat16( '-0.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for top_p below 0' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_top_p( CONV decfloat16( '1.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for top_p above 1' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -93,7 +93,7 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_top_k( 0 ).
         cl_abap_unit_assert=>fail( 'Expected exception for top_k below 1' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -107,7 +107,7 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_seed( -1 ).
         cl_abap_unit_assert=>fail( 'Expected exception for seed below 0' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -121,13 +121,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_frequency_penalty( CONV decfloat16( '-2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for frequency_penalty below -2' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_frequency_penalty( CONV decfloat16( '2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for frequency_penalty above 2' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -141,13 +141,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_presence_penalty( CONV decfloat16( '-2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for presence_penalty below -2' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_presence_penalty( CONV decfloat16( '2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for presence_penalty above 2' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -161,13 +161,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_min_p( CONV decfloat16( '-0.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for min_p below 0' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_min_p( CONV decfloat16( '1.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for min_p above 1' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -181,13 +181,13 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_top_a( CONV decfloat16( '-0.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for top_a below 0' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
 
     TRY.
         cut->set_top_a( CONV decfloat16( '1.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for top_a above 1' ).
-      CATCH zcx_llm_validation.
+      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 

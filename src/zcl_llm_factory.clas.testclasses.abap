@@ -5,15 +5,18 @@ CLASS ltcl_llm_factory DEFINITION
 
   PRIVATE SECTION.
     CONSTANTS:
-      mc_valid_model   TYPE zllm_model VALUE 'VALID_MODEL',
-      mc_invalid_model TYPE zllm_model VALUE 'INVALID_MODEL'.
+      valid_model   TYPE zllm_model VALUE 'VALID_MODEL',
+      invalid_model TYPE zllm_model VALUE 'INVALID_MODEL',
+      provider_name TYPE string VALUE 'LTCL_MOCK_LLM_CLIENT'.
 
     CLASS-DATA:
-      mo_sql_test_double TYPE REF TO if_osql_test_environment.
+      sql_test_double TYPE REF TO if_osql_test_environment.
 
     METHODS:
       get_client_valid_model FOR TESTING,
-      get_client_invalid_model FOR TESTING.
+      get_client_invalid_model FOR TESTING,
+      get_client_invalid_provider FOR TESTING.
+
     CLASS-METHODS:
       class_setup,
       class_teardown.
@@ -23,97 +26,100 @@ ENDCLASS.
 CLASS ltcl_llm_factory IMPLEMENTATION.
 
   METHOD class_setup.
-    " Create SQL test double environment for zllm_config table
-    mo_sql_test_double = cl_osql_test_environment=>create( VALUE #( ( 'ZLLM_CLNT_CONFIG' ) ) ).
+    " Create SQL test double environment for both tables
+    sql_test_double = cl_osql_test_environment=>create(
+        VALUE #( ( 'ZLLM_CLNT_CONFIG' )
+                ( 'ZLLM_PROVIDERS' ) ) ).
 
-    " Prepare test data using test double
-    DATA lt_config_data TYPE STANDARD TABLE OF zllm_clnt_config.
+    " Prepare test data for client configuration
+    DATA clnt_config TYPE STANDARD TABLE OF zllm_clnt_config.
+    clnt_config = VALUE #(
+      ( model = valid_model provider_name = provider_name ) ).
+    APPEND VALUE #( model = invalid_model provider_name = 'INVALID_PROVIDER' ) TO clnt_config.
+    DATA(client_config_data) = clnt_config.
 
-    lt_config_data = VALUE #(
-      ( model = mc_valid_model provider = 'LTCL_MOCK_LLM_CLIENT' )
+    " Prepare test data for provider configuration
+    DATA provider_config TYPE STANDARD TABLE OF zllm_providers.
+    provider_config = VALUE #(
+      ( provider_name = provider_name
+        provider_class = provider_name )
     ).
+    DATA(provider_config_data) = provider_config.
 
-    " Mock the database table content
-    mo_sql_test_double->insert_test_data( lt_config_data ).
+    " Mock the database tables content
+    sql_test_double->insert_test_data( client_config_data ).
+    sql_test_double->insert_test_data( provider_config_data ).
   ENDMETHOD.
 
   METHOD class_teardown.
-    " Clean up test double environment
-    mo_sql_test_double->destroy( ).
+    sql_test_double->destroy( ).
   ENDMETHOD.
 
   METHOD get_client_valid_model.
-    " Test getting a client for a valid model
-    DATA:
-      client TYPE REF TO zif_llm_client.
+    DATA client TYPE REF TO zif_llm_client.
 
-    " Test getting client for valid model
     TRY.
-        client = zcl_llm_factory=>zif_llm_factory~get_client( mc_valid_model ).
+        client = zcl_llm_factory=>zif_llm_factory~get_client( valid_model ).
 
-        " Assert that client is not initial
-        cl_abap_unit_assert=>assert_not_initial(
+        cl_abap_unit_assert=>assert_bound(
           act = client
           msg = 'Client should be created for valid model' ).
 
       CATCH zcx_llm_validation INTO DATA(error).
         cl_abap_unit_assert=>fail( 'Unexpected validation error' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
     ENDTRY.
   ENDMETHOD.
 
   METHOD get_client_invalid_model.
-    " Test getting a client for an invalid model
-    DATA:
-      client TYPE REF TO zif_llm_client,
-      error  TYPE REF TO zcx_llm_validation.
+    DATA client TYPE REF TO zif_llm_client.
 
-    " Test getting client for invalid model
     TRY.
-        client = zcl_llm_factory=>zif_llm_factory~get_client( mc_invalid_model ).
-
-        " If no exception is raised, fail the test
+        client = zcl_llm_factory=>zif_llm_factory~get_client( invalid_model ).
         cl_abap_unit_assert=>fail( 'Expected validation error not raised' ).
 
-      CATCH zcx_llm_validation INTO error.
-        " Assert that the exception was raised with the correct parameters
-        cl_abap_unit_assert=>assert_not_initial(
-          act = error
-          msg = 'Validation error should be raised' ).
-
+      CATCH zcx_llm_validation INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
-          exp = 'ZLLM_CLIENT'
-          act = error->if_t100_message~t100key-msgid
-          msg = 'Incorrect message ID' ).
+          exp = zcx_llm_validation=>model_does_not_exist
+          act = error->model_does_not_exist
+          msg = 'Wrong exception raised for invalid model' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
+    ENDTRY.
+  ENDMETHOD.
 
+  METHOD get_client_invalid_provider.
+
+    TRY.
+        DATA(client) = zcl_llm_factory=>zif_llm_factory~get_client( invalid_model ).
+        cl_abap_unit_assert=>fail( 'Expected validation error not raised' ).
+
+      CATCH zcx_llm_validation INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
-          exp = '002'
-          act = error->if_t100_message~t100key-msgno
-          msg = 'Incorrect message number' ).
+          exp = zcx_llm_validation=>provider_does_not_exist
+          act = error->provider_does_not_exist
+          msg = 'Wrong exception raised for invalid provider' ).
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        cl_abap_unit_assert=>fail( 'Unexpected authorization error' ).
     ENDTRY.
   ENDMETHOD.
 
 ENDCLASS.
 
-" Mock LLM client class for testing
-CLASS ltcl_mock_llm_client DEFINITION
-  FOR TESTING.
-
+CLASS ltcl_mock_llm_client DEFINITION FOR TESTING.
   PUBLIC SECTION.
     INTERFACES zif_llm_client.
 ENDCLASS.
 
 CLASS ltcl_mock_llm_client IMPLEMENTATION.
-
   METHOD zif_llm_client~chat.
-    "Not used in this test
-  ENDMETHOD.
+  ENDMETHOD. "#EC EMPTY_PROCEDURE
 
   METHOD zif_llm_client~new_request.
-  ENDMETHOD.
+  ENDMETHOD. "#EC EMPTY_PROCEDURE
 
   METHOD zif_llm_client~get_client.
-    " Create a mock client instance
     response = NEW ltcl_mock_llm_client( ).
   ENDMETHOD.
-
 ENDCLASS.

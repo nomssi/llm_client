@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_INTF" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <VSEOINTERF>
+    <CLSNAME>ZIF_LLM_CHAT_REQUEST</CLSNAME>
+    <LANGU>E</LANGU>
+    <DESCRIPT>Chat request</DESCRIPT>
+    <EXPOSURE>2</EXPOSURE>
+    <STATE>1</STATE>
+    <UNICODE>X</UNICODE>
+   </VSEOINTERF>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>ADD_TOOL</CMPNAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>ADD_TOOLS</CMPNAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_STRUCTURED_OUTPUT</CMPNAME>
+     <SCONAME>DATA_DESC</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Data reference</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_STRUCTURED_OUTPUT</CMPNAME>
+     <SCONAME>DESCRIPTIONS</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Descriptions for the LLM</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_STRUCTURED_OUTPUT</CMPNAME>
+     <SCONAME>USE_STRUCTURED_OUTPUT</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Enable structured output (default)</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_TOOL_CHOICE</CMPNAME>
+     <SCONAME>TOOL_CHOICE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Tool Choice auto|none|required|tool_name</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
+  </asx:values>
+ </asx:abap>
+</abapGit>

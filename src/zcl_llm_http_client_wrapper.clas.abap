@@ -15,14 +15,17 @@ CLASS zcl_llm_http_client_wrapper DEFINITION
     METHODS:
       constructor
         IMPORTING
-                  config TYPE zllm_clnt_config
+                  client_config   TYPE zllm_clnt_config
+                  provider_config TYPE zllm_providers
         RAISING   zcx_llm_validation.
 
   PROTECTED SECTION.
     DATA:
-      config TYPE zllm_clnt_config,
-      url    TYPE string,
-      client TYPE REF TO if_http_client.
+      client_config   TYPE zllm_clnt_config,
+      provider_config TYPE zllm_providers,
+      url             TYPE string,
+      client          TYPE REF TO if_http_client,
+      call_logger     TYPE REF TO zif_llm_call_logger.
 
   PRIVATE SECTION.
 
@@ -31,10 +34,15 @@ ENDCLASS.
 CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
   METHOD constructor.
-    me->config = config.
+    me->client_config = client_config.
+    me->provider_config = provider_config.
+
+    DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+    CALL BADI llm_badi->get_call_logger_impl RECEIVING result = call_logger.
+
     cl_http_client=>create_by_destination(
      EXPORTING
-       destination = config-rfc_destination
+       destination = provider_config-rfc_destination
      IMPORTING
        client = client
      EXCEPTIONS
@@ -49,7 +57,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
       RAISE EXCEPTION TYPE zcx_llm_validation
         EXPORTING
           textid = zcx_llm_validation=>http_destination_error
-          attr1  = CONV #( config-rfc_destination )
+          attr1  = CONV #( provider_config-rfc_destination )
           attr2  = SWITCH string( sy-subrc
                                   WHEN 1 THEN `Argument Not Found`
                                   WHEN 2 THEN `Destination Not Found`
@@ -61,7 +69,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_client.
-    client = NEW zcl_llm_http_client_wrapper( config = config ).
+    client = NEW zcl_llm_http_client_wrapper( client_config = client_config provider_config = provider_config ).
   ENDMETHOD.
 
   METHOD set_header.
@@ -88,7 +96,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     IF url IS NOT INITIAL.
       cl_http_utility=>set_request_uri(
         request = client->request
-        uri     = me->url ).
+        uri     = url ).
     ENDIF.
 
     client->request->set_cdata( request ).
@@ -111,6 +119,18 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
     response-http_response = client->response.
     client->response->get_status( IMPORTING code = response-code ).
+    response-response = client->response->get_cdata( ).
+
+    DATA timestamp TYPE timestamp.
+    GET TIME STAMP FIELD timestamp.
+    call_logger->add( VALUE #(
+        id = session_id
+        msg = msg
+        timestamp = timestamp
+        request = request
+        response = response-response
+        uname = sy-uname
+         ) ).
 
     "Need to reset the request as otherwise the next call in this session will overwrite the
     "path prefix defined in SM59.
@@ -126,8 +146,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
 
     IF sy-subrc = 0.
-      response-response = client->response->get_cdata( ).
-      IF response-code >= 300.
+      IF response-code >= 300. "#EC CI_MAGIC
         client->get_last_error( IMPORTING message = response-message ).
         IF response-message IS INITIAL.
           response-message = response-response.
