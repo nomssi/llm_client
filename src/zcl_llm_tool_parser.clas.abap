@@ -288,24 +288,21 @@ CLASS zcl_llm_tool_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_llm_tool_parser~parse.
-    data_ref = data.
-    ASSIGN data_ref->* TO FIELD-SYMBOL(<data>).
-    DATA(type_descriptor) = cl_abap_typedescr=>describe_by_data( <data> ).
     me->descriptions = descriptions.
 
     append_to_schema( |\{| ).
     pre_schema( ).
 
-    CASE type_descriptor->kind.
+    CASE data_desc->kind.
       WHEN cl_abap_typedescr=>kind_struct.
         process_type(
-          type_descriptor = type_descriptor
+          type_descriptor = data_desc
           field = get_field_info( ) ).
       WHEN OTHERS.
         RAISE EXCEPTION TYPE zcx_llm_validation
           EXPORTING
             textid = zcx_llm_validation=>unsupported_type
-            attr1  = |Unsupported type: { type_descriptor->kind }| ##NO_TEXT.
+            attr1  = |Unsupported type: { data_desc->kind }| ##NO_TEXT.
     ENDCASE.
 
     post_schema( ).

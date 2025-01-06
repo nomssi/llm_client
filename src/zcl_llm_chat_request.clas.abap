@@ -8,7 +8,7 @@ CLASS zcl_llm_chat_request DEFINITION
     ALIASES add_choice FOR zif_llm_chat_request~add_choice.
     ALIASES add_tool_result FOR zif_llm_chat_request~add_tool_result.
     ALIASES add_message FOR zif_llm_chat_request~add_message.
-    ALIASES add_messages FOR zif_llm_chat_request~add_message.
+    ALIASES add_messages FOR zif_llm_chat_request~add_messages.
     ALIASES add_tool FOR zif_llm_chat_request~add_tool.
     ALIASES add_tools FOR zif_llm_chat_request~add_tools.
     ALIASES clear_messages FOR zif_llm_chat_request~clear_messages.
@@ -42,12 +42,12 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
         content = zcl_llm_common=>to_json( data = tool_result-data ) ) TO request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_message.
-    APPEND message TO request-messages.
-  ENDMETHOD.
-
   METHOD zif_llm_chat_request~add_messages.
     APPEND LINES OF messages TO request-messages.
+  ENDMETHOD.
+
+  METHOD zif_llm_chat_request~add_message.
+    APPEND message TO request-messages.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~add_tool.
@@ -61,11 +61,11 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~clear_messages.
-    REFRESH request-messages.
+    CLEAR request-messages.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~clear_tools.
-    REFRESH request-tools.
+    CLEAR request-tools.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~get_messages.
@@ -77,7 +77,7 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~set_structured_output.
-    request-structured_output->set_schema( data = data description = descriptions ).
+    request-structured_output->set_schema( data_desc = data_desc description = descriptions ).
     IF use_structured_output = abap_true.
       request-use_structured_output = abap_true.
     ENDIF.

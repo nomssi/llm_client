@@ -1,4 +1,4 @@
-CLASS ltc_llm_common DEFINITION
+CLASS ltcl_llm_common DEFINITION
   FOR TESTING
   DURATION SHORT
   RISK LEVEL HARMLESS
@@ -25,7 +25,7 @@ CLASS ltc_llm_common DEFINITION
       test_data TYPE test_structure.
 ENDCLASS.
 
-CLASS ltc_llm_common IMPLEMENTATION.
+CLASS ltcl_llm_common IMPLEMENTATION.
 
   METHOD setup.
     " Prepare test data

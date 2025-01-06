@@ -1,9 +1,9 @@
+"! <p class="shorttext synchronized" lang="en">Tool (Function) Call</p>
 INTERFACE zif_llm_tool
   PUBLIC .
   CONSTANTS: type_function TYPE string VALUE `function`.
 
   TYPES: BEGIN OF tool_parameters,
-           data         TYPE REF TO data,
            data_desc    TYPE REF TO cl_abap_datadescr,
            descriptions TYPE zif_llm_tool_parser=>def_descriptions,
          END OF tool_parameters.

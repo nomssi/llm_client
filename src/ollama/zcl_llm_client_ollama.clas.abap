@@ -132,12 +132,12 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
         IF sy-tabix = 1.
           result = |{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
-                &&  tool_parser->parse( data = details-parameters-data descriptions = details-parameters-descriptions )
+                &&  tool_parser->parse( data_desc = details-parameters-data_desc descriptions = details-parameters-descriptions )
                 && |\}\}|.
         ELSE.
           result = |,{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                   && |,"description":"{ details-description }","parameters":|
-                  &&  tool_parser->parse( data = details-parameters-data descriptions = details-parameters-descriptions )
+                  &&  tool_parser->parse( data_desc = details-parameters-data_desc descriptions = details-parameters-descriptions )
                   && |\}\}|.
         ENDIF.
       ENDLOOP.
@@ -299,15 +299,10 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
 
 
   METHOD parse_structured_output.
-    FIELD-SYMBOLS <out> TYPE data.
-    DATA structured_output TYPE REF TO data.
 
-    request-structured_output->get_datatype(
-      IMPORTING
-        data = structured_output ).
+    DATA(data_desc) = request-structured_output->get_datatype( ).
 
-    ASSIGN structured_output->* TO <out>.
-    CREATE DATA response-choice-structured_output LIKE <out>.
+    CREATE DATA response-choice-structured_output TYPE HANDLE data_desc.
 
     zcl_llm_common=>from_json(
       EXPORTING
@@ -336,7 +331,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
 
   METHOD zif_llm_client~chat.
     TRY.
-        ADD 1 TO msg.
+        msg = msg + 1.
         client->set_url( '/chat' ).
         GET TIME STAMP FIELD begin_request.
         DATA(resp) = client->communicate(

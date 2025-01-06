@@ -126,7 +126,7 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
 
   METHOD zif_llm_client~chat.
     TRY.
-        ADD 1 TO msg.
+        msg = msg + 1.
         client->set_url( '/chat/completions' ).
         GET TIME STAMP FIELD begin_request.
         DATA(resp) = client->communicate(
@@ -185,7 +185,7 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
     " handled above.
     IF lines( response-choices ) <> 1.
       result-success = abap_false.
-      result-error-error_text = 'Wrong number of choices!'.
+      result-error-error_text = 'Wrong number of choices!' ##NO_TEXT.
       RETURN.
     ENDIF.
 
@@ -256,15 +256,9 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD parse_structured_output.
-    FIELD-SYMBOLS <out> TYPE data.
-    DATA structured_output TYPE REF TO data.
+    DATA(data_desc) = request-structured_output->get_datatype( ).
 
-    request-structured_output->get_datatype(
-      IMPORTING
-        data = structured_output ).
-
-    ASSIGN structured_output->* TO <out>.
-    CREATE DATA response-choice-structured_output LIKE <out>.
+    CREATE DATA response-choice-structured_output TYPE HANDLE data_desc.
 
     zcl_llm_common=>from_json(
       EXPORTING
@@ -326,12 +320,12 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
         IF sy-tabix = 1.
           result = |{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
-                &&  tool_parser->parse( data = details-parameters-data descriptions = details-parameters-descriptions )
+                &&  tool_parser->parse( data_desc = details-parameters-data_desc descriptions = details-parameters-descriptions )
                 && |,"strict":true\}\}|.
         ELSE.
           result = |,{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                   && |,"description":"{ details-description }","parameters":|
-                  && tool_parser->parse( data = details-parameters-data descriptions = details-parameters-descriptions )
+                  && tool_parser->parse( data_desc = details-parameters-data_desc descriptions = details-parameters-descriptions )
                   && |,"strict":true\}\}|.
         ENDIF.
       ENDLOOP.
@@ -349,11 +343,9 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
 
     " Add options if available
     DATA(option_parameters) = request-options->get_paramters( ).
-    IF lines( option_parameters ) > 0.
-      LOOP AT option_parameters INTO DATA(parameter).
-        result = |{ result },"{ parameter-key }":{ parameter-value }|.
-      ENDLOOP.
-    ENDIF.
+    LOOP AT option_parameters INTO DATA(parameter).
+      result = |{ result },"{ parameter-key }":{ parameter-value }|.
+    ENDLOOP.
 
     result = |{ result }\}|.
   ENDMETHOD.
@@ -371,7 +363,7 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
       auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
-      client->set_header( name = 'Authorization' value = |Bearer { auth_value }| ).
+      client->set_header( name = 'Authorization' value = |Bearer { auth_value }| ) ##NO_TEXT.
     ENDIF.
   ENDMETHOD.
 

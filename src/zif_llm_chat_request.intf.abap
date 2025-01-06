@@ -36,7 +36,7 @@ INTERFACE zif_llm_chat_request
   "! Add multiple tools
   "! @parameter tools | <p class="shorttext synchronized" lang="en"></p>
   "! @parameter tool_choice | <p class="shorttext synchronized" lang="en">Tool Choice auto|none|required|tool_name</p>
-  METHODS add_tools IMPORTING tools TYPE zllm_tools tool_choice TYPE sstring DEFAULT `auto`.
+  METHODS add_tools IMPORTING tools TYPE zllm_tools tool_choice TYPE string DEFAULT `auto`.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Get all tools
@@ -57,7 +57,7 @@ INTERFACE zif_llm_chat_request
   "! @parameter tool | <p class="shorttext synchronized" lang="en"></p>
   METHODS add_tool_result
     IMPORTING
-      tool   TYPE REF TO zif_llm_tool.
+      tool TYPE REF TO zif_llm_tool.
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Add the tool calls to the meessage list so that the LLm knows what it called
@@ -68,12 +68,12 @@ INTERFACE zif_llm_chat_request
 
   "! <p class="shorttext synchronized" lang="en"></p>
   "! Set structured output details
-  "! @parameter data | <p class="shorttext synchronized" lang="en">Data reference</p>
+  "! @parameter data_desc | <p class="shorttext synchronized" lang="en">Data reference</p>
   "! @parameter descriptions | <p class="shorttext synchronized" lang="en">Descriptions for the LLM</p>
   "! @parameter use_structured_output | <p class="shorttext synchronized" lang="en">Enable structured output (default)</p>
   METHODS set_structured_output
     IMPORTING
-      data                  TYPE any
+      data_desc             TYPE REF TO cl_abap_datadescr
       descriptions          TYPE zif_llm_so=>def_descriptions
       use_structured_output TYPE sap_bool DEFAULT abap_true.
 

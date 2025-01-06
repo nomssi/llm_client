@@ -36,8 +36,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              field TYPE string,
            END OF element_type.
 
-    DATA test TYPE element_type.
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'ELEMENT_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -52,8 +51,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              amount TYPE decfloat34,
            END OF simple_type.
 
-    DATA test TYPE simple_type.
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'SIMPLE_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -72,9 +70,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              address TYPE address_type,
            END OF person_type.
 
-    DATA test TYPE person_type.
-
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'PERSON_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -87,8 +83,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              items TYPE STANDARD TABLE OF string WITH EMPTY KEY,
            END OF test_type.
 
-    DATA test TYPE test_type.
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -106,8 +101,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              items TYPE STANDARD TABLE OF line_type WITH EMPTY KEY,
            END OF test_type.
 
-    DATA test TYPE test_type.
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -119,7 +113,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
     DATA test TYPE REF TO data.
 
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_data( test ) ) ).
         cl_abap_unit_assert=>fail( ).
       CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
         "Expected exception
@@ -131,9 +125,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              flag TYPE abap_bool,
            END OF test_type.
 
-    DATA test TYPE test_type.
-
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -147,15 +139,14 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              name TYPE string,
            END OF test_type.
 
-    DATA: test         TYPE test_type,
-          descriptions TYPE zif_llm_so=>def_descriptions.
+    DATA descriptions TYPE zif_llm_so=>def_descriptions.
 
     descriptions = VALUE #(
       ( fieldname = 'id' description = 'Identifier' )
       ( fieldname = 'name' description = 'Full Name' ) ).
 
     cut->zif_llm_so~set_schema(
-          data = test
+          data_desc = CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) )
           description = descriptions ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
@@ -169,8 +160,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              status TYPE string,
            END OF test_type.
 
-    DATA: test         TYPE test_type,
-          descriptions TYPE zif_llm_so=>def_descriptions.
+    DATA descriptions TYPE zif_llm_so=>def_descriptions.
 
     descriptions = VALUE #(
       ( fieldname = 'status'
@@ -178,7 +168,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
         enum_values = VALUE #( ( `NEW` ) ( `IN_PROGRESS` ) ( `DONE` ) ) ) ).
 
     cut->zif_llm_so~set_schema(
-          data = test
+          data_desc = CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) )
           description = descriptions ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
@@ -192,10 +182,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              category TYPE c LENGTH 1,
            END OF test_type.
 
-    DATA test TYPE test_type.
-
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
         cl_abap_unit_assert=>fail( 'Should raise exception for non-boolean CHAR1' ).
       CATCH zcx_llm_validation INTO DATA(ex).          "#EC EMPTY_CATCH
     ENDTRY.
@@ -207,10 +195,8 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              date TYPE d,
            END OF test_type.
 
-    DATA test TYPE test_type.
-
     TRY.
-        cut->zif_llm_so~set_schema( test ).
+        cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
         cl_abap_unit_assert=>fail( 'Should raise exception for unsupported type' ).
       CATCH zcx_llm_validation INTO DATA(ex).          "#EC EMPTY_CATCH
     ENDTRY.
@@ -240,8 +226,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              meta   TYPE string,
            END OF root_type.
 
-    DATA: test         TYPE root_type,
-          descriptions TYPE zif_llm_so=>def_descriptions.
+    DATA descriptions TYPE zif_llm_so=>def_descriptions.
 
     descriptions = VALUE #(
       ( fieldname = 'orders' description = 'Order List' )
@@ -249,7 +234,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
       ( fieldname = 'orders-items-details' description = 'Item Details' ) ).
 
     cut->zif_llm_so~set_schema(
-      data = test
+      data_desc = CAST #( cl_abap_datadescr=>describe_by_name( 'ROOT_TYPE' ) )
       description = descriptions ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
@@ -299,15 +284,14 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              items TYPE STANDARD TABLE OF detail_type WITH EMPTY KEY,
            END OF test_type.
 
-    DATA: test         TYPE test_type,
-          descriptions TYPE zif_llm_so=>def_descriptions.
+    DATA descriptions TYPE zif_llm_so=>def_descriptions.
 
     descriptions = VALUE #(
       ( fieldname = 'items' description = 'Items List' )
       ( fieldname = 'items-code' description = 'Item Code' ) ).
 
     cut->zif_llm_so~set_schema(
-      data = test
+      data_desc = CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) )
       description = descriptions ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
@@ -324,9 +308,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              table2 TYPE STANDARD TABLE OF i WITH EMPTY KEY,
            END OF test_type.
 
-    DATA test TYPE test_type.
-
-    cut->zif_llm_so~set_schema( test ).
+    cut->zif_llm_so~set_schema( CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) ) ).
     DATA(schema) = cut->zif_llm_so~get_schema( ).
 
     cl_abap_unit_assert=>assert_char_cp(
@@ -340,11 +322,10 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
              field TYPE string,
            END OF test_type.
 
-    DATA: test         TYPE test_type,
-          descriptions TYPE zif_llm_so=>def_descriptions.
+    DATA descriptions TYPE zif_llm_so=>def_descriptions.
 
     cut->zif_llm_so~set_schema(
-          data = test
+          data_desc = CAST #( cl_abap_datadescr=>describe_by_name( 'TEST_TYPE' ) )
           description = descriptions ).
 
     DATA(schema) = cut->zif_llm_so~get_schema( ).

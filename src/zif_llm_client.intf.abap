@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">LLM Client</p>
 INTERFACE zif_llm_client
   PUBLIC.
 

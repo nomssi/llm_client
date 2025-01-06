@@ -10,6 +10,20 @@
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
    </VSEOINTERF>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_SCHEMA</CMPNAME>
+     <SCONAME>DATA_DESC</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>CL_ABAP_DATADESCR reference based on the datatype to be used</DESCRIPT>
+    </SEOSUBCOTX>
+    <SEOSUBCOTX>
+     <CMPNAME>SET_SCHEMA</CMPNAME>
+     <SCONAME>DESCRIPTION</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Field descriptions for more details</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

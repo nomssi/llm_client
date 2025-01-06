@@ -96,7 +96,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     IF url IS NOT INITIAL.
       cl_http_utility=>set_request_uri(
         request = client->request
-        uri     = me->url ).
+        uri     = url ).
     ENDIF.
 
     client->request->set_cdata( request ).
@@ -146,7 +146,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
 
     IF sy-subrc = 0.
-      IF response-code >= 300.
+      IF response-code >= 300. "#EC CI_MAGIC
         client->get_last_error( IMPORTING message = response-message ).
         IF response-message IS INITIAL.
           response-message = response-response.

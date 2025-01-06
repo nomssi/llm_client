@@ -6,7 +6,6 @@ CLASS zcl_llm_call_logger DEFINITION
   PUBLIC SECTION.
 
     INTERFACES zif_llm_call_logger .
-    ALIASES add FOR zif_llm_call_logger~add.
     METHODS constructor.
   PROTECTED SECTION.
     DATA active TYPE sap_bool.

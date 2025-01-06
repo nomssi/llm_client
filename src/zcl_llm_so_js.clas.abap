@@ -17,7 +17,7 @@ CLASS zcl_llm_so_js DEFINITION
     DATA:
       descriptions TYPE zif_llm_so=>def_descriptions,
       schema       TYPE string,
-      data_ref     TYPE REF TO data.
+      data_desc    TYPE REF TO cl_abap_datadescr.
 
     METHODS:
       pre_schema,
@@ -290,7 +290,7 @@ CLASS zcl_llm_so_js IMPLEMENTATION.
 
 
   METHOD zif_llm_so~get_datatype.
-    data = data_ref.
+    result = data_desc.
   ENDMETHOD.
 
 
@@ -300,24 +300,22 @@ CLASS zcl_llm_so_js IMPLEMENTATION.
 
 
   METHOD zif_llm_so~set_schema.
-    data_ref = REF #( data ).
-
-    DATA(type_descriptor) = cl_abap_typedescr=>describe_by_data( data ).
     me->descriptions = description.
+    me->data_desc = data_desc.
 
     append_to_schema( |\{| ).
     pre_schema( ).
 
-    CASE type_descriptor->kind.
+    CASE data_desc->kind.
       WHEN cl_abap_typedescr=>kind_struct.
         process_type(
-          type_descriptor = type_descriptor
+          type_descriptor = data_desc
           field = get_field_info( ) ).
       WHEN OTHERS.
         RAISE EXCEPTION TYPE zcx_llm_validation
           EXPORTING
             textid = zcx_llm_validation=>unsupported_type
-            attr1  = |Unsupported type: { type_descriptor->kind }| ##NO_TEXT.
+            attr1  = |Unsupported type: { data_desc->kind }| ##NO_TEXT.
     ENDCASE.
 
     post_schema( ).

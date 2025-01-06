@@ -114,10 +114,10 @@ ENDCLASS.
 
 CLASS ltcl_mock_llm_client IMPLEMENTATION.
   METHOD zif_llm_client~chat.
-  ENDMETHOD.
+  ENDMETHOD. "#EC EMPTY_PROCEDURE
 
   METHOD zif_llm_client~new_request.
-  ENDMETHOD.
+  ENDMETHOD. "#EC EMPTY_PROCEDURE
 
   METHOD zif_llm_client~get_client.
     response = NEW ltcl_mock_llm_client( ).
