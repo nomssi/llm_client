@@ -7,11 +7,10 @@ CLASS zcl_llm_tool_echo DEFINITION
 
     INTERFACES zif_llm_tool .
     METHODS constructor IMPORTING tool_details TYPE zif_llm_tool=>tool_details.
-    METHODS set_response
-      IMPORTING
-        data         TYPE any
-        name         TYPE string
-        tool_call_id TYPE string.
+
+    ALIASES get_result FOR zif_llm_tool~get_result.
+    ALIASES get_tool_details FOR zif_llm_tool~get_tool_details.
+    ALIASES execute FOR zif_llm_tool~execute.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA tool_details TYPE zif_llm_tool=>tool_details.
@@ -25,7 +24,7 @@ ENDCLASS.
 CLASS zcl_llm_tool_echo IMPLEMENTATION.
   METHOD zif_llm_tool~get_result.
     result-data = response_data.
-    result-name = name.
+    result-name = tool_details-name.
     result-tool_call_id = tool_call_id.
   ENDMETHOD.
 
@@ -37,10 +36,9 @@ CLASS zcl_llm_tool_echo IMPLEMENTATION.
     me->tool_details = tool_details.
   ENDMETHOD.
 
-  METHOD set_response.
-    response_data = REF #( data ).
+  METHOD zif_llm_tool~execute.
+    response_data = data.
     me->tool_call_id = tool_call_id.
-    me->name = name.
   ENDMETHOD.
 
 ENDCLASS.
