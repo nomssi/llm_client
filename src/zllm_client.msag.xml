@@ -134,6 +134,132 @@
      <MSGNR>021</MSGNR>
      <TEXT>No access to authorization encryption</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>022</MSGNR>
+     <TEXT>Error parsing the template</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>023</MSGNR>
+     <TEXT>Token not closed: &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>024</MSGNR>
+     <TEXT>Control structure not closed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>025</MSGNR>
+     <TEXT>Cannot find variable &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>026</MSGNR>
+     <TEXT>Invalid table index</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>027</MSGNR>
+     <TEXT>Variable type not supported</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>028</MSGNR>
+     <TEXT>Variable not known</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>029</MSGNR>
+     <TEXT>Condition cannot be evaluated</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>030</MSGNR>
+     <TEXT>Unknown filter</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>031</MSGNR>
+     <TEXT>Invalid condition</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>032</MSGNR>
+     <TEXT>Invalid operation</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>033</MSGNR>
+     <TEXT>Invalid for loop syntax</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>034</MSGNR>
+     <TEXT>Invalid for loop collection</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>035</MSGNR>
+     <TEXT>Loop not closed</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>036</MSGNR>
+     <TEXT>Invalid escape sequence &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>037</MSGNR>
+     <TEXT>Mismatched token, expected &amp;1 but found &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>038</MSGNR>
+     <TEXT>Error initializing loop: &amp;1</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>039</MSGNR>
+     <TEXT>Unexpected endfor without matching for</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>040</MSGNR>
+     <TEXT>Unexpected else without matching if</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>041</MSGNR>
+     <TEXT>Unexpected Endif</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZLLM_CLIENT</ARBGB>
+     <MSGNR>042</MSGNR>
+     <TEXT>Unexpected elif command</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>
