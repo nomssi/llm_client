@@ -5,3 +5,4 @@
 [Client Configuration](ClientConfiguration.md) - Customizing for the models.\
 [BAdI for basic topics like encrption, authorizations, etc](Badi_ZLLM_IMPLEMENTATION.md) - Especially relevant for implementing authorization checks.\
 [Usage Examples, Limitatons and Hints](Usage.md) - How to use the LLM Client. See also [llm_client_test](https://github.com/abap-ai/llm_client_tests) repository for an implemented example.
+[Template Parser](TemplateParser.md) - A Jinja like template parser with limited feature set. Aim is to make it easier to reuse prompts by having central templates.
