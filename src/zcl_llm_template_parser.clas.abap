@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Template parser based on limited Jinja2</p>
 CLASS zcl_llm_template_parser DEFINITION
   PUBLIC
   FINAL
@@ -5,26 +6,36 @@ CLASS zcl_llm_template_parser DEFINITION
 
   PUBLIC SECTION.
     TYPES:
-      BEGIN OF template_type,
-        name    TYPE string,
-        content TYPE string,
-      END OF template_type,
-      templates_type TYPE SORTED TABLE OF template_type WITH UNIQUE KEY name.
-
-    TYPES:
       BEGIN OF token_type,
         type    TYPE string,
         content TYPE string,
       END OF token_type,
       tokens_type TYPE STANDARD TABLE OF token_type WITH EMPTY KEY.
 
+    TYPES:
+      BEGIN OF template_type,
+        name    TYPE string,
+        content TYPE string,
+        tokens  TYPE tokens_type,
+      END OF template_type,
+      templates_type TYPE SORTED TABLE OF template_type WITH UNIQUE KEY name.
+
     METHODS constructor.
 
+    "! <p class="shorttext synchronized" lang="en">Add or replace a template</p>
+    "! @parameter name | <p class="shorttext synchronized" lang="en">Name of the template</p>
+    "! @parameter content | <p class="shorttext synchronized" lang="en">Content of the template</p>
+    "! @raising zcx_llm_template_parser | <p class="shorttext synchronized" lang="en">If template parsing fails</p>
     METHODS add_template
       IMPORTING !name   TYPE string
                 content TYPE string
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized" lang="en">Render a template with given context</p>
+    "! @parameter template_name | <p class="shorttext synchronized" lang="en">Name of the template to render</p>
+    "! @parameter context | <p class="shorttext synchronized" lang="en">Data context for variable resolution</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Rendered template string</p>
+    "! @raising zcx_llm_template_parser | <p class="shorttext synchronized" lang="en">If rendering fails</p>
     METHODS render
       IMPORTING template_name TYPE string
                 !context      TYPE REF TO data
@@ -39,7 +50,6 @@ CLASS zcl_llm_template_parser DEFINITION
         variable TYPE string VALUE 'VARIABLE',
         control  TYPE string VALUE 'CONTROL',
         comment  TYPE string VALUE 'COMMENT',
-        include  TYPE string VALUE 'INCLUDE',
       END OF token_types.
 
     TYPES:
@@ -58,7 +68,6 @@ CLASS zcl_llm_template_parser DEFINITION
         loop_var          TYPE string,
         collection        TYPE REF TO data,
         loop_index        TYPE i,
-        total_items       TYPE i,
         loop_tokens       TYPE tokens_type,
       END OF control_stack_type.
 
@@ -66,17 +75,32 @@ CLASS zcl_llm_template_parser DEFINITION
 
     DATA templates TYPE templates_type.
 
+    "! <p class="shorttext synchronized">Tokenize template string into sequence of tokens</p>
+    "! @parameter template                | <p class="shorttext synchronized">Template string to tokenize</p>
+    "! @parameter tokens                  | <p class="shorttext synchronized">Resulting sequence of tokens</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If tokenization fails</p>
     METHODS tokenize
       IMPORTING template      TYPE string
       RETURNING VALUE(tokens) TYPE tokens_type
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Parse tokens and replace variables with values</p>
+    "! @parameter tokens                  | <p class="shorttext synchronized">Tokens to parse</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context for variable resolution</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Resulting parsed string</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If parsing fails</p>
     METHODS parse_tokens
       IMPORTING !tokens       TYPE tokens_type
                 !context      TYPE REF TO data
       RETURNING VALUE(result) TYPE string
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Resolve variable path to its value</p>
+    "! @parameter variable_path           | <p class="shorttext synchronized">Path to the variable</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Current control structure stack</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Resolved variable value as string</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If variable resolution fails</p>
     METHODS resolve_variable
       IMPORTING variable_path TYPE string
                 !context      TYPE REF TO data
@@ -84,17 +108,32 @@ CLASS zcl_llm_template_parser DEFINITION
       RETURNING VALUE(result) TYPE string
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Get template by its name</p>
+    "! @parameter name                    | <p class="shorttext synchronized">Template name</p>
+    "! @parameter content                 | <p class="shorttext synchronized">Template content reference</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If template not found</p>
     METHODS get_template_by_name
       IMPORTING !name          TYPE string
-      RETURNING VALUE(content) TYPE string
+      RETURNING VALUE(content) TYPE REF TO template_type
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Evaluate if condition is true</p>
+    "! @parameter condition               | <p class="shorttext synchronized">Condition to evaluate</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter result                  | <p class="shorttext synchronized">True if condition is met</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If evaluation fails</p>
     METHODS evaluate_condition_true
       IMPORTING !condition    TYPE string
                 !context      TYPE REF TO data
       RETURNING VALUE(result) TYPE abap_bool
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Apply filter to value</p>
+    "! @parameter value                   | <p class="shorttext synchronized">Value to filter</p>
+    "! @parameter filter                  | <p class="shorttext synchronized">Filter to apply</p>
+    "! @parameter param                   | <p class="shorttext synchronized">Optional filter parameter</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Filtered value</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If filter application fails</p>
     METHODS apply_filter
       IMPORTING !value        TYPE string
                 !filter       TYPE string
@@ -102,12 +141,24 @@ CLASS zcl_llm_template_parser DEFINITION
       RETURNING VALUE(result) TYPE string
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Resolve variable path to data reference</p>
+    "! @parameter variable_path           | <p class="shorttext synchronized">Path to the variable</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Reference to resolved data</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If resolution fails</p>
     METHODS resolve_variable_ref
       IMPORTING variable_path TYPE string
                 !context      TYPE REF TO data
       RETURNING VALUE(result) TYPE REF TO data
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Process loop content with given context</p>
+    "! @parameter tokens                  | <p class="shorttext synchronized">Tokens in loop body</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter loop_var                | <p class="shorttext synchronized">Loop variable name</p>
+    "! @parameter collection              | <p class="shorttext synchronized">Collection to iterate</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Processed loop content</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If processing fails</p>
     METHODS process_loop_content
       IMPORTING !tokens       TYPE tokens_type
                 !context      TYPE REF TO data
@@ -116,10 +167,87 @@ CLASS zcl_llm_template_parser DEFINITION
       RETURNING VALUE(result) TYPE string
       RAISING   zcx_llm_template_parser.
 
+    "! <p class="shorttext synchronized">Format table as string</p>
+    "! @parameter table                   | <p class="shorttext synchronized">Table to format</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Formatted string</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If formatting fails</p>
     METHODS format_table
       IMPORTING !table        TYPE ANY TABLE
       RETURNING VALUE(result) TYPE string
       RAISING   zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Handle nested for loop tokens</p>
+    "! @parameter token             | <p class="shorttext synchronized">Current token</p>
+    "! @parameter control_stack     | <p class="shorttext synchronized">Control structure stack</p>
+    "! @parameter for_nesting_level | <p class="shorttext synchronized">Current nesting level</p>
+    "! @parameter output_buffer     | <p class="shorttext synchronized">Output buffer</p>
+    "! @parameter result            | <p class="shorttext synchronized">True if token was handled</p>
+    METHODS handle_nested_for_loop
+      IMPORTING token             TYPE token_type
+      CHANGING  control_stack     TYPE control_stack_types
+                for_nesting_level TYPE i
+                output_buffer     TYPE string
+      RETURNING VALUE(result)     TYPE abap_bool.
+
+    "! <p class="shorttext synchronized">Handle conditional control structures</p>
+    "! @parameter control_content         | <p class="shorttext synchronized">Control structure content</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Control structure stack</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If handling fails</p>
+    METHODS handle_conditional
+      IMPORTING control_content TYPE string
+                !context        TYPE REF TO data
+      CHANGING  control_stack   TYPE control_stack_types
+      RAISING   zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Handle endif control structure</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Control structure stack</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If handling fails</p>
+    METHODS handle_endif
+      CHANGING control_stack TYPE control_stack_types
+      RAISING  zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Handle for loop control structure</p>
+    "! @parameter control_content         | <p class="shorttext synchronized">Loop content</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Control structure stack</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If handling fails</p>
+    METHODS handle_for_loop
+      IMPORTING control_content TYPE string
+                !context        TYPE REF TO data
+      CHANGING  control_stack   TYPE control_stack_types
+      RAISING   zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Handle endfor control structure</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Control structure stack</p>
+    "! @parameter output_buffer           | <p class="shorttext synchronized">Output buffer to append to</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If handling fails</p>
+    METHODS handle_endfor
+      IMPORTING !context      TYPE REF TO data
+      CHANGING  control_stack TYPE control_stack_types
+                output_buffer TYPE string
+      RAISING   zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Process individual token</p>
+    "! @parameter token                   | <p class="shorttext synchronized">Token to process</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context</p>
+    "! @parameter control_stack           | <p class="shorttext synchronized">Control structure stack</p>
+    "! @parameter output_buffer           | <p class="shorttext synchronized">Output buffer to append to</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If processing fails</p>
+    METHODS process_token
+      IMPORTING token         TYPE token_type
+                !context      TYPE REF TO data
+                control_stack TYPE control_stack_types
+      CHANGING  output_buffer TYPE string
+      RAISING   zcx_llm_template_parser.
+
+    "! <p class="shorttext synchronized">Check if all conditions in control stack are met</p>
+    "! @parameter control_stack | <p class="shorttext synchronized">Control structure stack</p>
+    "! @parameter result        | <p class="shorttext synchronized">True if all conditions are met</p>
+    METHODS check_control_stack_conditions
+      IMPORTING control_stack TYPE control_stack_types
+      RETURNING VALUE(result) TYPE abap_bool.
 ENDCLASS.
 
 CLASS zcl_llm_template_parser IMPLEMENTATION.
@@ -132,6 +260,8 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     ASSIGN templates[ name = name ] TO FIELD-SYMBOL(<template>).
     IF sy-subrc = 0.
       <template>-content = content.
+      "When replacing the content we need to clear the cache
+      CLEAR <template>-tokens.
     ELSE.
       INSERT VALUE #( name    = name
                       content = content ) INTO TABLE templates.
@@ -139,164 +269,124 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD render.
-    DATA(template_content) = get_template_by_name( template_name ).
-    DATA(tokens) = tokenize( template_content ).
-    result = parse_tokens(
-      tokens  = tokens
-      context = context ).
+    DATA(template) = get_template_by_name( template_name ).
+    FIELD-SYMBOLS <template> TYPE template_type.
+    ASSIGN template->* TO <template>.
+    IF lines( <template>-tokens ) = 0.
+      <template>-tokens = tokenize( <template>-content ).
+    ENDIF.
+    result = parse_tokens( tokens  = <template>-tokens
+                           context = context ).
   ENDMETHOD.
 
   METHOD tokenize.
+    CONSTANTS variable_start TYPE string VALUE '{{'.
+    CONSTANTS comment_regex  TYPE string VALUE '\{#[^}]*#\}'.
+
     TYPES: BEGIN OF token_stack_type,
              type    TYPE string,
              start   TYPE i,
              content TYPE string,
            END OF token_stack_type.
 
-    DATA current_pos   TYPE i VALUE 0.
-    DATA current_char  TYPE string.
-    DATA token_buffer  TYPE string.
-    DATA escape_active TYPE abap_bool.
-    DATA token_stack   TYPE STANDARD TABLE OF token_stack_type.
+    DATA template_content TYPE string.
 
-    WHILE current_pos < strlen( template ).
-      current_char = template+current_pos(1).
+    " Remove all comments in one step
+    template_content = template.
+    REPLACE ALL OCCURRENCES OF REGEX comment_regex
+            IN template_content WITH ``.
 
-      " Handle escape sequences
-      IF current_char = '\' AND escape_active = abap_false.
-        escape_active = abap_true.
-        current_pos = current_pos + 1.
-        CONTINUE.
+    " Initialize positions
+    DATA(current_pos) = 0.
+    DATA(content_length) = strlen( template_content ).
+
+    WHILE current_pos < content_length.
+      DATA(remaining) = content_length - current_pos.
+      DATA(current_chunk) = template_content+current_pos(remaining).
+
+      " Look for token start
+      FIND FIRST OCCURRENCE OF REGEX `\{\{|\{%`
+           IN current_chunk
+           MATCH OFFSET DATA(token_start)
+           " TODO: variable is assigned but never used (ABAP cleaner)
+           MATCH LENGTH DATA(token_start_length).
+
+      IF sy-subrc <> 0.
+        " No more tokens, add remaining text
+        IF current_chunk IS NOT INITIAL.
+          APPEND VALUE #( type    = token_types-text
+                          content = current_chunk ) TO tokens.
+        ENDIF.
+        EXIT.
       ENDIF.
 
-      IF escape_active = abap_true.
-        " Handle escape sequences
-        CASE current_char.
-          WHEN 'n'.  " Newline
-            token_buffer = token_buffer && cl_abap_char_utilities=>newline.
-          WHEN 't'.  " Tab
-            token_buffer = token_buffer && cl_abap_char_utilities=>horizontal_tab.
-          WHEN '{' OR '}' OR '\'.  " Escaped special characters
-            token_buffer = token_buffer && current_char.
-          WHEN OTHERS.
-            token_buffer = |{ token_buffer }\\{ current_char }|.
-        ENDCASE.
-        escape_active = abap_false.
-      ELSE.
-        CASE current_char.
-          WHEN '{'.
-            " Check for start of special token
-            IF current_pos + 1 < strlen( template ).
-              DATA(next_char) = template+current_pos(2).
-              DATA(token_type) = COND #(
-                WHEN next_char = '{{' THEN token_types-variable
-                WHEN next_char = '{%' THEN token_types-control
-                WHEN next_char = '{#' THEN token_types-comment
-                ELSE                       space ).
-
-              IF token_type IS NOT INITIAL.
-                " Add previous text token if buffer not empty
-                IF token_buffer IS NOT INITIAL.
-                  APPEND VALUE #( type    = token_types-text
-                                  content = token_buffer )
-                         TO tokens.
-                  CLEAR token_buffer.
-                ENDIF.
-
-                " Push token to stack
-                APPEND VALUE #( type  = token_type
-                                start = current_pos + 2 )
-                       TO token_stack.
-
-                current_pos = current_pos + 1.
-              ELSE.
-                token_buffer = token_buffer && current_char.
-              ENDIF.
-            ENDIF.
-
-          WHEN '}'.
-            IF current_pos >= 1 AND current_pos < strlen( template ).
-              " Check the current '}' together with the previous character
-              DATA(prev_pos) = current_pos - 1.
-              next_char = template+prev_pos(2).
-              DATA(is_token_end) = xsdbool(
-                   next_char = '}}'
-                OR next_char = '%}'
-                OR next_char = '#}' ).
-
-              IF is_token_end = abap_true AND lines( token_stack ) > 0.
-                " Get last token from stack
-                DATA(last_token) = token_stack[ lines( token_stack ) ].
-                DELETE token_stack INDEX lines( token_stack ).
-
-                " Get token content - subtract 1 to exclude the first closing character
-                DATA(token_length) = current_pos - 1 - last_token-start.
-                DATA(token_content) = template+last_token-start(token_length).
-
-                " Validate token end matches start
-                DATA(expected_end) = SWITCH #( last_token-type
-                                               WHEN token_types-variable THEN '}}'
-                                               WHEN token_types-control  THEN '%}'
-                                               WHEN token_types-comment  THEN '#}' ).
-                IF next_char <> expected_end.
-                  RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>mismatched_token
-                                                               msgv1  = CONV #( expected_end )
-                                                               msgv2  = CONV #( next_char ) ).
-                ENDIF.
-
-                CLEAR token_buffer.
-
-                IF token_type = token_types-control.
-                  CONDENSE token_content.
-                ENDIF.
-
-                " Add token
-                APPEND VALUE #( type    = last_token-type
-                                content = token_content )
-                       TO tokens.
-
-              ELSE.
-                token_buffer = token_buffer && current_char.
-              ENDIF.
-            ENDIF.
-
-          WHEN OTHERS.
-            IF lines( token_stack ) = 0.
-              " In order to append a space to the token buffer we must use a string
-              IF current_char = space.
-                token_buffer = |{ token_buffer } |.
-              ELSE.
-                token_buffer = token_buffer && current_char.
-              ENDIF.
-            ELSE.
-              " We're inside a token, collect the character
-              DATA(current_token) = token_stack[ lines( token_stack ) ].
-              IF current_token-type = token_types-variable
-                 OR current_token-type = token_types-control
-                 OR current_token-type = token_types-comment.
-                token_buffer = token_buffer && current_char.
-              ENDIF.
-            ENDIF.
-        ENDCASE.
+      " Add text before token if exists
+      IF token_start > 0.
+        DATA(text) = current_chunk(token_start).
+        IF text IS NOT INITIAL.
+          APPEND VALUE #( type    = token_types-text
+                          content = text ) TO tokens.
+        ENDIF.
       ENDIF.
 
-      current_pos = current_pos + 1.
+      " Determine token type based on opening delimiter
+      DATA(token_type) = COND #( WHEN current_chunk+token_start(2) = variable_start
+                                 THEN token_types-variable
+                                 ELSE token_types-control ).
+
+      " Find matching end token based on type
+      DATA(expected_end) = COND #( WHEN token_type = token_types-variable
+                                   THEN '\}\}'
+                                   ELSE '%\}' ).
+
+      FIND FIRST OCCURRENCE OF REGEX expected_end
+           IN current_chunk+token_start
+           MATCH OFFSET DATA(token_end_pos)
+           MATCH LENGTH DATA(token_end_length).
+
+      " Raise exception for unclosed tokens
+      IF sy-subrc <> 0.
+        RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unclosed_token
+                                                     msgv1  = COND #( WHEN token_type = token_types-variable
+                                                                      THEN 'Variable'
+                                                                      ELSE substring( val = current_chunk+token_start
+                                                                                      off = 2
+                                                                                      len = 20 ) ) ).
+      ENDIF.
+
+      " Extract and process token content
+      DATA(token_length) = token_end_pos + token_end_length.
+      " TODO: variable is assigned but never used (ABAP cleaner)
+      DATA(full_token) = current_chunk+token_start(token_length).
+      DATA(token_start_corrected) = token_start + 2.
+      DATA(token_end_corrected) = token_end_pos - 2.
+      DATA(token_content) = current_chunk+token_start_corrected(token_end_corrected).
+
+      " Control tokens need to be trimmed
+      IF token_type = token_types-control.
+        CONDENSE token_content.
+      ENDIF.
+
+      APPEND VALUE #( type    = token_type
+                      content = token_content ) TO tokens.
+
+      " Move position after current token
+      current_pos = current_pos + token_start + token_length.
     ENDWHILE.
 
-    " Add remaining text token if exists
-    IF token_buffer IS NOT INITIAL.
-      APPEND VALUE #( type    = token_types-text
-                      content = token_buffer )
-             TO tokens.
-    ENDIF.
-
-    " Check for unclosed tokens
-    IF lines( token_stack ) > 0.
-      DATA(unclosed_token) = token_stack[ 1 ].
-      RAISE EXCEPTION NEW zcx_llm_template_parser(
-          textid = zcx_llm_template_parser=>unclosed_token
-          msgv1  = |{ unclosed_token-type } { unclosed_token-start }| ).
-    ENDIF.
+    " Process escape sequences in text tokens
+    LOOP AT tokens ASSIGNING FIELD-SYMBOL(<token>) WHERE type = token_types-text.
+      REPLACE ALL OCCURRENCES OF
+        '\n'  IN <token>-content WITH cl_abap_char_utilities=>newline.
+      REPLACE ALL OCCURRENCES OF
+        '\t'  IN <token>-content WITH cl_abap_char_utilities=>horizontal_tab.
+      REPLACE ALL OCCURRENCES OF
+        '\{'  IN <token>-content WITH '{'.
+      REPLACE ALL OCCURRENCES OF
+        '\}'  IN <token>-content WITH '}'.
+      REPLACE ALL OCCURRENCES OF
+        '\\' IN <token>-content WITH '\'.
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD parse_tokens.
@@ -304,193 +394,55 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     DATA output_buffer     TYPE string.
     DATA for_nesting_level TYPE i VALUE 0.
 
-    FIELD-SYMBOLS <current_stack> TYPE control_stack_type.
-
     LOOP AT tokens ASSIGNING FIELD-SYMBOL(<token>).
-      " During a for loop we collect all tokens for loop processing later
-      ASSIGN control_stack[ lines( control_stack ) ] TO <current_stack>.
-      IF sy-subrc = 0 AND <current_stack>-type = 'FOR'.
-        " Check if this is another nested for loop
-        IF <token>-type = token_types-control AND condense( <token>-content ) CP 'for *'.
-          for_nesting_level = for_nesting_level + 1.
-        ENDIF.
-
-        " Check if this is an endfor
-        IF <token>-type = token_types-control AND condense( <token>-content ) = 'endfor'.
-          IF for_nesting_level > 0.
-            for_nesting_level = for_nesting_level - 1.
-            APPEND <token> TO <current_stack>-loop_tokens.
-            CONTINUE.
-          ENDIF.
-        ELSE.
-          " If we're in a nested loop or not at the endfor, collect tokens
-          APPEND <token> TO <current_stack>-loop_tokens.
-          CONTINUE.  " Skip normal processing for these tokens
-        ENDIF.
+      " Handle nested for loops first
+      IF handle_nested_for_loop( EXPORTING token             = <token>
+                                 CHANGING  control_stack     = control_stack
+                                           for_nesting_level = for_nesting_level
+                                           output_buffer     = output_buffer ).
+        CONTINUE.
       ENDIF.
 
-      " Handle different token types
+      " Process different token types
       CASE <token>-type.
         WHEN token_types-control.
           DATA(control_content) = condense( <token>-content ).
 
-          " Handle control structures
-          IF control_content CP 'if *'.
-            " Start new if block
-            APPEND INITIAL LINE TO control_stack ASSIGNING <current_stack>.
-            <current_stack>-type              = 'IF'.
-            <current_stack>-any_condition_met = abap_false.
+          " Handle different control structures
+          CASE control_content.
+            WHEN 'endif'.
+              handle_endif( CHANGING control_stack = control_stack ).
 
-            TRY.
-                DATA(condition) = substring_after( val = control_content
-                                                   sub = 'if ' ).
-                <current_stack>-condition_met = evaluate_condition_true( condition = condition
-                                                                    context   = context ).
-                IF <current_stack>-condition_met = abap_true.
-                  <current_stack>-any_condition_met = abap_true.
-                ENDIF.
-              CATCH cx_root INTO DATA(lx_if).
-                RAISE EXCEPTION NEW zcx_llm_template_parser(
-                                        textid   = zcx_llm_template_parser=>condition_evaluation_error
-                                        msgv1    = CONV #( condition )
-                                        previous = lx_if ).
-            ENDTRY.
+            WHEN 'endfor'.
+              handle_endfor( EXPORTING context       = context
+                             CHANGING  control_stack = control_stack
+                                       output_buffer = output_buffer ).
 
-          ELSEIF control_content CP 'elif *' ##NO_TEXT.
-            " Handle elif (else if)
-            IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
-              RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_elif ).
-            ENDIF.
+            WHEN OTHERS.
+              " Handle if/elif/else conditions
+              IF    control_content CP 'if *'
+                 OR control_content CP 'elif *'
+                 OR control_content  = 'else'.
 
-            ASSIGN control_stack[ lines( control_stack ) ] TO <current_stack>.
-            " Only evaluate elif if no previous condition was met
-            IF <current_stack>-any_condition_met = abap_false.
-              TRY.
-                  condition = substring_after( val = control_content
-                                               sub = 'elif ' ).
-                  <current_stack>-condition_met = evaluate_condition_true( condition = condition
-                                                                      context   = context ).
-                  IF <current_stack>-condition_met = abap_true.
-                    <current_stack>-any_condition_met = abap_true.
-                  ENDIF.
-                CATCH cx_root INTO DATA(lx_elif).
-                  RAISE EXCEPTION NEW zcx_llm_template_parser(
-                                          textid   = zcx_llm_template_parser=>condition_evaluation_error
-                                          msgv1    = CONV #( condition )
-                                          previous = lx_elif ).
-              ENDTRY.
-            ELSE.
-              <current_stack>-condition_met = abap_false.
-            ENDIF.
+                handle_conditional( EXPORTING control_content = control_content
+                                              context         = context
+                                    CHANGING  control_stack   = control_stack ).
 
-          ELSEIF control_content = 'else'.
-            " Handle else
-            IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
-              RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_else ).
-            ENDIF.
+                " Handle for loops
+              ELSEIF control_content CP 'for *'.
+                handle_for_loop( EXPORTING control_content = control_content
+                                           context         = context
+                                 CHANGING  control_stack   = control_stack ).
+              ENDIF.
 
-            ASSIGN control_stack[ lines( control_stack ) ] TO <current_stack>.
-            " Only execute else if no previous condition was met
-            <current_stack>-condition_met = xsdbool( <current_stack>-any_condition_met = abap_false ).
-
-          ELSEIF control_content = 'endif'.
-            " End if block
-            IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
-              RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_endif ).
-            ENDIF.
-
-            DELETE control_stack INDEX lines( control_stack ).
-
-          ELSEIF control_content CP 'for *' ##NO_TEXT.
-            " Start new for loop
-            APPEND INITIAL LINE TO control_stack ASSIGNING <current_stack>.
-            <current_stack>-type        = 'FOR'.
-            <current_stack>-loop_tokens = VALUE #( ).
-
-            TRY.
-                " Parse for loop syntax: "for item in collection"
-                DATA(loop_content) = condense( control_content ).
-                SPLIT loop_content AT ' ' INTO TABLE DATA(loop_parts).
-                IF lines( loop_parts ) <> 4 OR loop_parts[ 3 ] <> 'in'.
-                  RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_loop_syntax ).
-                ENDIF.
-
-                <current_stack>-loop_var = loop_parts[ 2 ].
-                DATA(collection_path) = loop_parts[ 4 ].
-
-                " Clean up collection path
-                collection_path = replace( val  = collection_path
-                                           sub  = '{{'
-                                           with = '' ).
-                collection_path = replace( val  = collection_path
-                                           sub  = '}}'
-                                           with = '' ).
-                collection_path = condense( collection_path ).
-
-                <current_stack>-collection = resolve_variable_ref( variable_path = collection_path
-                                                                   context       = context ).
-
-              CATCH cx_root INTO DATA(lx_for).
-                RAISE EXCEPTION NEW zcx_llm_template_parser(
-                                        textid   = zcx_llm_template_parser=>loop_initialization_error
-                                        previous = lx_for ).
-            ENDTRY.
-
-          ELSEIF control_content = 'endfor'.
-            " Process for loop content
-            IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'FOR'.
-              RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_endfor ).
-            ENDIF.
-
-            DATA(loop_stack) = control_stack[ lines( control_stack ) ].
-            output_buffer = output_buffer && process_loop_content( tokens     = loop_stack-loop_tokens
-                                                                   context    = context
-                                                                   loop_var   = loop_stack-loop_var
-                                                                   collection = loop_stack-collection ).
-
-            DELETE control_stack INDEX lines( control_stack ).
-
-          ENDIF.
+          ENDCASE.
 
         WHEN OTHERS.
-          " Normal token processing for non-loop content
-          IF <token>-type = token_types-text.
-            " Check all conditions in the stack are met
-            DATA(conditions_met) = abap_true.
-            LOOP AT control_stack ASSIGNING FIELD-SYMBOL(<stack_entry>).
-              IF <stack_entry>-condition_met = abap_false.
-                conditions_met = abap_false.
-                EXIT.
-              ENDIF.
-            ENDLOOP.
-
-            IF lines( control_stack ) = 0 OR conditions_met = abap_true.
-              output_buffer = output_buffer && <token>-content.
-            ENDIF.
-
-          ELSEIF <token>-type = token_types-variable.
-            " Check all conditions in the stack are met
-            conditions_met = abap_true.
-            LOOP AT control_stack ASSIGNING <stack_entry>.
-              IF <stack_entry>-condition_met = abap_false.
-                conditions_met = abap_false.
-                EXIT.
-              ENDIF.
-            ENDLOOP.
-
-            IF lines( control_stack ) = 0 OR conditions_met = abap_true.
-              TRY.
-                  output_buffer = output_buffer && resolve_variable( variable_path = <token>-content
-                                                                     context       = context
-                                                                     control_stack = control_stack ).
-                CATCH zcx_llm_template_parser INTO DATA(lx_var).
-                  RAISE EXCEPTION NEW zcx_llm_template_parser(
-                                          textid   = zcx_llm_template_parser=>variable_resolution_error
-                                          msgv1    = CONV #( <token>-content )
-                                          previous = lx_var ).
-              ENDTRY.
-            ENDIF.
-          ENDIF.
+          " Process text and variable tokens
+          process_token( EXPORTING token         = <token>
+                                   context       = context
+                                   control_stack = control_stack
+                         CHANGING  output_buffer = output_buffer ).
 
       ENDCASE.
     ENDLOOP.
@@ -720,38 +672,40 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
           LOOP AT components INTO DATA(component).
             ASSIGN COMPONENT component-name OF STRUCTURE <line> TO FIELD-SYMBOL(<field>).
-            IF sy-subrc = 0.
-              DATA field_str TYPE string.
-
-              " Handle different component types
-              CASE component-type->kind.
-                WHEN cl_abap_typedescr=>kind_table.
-                  field_str = '[NESTED TABLE]'.
-                WHEN cl_abap_typedescr=>kind_elem.
-                  IF component-type->absolute_name = '\TYPE=ABAP_BOOL'.
-                    field_str = COND #( WHEN <field> = abap_true THEN 'X' ELSE ` ` ).
-                  ELSE.
-                    field_str = |{ <field> }|.
-                  ENDIF.
-                WHEN OTHERS.
-                  field_str = '[COMPLEX TYPE]'.
-              ENDCASE.
-
-              line_result = |{ line_result }{ to_upper( component-name ) }: { field_str }, |.
+            IF sy-subrc <> 0.
+              CONTINUE.
             ENDIF.
+
+            DATA field_str TYPE string.
+
+            " Handle different component types
+            CASE component-type->kind.
+              WHEN cl_abap_typedescr=>kind_table.
+                field_str = '[NESTED TABLE]'.
+              WHEN cl_abap_typedescr=>kind_elem.
+                IF component-type->absolute_name = '\TYPE=ABAP_BOOL'.
+                  field_str = COND #( WHEN <field> = abap_true THEN 'X' ELSE ` ` ).
+                ELSE.
+                  field_str = |{ <field> }|.
+                ENDIF.
+              WHEN OTHERS.
+                field_str = '[COMPLEX TYPE]'.
+            ENDCASE.
+
+            line_result = |{ line_result }{ to_upper( component-name ) }: { field_str }, |.
           ENDLOOP.
 
           " Remove trailing comma and space
           IF strlen( line_result ) >= 2.
             line_result = substring( val = line_result
-                                   len = strlen( line_result ) - 2 ).
+                                     len = strlen( line_result ) - 2 ).
           ENDIF.
 
           APPEND line_result TO result_table.
         ENDLOOP.
 
         DATA(joined_results) = concat_lines_of( table = result_table
-                                              sep   = `; ` ).
+                                                sep   = `; ` ).
         result = |[{ joined_results }]|.
 
       WHEN cl_abap_typedescr=>kind_table.
@@ -765,7 +719,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
   METHOD get_template_by_name.
     TRY.
-        content = templates[ name = name ]-content.
+        content = REF #( templates[ name = name ] ).
       CATCH cx_sy_itab_line_not_found.
         RAISE EXCEPTION TYPE zcx_llm_template_parser
           EXPORTING
@@ -828,7 +782,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       LOOP AT and_conditions INTO DATA(sub_condition).
         sub_condition = condense( sub_condition ).
         IF evaluate_condition_true( condition = sub_condition
-                               context   = context ) = abap_false.
+                                    context   = context ) = abap_false.
           result = abap_false.
           EXIT.
         ENDIF.
@@ -845,7 +799,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       LOOP AT or_conditions INTO DATA(or_sub_condition).
         or_sub_condition = condense( or_sub_condition ).
         IF evaluate_condition_true( condition = or_sub_condition
-                               context   = context ) = abap_true.
+                                    context   = context ) = abap_true.
           result = abap_true.
           EXIT.
         ENDIF.
@@ -950,16 +904,8 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     DATA path_segments TYPE string_table.
     DATA current_ref   TYPE REF TO data.
 
-    " Add validation for empty path
-    IF variable_path IS INITIAL.
-      RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_variable_path
-                                                   msgv1  = 'Empty variable path' ) ##NO_TEXT.
-    ENDIF.
-
-    " Add context validation
-    IF context IS INITIAL.
-      RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_variable_path
-                                                   msgv1  = 'Context is initial' ) ##NO_TEXT.
+    IF variable_path IS INITIAL OR context IS INITIAL.
+      RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_variable_path ).
     ENDIF.
 
     " Split path into segments
@@ -967,72 +913,27 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
     " Start with the context
     current_ref = context.
-
-    FIELD-SYMBOLS <current_data> TYPE any.
-    ASSIGN current_ref->* TO <current_data>.
+    ASSIGN current_ref->* TO FIELD-SYMBOL(<current_data>).
 
     " Navigate through the path
     LOOP AT path_segments INTO DATA(segment).
-      DATA component TYPE string.
-
-      " Handle array access if present (e.g., users[0].name)
-      FIND FIRST OCCURRENCE OF REGEX '(\w+)(?:\[(\d+)\])?'
-           IN segment
-           SUBMATCHES component DATA(index).
-
       TRY.
           DATA(descr) = cl_abap_typedescr=>describe_by_data( <current_data> ).
 
-          CASE descr->kind.
-            WHEN cl_abap_typedescr=>kind_struct.
-              ASSIGN COMPONENT component OF STRUCTURE <current_data> TO FIELD-SYMBOL(<component>).
-              IF sy-subrc <> 0.
-                RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_variable_path ).
-              ENDIF.
+          IF descr->kind = cl_abap_typedescr=>kind_struct.
+            " Handle structure components
+            ASSIGN COMPONENT segment OF STRUCTURE <current_data>
+                   TO FIELD-SYMBOL(<component>).
+            IF sy-subrc <> 0.
+              RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_variable_path ).
+            ENDIF.
 
-              CREATE DATA current_ref LIKE <component>.
-              ASSIGN current_ref->* TO <current_data>.
-              <current_data> = <component>.
-
-            WHEN cl_abap_typedescr=>kind_table.
-              DATA(table_ref) = CAST cl_abap_tabledescr( descr ).
-
-              IF index IS NOT INITIAL.
-                DATA(idx) = CONV i( index ).
-
-                " Get line type from table descriptor
-                DATA(line_type) = table_ref->get_table_line_type( ).
-                DATA dref TYPE REF TO data.
-                FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
-                FIELD-SYMBOLS <line>  TYPE any.
-
-                ASSIGN <current_data> TO <table>.
-                CREATE DATA dref TYPE HANDLE line_type.
-                ASSIGN dref->* TO <line>.
-
-                " Read table line
-                ASSIGN <table>[ idx ] TO <line>.
-                IF sy-subrc <> 0.
-                  RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_table_index ).
-                ENDIF.
-
-                " Create new reference for the line
-                CREATE DATA current_ref LIKE <line>.
-                ASSIGN current_ref->* TO <current_data>.
-                <current_data> = <line>.
-              ELSE.
-                " Return table reference if no index specified
-                CREATE DATA current_ref LIKE <current_data>.
-                ASSIGN current_ref->* TO <current_data>.
-                <current_data> = <current_data>.
-                result = current_ref.
-                RETURN.
-              ENDIF.
-
-            WHEN OTHERS.
-              RAISE EXCEPTION NEW zcx_llm_template_parser(
-                                      textid = zcx_llm_template_parser=>unsupported_variable_type ).
-          ENDCASE.
+            CREATE DATA current_ref LIKE <component>.
+            ASSIGN current_ref->* TO <current_data>.
+            <current_data> = <component>.
+          ELSE.
+            RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unsupported_variable_type ).
+          ENDIF.
 
         CATCH cx_root INTO DATA(ex).
           RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
@@ -1042,6 +943,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
     result = current_ref.
   ENDMETHOD.
+
 
   METHOD process_loop_content.
     FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
@@ -1105,5 +1007,185 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     ENDDO.
   ENDMETHOD.
 
+  METHOD handle_nested_for_loop.
+    " TODO: parameter OUTPUT_BUFFER is never used or assigned (ABAP cleaner)
+
+    result = abap_false.
+
+    ASSIGN control_stack[ lines( control_stack ) ] TO FIELD-SYMBOL(<current_stack>).
+    IF NOT ( sy-subrc = 0 AND <current_stack>-type = 'FOR' ).
+      RETURN.
+    ENDIF.
+
+    " Check if this is another nested for loop
+    IF token-type = token_types-control AND condense( token-content ) CP 'for *'.
+      for_nesting_level = for_nesting_level + 1.
+    ENDIF.
+
+    " Check if this is an endfor
+    IF token-type = token_types-control AND condense( token-content ) = 'endfor'.
+      IF for_nesting_level > 0.
+        for_nesting_level = for_nesting_level - 1.
+        APPEND token TO <current_stack>-loop_tokens.
+        result = abap_true.
+      ENDIF.
+    ELSE.
+      " If we're in a nested loop or not at the endfor, collect tokens
+      APPEND token TO <current_stack>-loop_tokens.
+      result = abap_true.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD handle_conditional.
+    FIELD-SYMBOLS <current_stack> TYPE control_stack_type.
+    DATA condition TYPE string.
+
+    IF control_content CP 'if *'.
+      " Start new if block
+      APPEND INITIAL LINE TO control_stack ASSIGNING <current_stack>.
+      <current_stack>-type              = 'IF'.
+      <current_stack>-any_condition_met = abap_false.
+
+      TRY.
+          condition = substring_after( val = control_content
+                                       sub = 'if ' ).
+          <current_stack>-condition_met = evaluate_condition_true( condition = condition
+                                                                   context   = context ).
+          IF <current_stack>-condition_met = abap_true.
+            <current_stack>-any_condition_met = abap_true.
+          ENDIF.
+        CATCH cx_root INTO DATA(lx_if).
+          RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>condition_evaluation_error
+                                                       msgv1    = CONV #( condition )
+                                                       previous = lx_if ).
+      ENDTRY.
+
+    ELSEIF control_content CP 'elif *'.
+      " Handle elif (else if)
+      IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
+        RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_elif ).
+      ENDIF.
+
+      ASSIGN control_stack[ lines( control_stack ) ] TO <current_stack>.
+      " Only evaluate elif if no previous condition was met
+      IF <current_stack>-any_condition_met = abap_false.
+        TRY.
+            condition = substring_after( val = control_content
+                                         sub = 'elif ' ).
+            <current_stack>-condition_met = evaluate_condition_true( condition = condition
+                                                                     context   = context ).
+            IF <current_stack>-condition_met = abap_true.
+              <current_stack>-any_condition_met = abap_true.
+            ENDIF.
+          CATCH cx_root INTO DATA(lx_elif).
+            RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>condition_evaluation_error
+                                                         msgv1    = CONV #( condition )
+                                                         previous = lx_elif ).
+        ENDTRY.
+      ELSE.
+        <current_stack>-condition_met = abap_false.
+      ENDIF.
+
+    ELSEIF control_content = 'else'.
+      " Handle else
+      IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
+        RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_else ).
+      ENDIF.
+
+      ASSIGN control_stack[ lines( control_stack ) ] TO <current_stack>.
+      " Only execute else if no previous condition was met
+      <current_stack>-condition_met = xsdbool( <current_stack>-any_condition_met = abap_false ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD handle_endif.
+    IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
+      RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_endif ).
+    ENDIF.
+
+    DELETE control_stack INDEX lines( control_stack ).
+  ENDMETHOD.
+
+  METHOD handle_for_loop.
+    FIELD-SYMBOLS <current_stack> TYPE control_stack_type.
+
+    APPEND INITIAL LINE TO control_stack ASSIGNING <current_stack>.
+    <current_stack>-type        = 'FOR'.
+    <current_stack>-loop_tokens = VALUE #( ).
+
+    TRY.
+        " Parse for loop syntax: "for item in collection"
+        DATA(loop_content) = condense( control_content ).
+        SPLIT loop_content AT ' ' INTO TABLE DATA(loop_parts).
+        IF lines( loop_parts ) <> 4 OR loop_parts[ 3 ] <> 'in'.
+          RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>invalid_loop_syntax ).
+        ENDIF.
+
+        <current_stack>-loop_var = loop_parts[ 2 ].
+        DATA(collection_path) = loop_parts[ 4 ].
+
+        " Clean up collection path
+        collection_path = replace( val  = collection_path
+                                   sub  = '{{'
+                                   with = '' ).
+        collection_path = replace( val  = collection_path
+                                   sub  = '}}'
+                                   with = '' ).
+        collection_path = condense( collection_path ).
+
+        <current_stack>-collection = resolve_variable_ref( variable_path = collection_path
+                                                           context       = context ).
+
+      CATCH cx_root INTO DATA(lx_for).
+        RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>loop_initialization_error
+                                                     previous = lx_for ).
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD handle_endfor.
+    IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'FOR'.
+      RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_endfor ).
+    ENDIF.
+
+    DATA(loop_stack) = control_stack[ lines( control_stack ) ].
+    output_buffer = output_buffer && process_loop_content( tokens     = loop_stack-loop_tokens
+                                                           context    = context
+                                                           loop_var   = loop_stack-loop_var
+                                                           collection = loop_stack-collection ).
+
+    DELETE control_stack INDEX lines( control_stack ).
+  ENDMETHOD.
+
+  METHOD process_token.
+    IF token-type = token_types-text.
+      IF check_control_stack_conditions( control_stack ) = abap_true.
+        output_buffer = output_buffer && token-content.
+      ENDIF.
+
+    ELSEIF token-type = token_types-variable.
+      IF check_control_stack_conditions( control_stack ) = abap_true.
+        TRY.
+            output_buffer = output_buffer && resolve_variable( variable_path = token-content
+                                                               context       = context
+                                                               control_stack = control_stack ).
+          CATCH zcx_llm_template_parser INTO DATA(lx_var).
+            RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
+                                                         msgv1    = CONV #( token-content )
+                                                         previous = lx_var ).
+        ENDTRY.
+      ENDIF.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD check_control_stack_conditions.
+    result = abap_true.
+
+    LOOP AT control_stack ASSIGNING FIELD-SYMBOL(<stack_entry>).
+      IF <stack_entry>-condition_met = abap_false.
+        result = abap_false.
+        EXIT.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
 
 ENDCLASS.

@@ -28,7 +28,12 @@ CLASS ltcl_template_parser_test DEFINITION FINAL
       test_condition_operators FOR TESTING,
       test_variable_resolution_error FOR TESTING,
       test_variable_resolution_types FOR TESTING,
-      test_format_table FOR TESTING.
+      test_format_table FOR TESTING,
+      test_loop_variable_access FOR TESTING,
+      test_nested_loop_var_access FOR TESTING,
+      test_table_index_access FOR TESTING,
+      test_invalid_table_index FOR TESTING,
+      test_table_ref_resolution FOR TESTING.
 
 ENDCLASS.
 
@@ -636,7 +641,7 @@ CLASS ltcl_template_parser_test IMPLEMENTATION.
         parser->render( template_name = 'error_test1'
                         context       = context_ref ).
         cl_abap_unit_assert=>fail( 'Should raise exception' ).
-      CATCH zcx_llm_template_parser INTO DATA(error). "#EC EMPTY_CATCH
+      CATCH zcx_llm_template_parser INTO DATA(error).  "#EC EMPTY_CATCH
     ENDTRY.
 
     " Test invalid component access
@@ -647,7 +652,7 @@ CLASS ltcl_template_parser_test IMPLEMENTATION.
         parser->render( template_name = 'error_test2'
                         context       = context_ref ).
         cl_abap_unit_assert=>fail( 'Should raise exception' ).
-      CATCH zcx_llm_template_parser INTO error. "#EC EMPTY_CATCH
+      CATCH zcx_llm_template_parser INTO error.        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.
 
@@ -680,27 +685,27 @@ CLASS ltcl_template_parser_test IMPLEMENTATION.
 
           " Assert based on expected operator behavior
           CASE iteration.
-            " ==
+              " ==
             WHEN 1.
               cl_abap_unit_assert=>assert_equals( exp = ''
                                                   act = result ).
-            " !=
+              " !=
             WHEN 2.
               cl_abap_unit_assert=>assert_equals( exp = 'ne'
                                                   act = result ).
-            " >
+              " >
             WHEN 3.
               cl_abap_unit_assert=>assert_equals( exp = 'gt'
                                                   act = result ).
-            " <
+              " <
             WHEN 4.
               cl_abap_unit_assert=>assert_equals( exp = 'lt'
                                                   act = result ).
-            " >=
+              " >=
             WHEN 5.
               cl_abap_unit_assert=>assert_equals( exp = 'ge'
                                                   act = result ).
-            " <=
+              " <=
             WHEN 6.
               cl_abap_unit_assert=>assert_equals( exp = 'le'
                                                   act = result ).
@@ -842,5 +847,147 @@ CLASS ltcl_template_parser_test IMPLEMENTATION.
     ENDTRY.
   ENDMETHOD.
 
+  METHOD test_loop_variable_access.
+    TYPES: BEGIN OF user,
+             name TYPE string,
+             age  TYPE i,
+           END OF user,
+           users_table_type TYPE STANDARD TABLE OF user WITH EMPTY KEY,
+           BEGIN OF context_type,
+             users TYPE users_table_type,
+           END OF context_type.
 
+    DATA(context) = NEW context_type(
+      users = VALUE #( ( name = 'John' age = 25 )
+                      ( name = 'Jane' age = 30 ) ) ).
+    TRY.
+        parser->add_template(
+          name    = 'test'
+          content = '{% for user in users %}{{ user.name }}: {{ user.age }}{% endfor %}' ).
+
+        DATA(result) = parser->render(
+          template_name = 'test'
+          context      = context ).
+      CATCH zcx_llm_template_parser INTO DATA(error).
+        cl_abap_unit_assert=>fail( |Unexpected exception: { error->get_text( ) }| ).
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = result
+      exp = 'John: 25Jane: 30' ).
+  ENDMETHOD.
+
+
+  METHOD test_nested_loop_var_access.
+    TYPES: BEGIN OF order_item,
+             product TYPE string,
+             amount  TYPE i,
+           END OF order_item,
+           order_items_table_type TYPE STANDARD TABLE OF order_item WITH EMPTY KEY,
+           BEGIN OF order,
+             id    TYPE string,
+             items TYPE order_items_table_type,
+           END OF order,
+           orders_table_type TYPE STANDARD TABLE OF order WITH EMPTY KEY,
+           BEGIN OF context_type,
+             orders TYPE orders_table_type,
+           END OF context_type.
+
+    DATA(context) = NEW context_type(
+      orders = VALUE #(
+        ( id = 'O1' items = VALUE #( ( product = 'A' amount = 1 )
+                                    ( product = 'B' amount = 2 ) ) )
+        ( id = 'O2' items = VALUE #( ( product = 'C' amount = 3 ) ) ) ) ).
+
+    TRY.
+        parser->add_template(
+          name    = 'test'
+          content = '{% for order in orders %}' &&
+                    'Order {{ order.id }}:' &&
+                    '{% for item in order.items %}' &&
+                    ' {{ item.product }}({{ item.amount }})' &&
+                    '{% endfor %}{% endfor %}' ).
+
+
+        DATA(result) = parser->render(
+          template_name = 'test'
+          context      = context ).
+      CATCH zcx_llm_template_parser INTO DATA(error).
+        cl_abap_unit_assert=>fail( |Unexpected exception: { error->get_text( ) }| ).
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = result
+      exp = 'Order O1: A(1) B(2)Order O2: C(3)' ).
+  ENDMETHOD.
+
+  METHOD test_table_index_access.
+    TYPES: BEGIN OF context_type,
+             users TYPE string_table,
+           END OF context_type.
+
+    DATA(context) = NEW context_type(
+      users = VALUE #( ( `John` ) ( `Jane` ) ( `Jim` ) ) ).
+    TRY.
+        parser->add_template(
+          name    = 'test'
+          content = 'First user: {{ users[1] }}, Last user: {{ users[3] }}' ).
+
+        DATA(result) = parser->render(
+          template_name = 'test'
+          context      = context ).
+      CATCH zcx_llm_template_parser INTO DATA(error).
+        cl_abap_unit_assert=>fail( |Unexpected exception: { error->get_text( ) }| ).
+    ENDTRY.
+    cl_abap_unit_assert=>assert_equals(
+      act = result
+      exp = 'First user: John, Last user: Jim' ).
+  ENDMETHOD.
+
+  METHOD test_invalid_table_index.
+    TYPES: BEGIN OF context_type,
+             users TYPE string_table,
+           END OF context_type.
+
+    DATA(context) = NEW context_type(
+      users = VALUE #( ( `John` ) ) ).
+    TRY.
+        parser->add_template(
+          name    = 'test'
+          content = '{{ users[2] }}' ).  " Index out of bounds
+
+        parser->render(
+          template_name = 'test'
+          context      = context ).
+
+        cl_abap_unit_assert=>fail( 'Exception expected' ).
+      CATCH zcx_llm_template_parser INTO DATA(error).
+        cl_abap_unit_assert=>assert_bound( error ).
+    ENDTRY.
+  ENDMETHOD.
+
+  METHOD test_table_ref_resolution.
+    TYPES: BEGIN OF context_type,
+             name      TYPE string,
+             employees TYPE string_table,
+           END OF context_type.
+
+    DATA(context) = NEW context_type(
+      name      = 'IT'
+      employees = VALUE #( ( `John` ) ( `Jane` ) ) ).
+    TRY.
+        parser->add_template(
+              name    = 'test'
+              content = '{% for emp in employees %}{{ emp }}{% endfor %}' ).
+
+        DATA(result) = parser->render(
+          template_name = 'test'
+          context      = context ).
+      CATCH zcx_llm_template_parser INTO DATA(error).
+        cl_abap_unit_assert=>fail( |Unexpected exception: { error->get_text( ) }| ).
+    ENDTRY.
+    cl_abap_unit_assert=>assert_equals(
+      act = result
+      exp = 'JohnJane' ).
+  ENDMETHOD.
 ENDCLASS.
