@@ -26,10 +26,29 @@ CLASS zcl_llm_client_ollama DEFINITION
     METHODS parse_message        REDEFINITION.
 
   PRIVATE SECTION.
+
+    TYPES: BEGIN OF ollama_function,
+             name      TYPE string,
+             arguments TYPE /ui2/cl_json=>json,
+           END OF ollama_function.
+
+    TYPES: BEGIN OF ollama_tool_call,
+             id       TYPE string,
+             type     TYPE string,
+             function TYPE ollama_function,
+           END OF ollama_tool_call.
+
+    TYPES: BEGIN OF ollama_message,
+             role       TYPE string,
+             content    TYPE string,
+             tool_calls TYPE STANDARD TABLE OF ollama_tool_call WITH EMPTY KEY,
+           END OF ollama_message.
+
+
     TYPES: BEGIN OF ollama_response,
              prompt_eval_count TYPE i,
              eval_count        TYPE i,
-             message           TYPE base_message,
+             message           TYPE ollama_message,
              done_reason       TYPE string,
            END OF ollama_response.
 
@@ -198,8 +217,8 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
           ENDTRY.
         ENDLOOP.
 
-        " Tool does not exist --> Hallucination
-        IF sy-subrc <> 0.
+        " This is only an issue if tool call is required
+        IF sy-subrc <> 0 AND request-tool_choice = zif_llm_chat_request=>tool_choice_required.
           result-success = abap_false.
           MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 017 WITH details-name INTO message_text.
           result-error = VALUE #( tool_parse_error = abap_true
@@ -209,9 +228,9 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
       ENDLOOP.
     ENDIF.
     " Add the assistant's response message
-    result-choice-message = VALUE #( BASE result-choice-message
-                                     role    = response-message-role
-                                     content = response-message-content ).
+    " result-choice-message = VALUE #( BASE result-choice-message
+    "                                 role    = response-message-role
+    "                                 content = response-message-content ).
 
     result-success = abap_true.
   ENDMETHOD.
@@ -225,13 +244,16 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
         ENDIF.
         result = |{ result }\{"id":"{ <tool_call>-id }","type":"{ <tool_call>-type }",|
               && |"{ <tool_call>-type }":\{"name":"{ <tool_call>-function-name }",|
-              && |"arguments":\{{ <tool_call>-function-json_response }\}\}\}|.
+              && |"arguments":{ <tool_call>-function-json_response }\}\}|.
       ENDLOOP.
       result = |{ result }]\}|.
     ELSE.
       result = |\{"role":"{ message-role }","content":"{
                escape( val    = message-content
                        format = cl_abap_format=>e_json_string ) }"|.
+      IF message-name IS NOT INITIAL.
+        result =  |{ result },"name":"{ message-name }"|.
+      ENDIF.
       IF message-tool_call_id IS NOT INITIAL.
         result = |{ result },"tool_call_id":"{ message-tool_call_id }"\}|.
       ELSE.

@@ -155,14 +155,16 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
     " Add tools if available and active
     IF lines( request-tools ) > 0 AND request-tool_choice <> zif_llm_chat_request=>tool_choice_none.
       result = |{ result },"tools":[|.
+      first_line = abap_true.
       LOOP AT request-tools ASSIGNING FIELD-SYMBOL(<tool>).
         DATA(details) = <tool>->get_tool_details( ).
-        IF sy-tabix = 1.
+        IF first_line = abap_true..
           result = |{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
                 && tool_parser->parse( data_desc    = details-parameters-data_desc
                                        descriptions = details-parameters-descriptions )
                 && |,"strict":true\}\}|.
+          first_line = abap_false.
         ELSE.
           result = |{ result },\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
@@ -274,8 +276,8 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
         ENDTRY.
       ENDLOOP.
 
-      " Tool does not exist --> Hallucination
-      IF sy-subrc <> 0.
+      " This is only an issue if tool call is required
+      IF sy-subrc <> 0 AND request-tool_choice = zif_llm_chat_request=>tool_choice_required.
         MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 017
                 WITH details-name INTO message_text.
       ENDIF.
@@ -299,6 +301,9 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
       result = |\{"role":"{ message-role }","content":"{
                escape( val    = message-content
                        format = cl_abap_format=>e_json_string ) }"|.
+      IF message-name IS NOT INITIAL.
+        result =  |{ result },"name":"{ message-name }"|.
+      ENDIF.
       IF message-tool_call_id IS NOT INITIAL.
         result = |{ result },"tool_call_id":"{ message-tool_call_id }"\}|.
       ELSE.

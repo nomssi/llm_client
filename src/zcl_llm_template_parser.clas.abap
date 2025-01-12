@@ -348,7 +348,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       IF sy-subrc <> 0.
         RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unclosed_token
                                                      msgv1  = COND #( WHEN token_type = token_types-variable
-                                                                      THEN 'Variable'
+                                                                      THEN 'Variable' ##NO_TEXT
                                                                       ELSE substring( val = current_chunk+token_start
                                                                                       off = 2
                                                                                       len = 20 ) ) ).
@@ -429,7 +429,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
                                     CHANGING  control_stack   = control_stack ).
 
                 " Handle for loops
-              ELSEIF control_content CP 'for *'.
+              ELSEIF control_content CP 'for *' ##NO_TEXT.
                 handle_for_loop( EXPORTING control_content = control_content
                                            context         = context
                                  CHANGING  control_stack   = control_stack ).
@@ -1060,7 +1060,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
                                                        previous = lx_if ).
       ENDTRY.
 
-    ELSEIF control_content CP 'elif *'.
+    ELSEIF control_content CP 'elif *' ##NO_TEXT.
       " Handle elif (else if)
       IF lines( control_stack ) = 0 OR control_stack[ lines( control_stack ) ]-type <> 'IF'.
         RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unexpected_elif ).

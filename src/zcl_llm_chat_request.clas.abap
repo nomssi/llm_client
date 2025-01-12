@@ -36,10 +36,10 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
 
   METHOD zif_llm_chat_request~add_tool_result.
     DATA(tool_result) = tool->get_result( ).
-    APPEND VALUE #(
-        role = zif_llm_client=>role_tool
-        tool_call_id = tool_result-tool_call_id
-        content = zcl_llm_common=>to_json( data = tool_result-data ) ) TO request-messages.
+    APPEND VALUE #( role         = zif_llm_client=>role_tool
+                    tool_call_id = tool_result-tool_call_id
+                    content      = zcl_llm_common=>to_json( data = tool_result-data )
+                    name         = tool_result-name ) TO request-messages.
   ENDMETHOD.
 
   METHOD zif_llm_chat_request~add_messages.

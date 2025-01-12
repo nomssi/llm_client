@@ -224,12 +224,18 @@ CLASS ltcl_tool_double IMPLEMENTATION.
     result = me->details.
   ENDMETHOD.
 
+
+
   METHOD set_result.
     me->result = result.
   ENDMETHOD.
 
   METHOD set_tool_details.
     me->details = details.
+  ENDMETHOD.
+
+  METHOD zif_llm_tool~execute.
+  "do nothing
   ENDMETHOD.
 
 ENDCLASS.
