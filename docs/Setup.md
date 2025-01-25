@@ -14,6 +14,7 @@
     - OpenAI path prefix /v1
     - Openrouter path prefix /api/v1
     - AzureOpenAI path prefix /openai/deployments
+    - Anthropic path prefix /v1
 3. Add required SSL certificates in STRUST for the providers you want to use
 4. Configure the provider via report ZLLM_PROVIDER_MAINTENANCE
 

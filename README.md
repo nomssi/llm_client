@@ -15,6 +15,7 @@ Currently supported providers:
 - OpenAI
 - OpenRouter
 - Azure OpenAI (only OpenAI Service endpoint, not AI Foundry)
+- Anthropic (structured output is not supported, considering simulating this via tool calls - vote in issue for that)
 
 ## Features
 - Chat messages
