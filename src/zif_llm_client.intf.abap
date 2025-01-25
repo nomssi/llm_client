@@ -2,10 +2,10 @@
 INTERFACE zif_llm_client
   PUBLIC.
 
-  CONSTANTS: role_user      TYPE string VALUE `user`,
-             role_system    TYPE string VALUE `system`,
-             role_assistant TYPE string VALUE 'assistant',
-             role_tool      TYPE string VALUE `tool`.
+  CONSTANTS: role_user      TYPE zllm_role VALUE `user`,
+             role_system    TYPE zllm_role VALUE `system`,
+             role_assistant TYPE zllm_role VALUE 'assistant',
+             role_tool      TYPE zllm_role VALUE `tool`.
 
   CLASS-METHODS:
     "! <p class="shorttext synchronized" lang="en"></p>
