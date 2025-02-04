@@ -22,20 +22,22 @@ CLASS zcl_llm_template_parser DEFINITION
 
     METHODS constructor.
 
-    "! <p class="shorttext synchronized" lang="en">Add or replace a template</p>
-    "! @parameter name | <p class="shorttext synchronized" lang="en">Name of the template</p>
-    "! @parameter content | <p class="shorttext synchronized" lang="en">Content of the template</p>
-    "! @raising zcx_llm_template_parser | <p class="shorttext synchronized" lang="en">If template parsing fails</p>
+    "! <p class="shorttext synchronized">Add or replace a template</p>
+    "! @parameter name                    | <p class="shorttext synchronized">Name of the template</p>
+    "! @parameter content                 | <p class="shorttext synchronized">Content of the template</p>
+    "! @parameter replace                 | <p class="shorttext synchronized">Replace template with identical name</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If template parsing fails</p>
     METHODS add_template
-      IMPORTING !name   TYPE string
-                content TYPE string
+      IMPORTING !name    TYPE string
+                content  TYPE string
+                !replace TYPE sap_bool DEFAULT abap_true
       RAISING   zcx_llm_template_parser.
 
-    "! <p class="shorttext synchronized" lang="en">Render a template with given context</p>
-    "! @parameter template_name | <p class="shorttext synchronized" lang="en">Name of the template to render</p>
-    "! @parameter context | <p class="shorttext synchronized" lang="en">Data context for variable resolution</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Rendered template string</p>
-    "! @raising zcx_llm_template_parser | <p class="shorttext synchronized" lang="en">If rendering fails</p>
+    "! <p class="shorttext synchronized">Render a template with given context</p>
+    "! @parameter template_name           | <p class="shorttext synchronized">Name of the template to render</p>
+    "! @parameter context                 | <p class="shorttext synchronized">Data context for variable resolution</p>
+    "! @parameter result                  | <p class="shorttext synchronized">Rendered template string</p>
+    "! @raising   zcx_llm_template_parser | <p class="shorttext synchronized">If rendering fails</p>
     METHODS render
       IMPORTING template_name TYPE string
                 !context      TYPE REF TO data
@@ -258,9 +260,9 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
   METHOD add_template.
     " Check if we already have this template, if yes replace it
     ASSIGN templates[ name = name ] TO FIELD-SYMBOL(<template>).
-    IF sy-subrc = 0.
+    IF sy-subrc = 0 AND replace = abap_true.
       <template>-content = content.
-      "When replacing the content we need to clear the cache
+      " When replacing the content we need to clear the cache
       CLEAR <template>-tokens.
     ELSE.
       INSERT VALUE #( name    = name

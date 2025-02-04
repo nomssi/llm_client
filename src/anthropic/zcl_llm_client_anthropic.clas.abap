@@ -111,7 +111,7 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
     DATA system_messages     TYPE zllm_msgs.
 
     LOOP AT request-messages ASSIGNING FIELD-SYMBOL(<message>).
-      IF <message>-role = 'SYSTEM'.
+      IF <message>-role = 'system'.
         APPEND <message> TO system_messages.
       ELSE.
         APPEND <message> TO non_system_messages.
