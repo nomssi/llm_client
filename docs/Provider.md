@@ -15,7 +15,7 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Implementation Class: ZCL_LLM_CLIENT_OPENAI
 - RFC Desitination: created above
 - Auth Type: A (API Key)
-- Auth Value: Paste the API Key into both fields (key might be longer than 132 characters, in that case paste the remaining ones in the second field)
+- Auth Value: Paste the API Key
 
 ## [OpenRouter](https://openrouter.ai/)
 
@@ -32,7 +32,7 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Implementation Class: ZCL_LLM_CLIENT_OPENROUTER
 - RFC Desitination: created above
 - Auth Type: A (API Key)
-- Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
+- Auth Value: Paste the API Key
 
 ## [Ollama](https://ollama.com/)
 
@@ -67,7 +67,7 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Implementation Class: ZCL_LLM_CLIENT_AZUREOAI
 - RFC Desitination: created above
 - Auth Type: A (API Key)
-- Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
+- Auth Value: Paste the API Key
 
 ## [Anthropic](https://docs.anthropic.com/en/home)
 
@@ -84,7 +84,7 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Implementation Class: ZCL_LLM_CLIENT_ANTHROPIC
 - RFC Desitination: created above
 - Auth Type: A (API Key)
-- Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
+- Auth Value: Paste the API Key
 
 ## [VertexAI](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference)
 
@@ -113,3 +113,20 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Auth Type: B (Bearer)
 - Auth Value: {ssfapplication};{service account email} - for example ZG_JWT;serviceAccount\@projectId.iam.gserviceaccount.com
 Hint: the semikolon ";" is mandatory between the ssf application and service account email
+
+## [deepseek](https://www.deepseek.com/)
+
+Create the SM59 destination type "G" with:
+
+- HOST api.deepseek.com
+- Port 443
+- Path Prefix - Empty, keep the field empty
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
+- Implementation Class: ZCL_LLM_CLIENT_DEEPSEEK
+- RFC Desitination: created above
+- Auth Type: A (API Key)
+- Auth Value: Paste the API Key
