@@ -1,7 +1,9 @@
 # Provider Configuration
 
 ## [OpenAI](https://openai.com/)
+
 Create the SM59 destination type "G" with:
+
 - HOST api.openai.com
 - Port 443
 - Path Prefix /v1
@@ -9,13 +11,16 @@ Create the SM59 destination type "G" with:
 - Special Options HTTP 1.1
 
 Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
 - Implementation Class: ZCL_LLM_CLIENT_OPENAI
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key into both fields (key might be longer than 132 characters, in that case paste the remaining ones in the second field)
 
 ## [OpenRouter](https://openrouter.ai/)
+
 Create the SM59 destination type "G" with:
+
 - HOST openrouter.ai
 - Port 443
 - Path Prefix /api/v1
@@ -23,13 +28,16 @@ Create the SM59 destination type "G" with:
 - Special Options HTTP 1.1
 
 Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
 - Implementation Class: ZCL_LLM_CLIENT_OPENROUTER
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
 
 ## [Ollama](https://ollama.com/)
+
 Create the SM59 destination type "G" with:
+
 - HOST - your ollama host
 - Port - your ollama port (default 11434)
 - Path Prefix /api
@@ -37,14 +45,17 @@ Create the SM59 destination type "G" with:
 - Special Options HTTP 1.1
 
 Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
 - Implementation Class: ZCL_LLM_CLIENT_OLLAMA
 - RFC Desitination: created above
 - Auth Type: blank - alternative if you use some kind of reverse proxy/API Gateway that adds api-key you can use:
-    - Auth Type: A
-    - Auth Value: {apikey-header-name}:{apikey-value} Example: ApiKeyHeader:myApiKey123456
+  - Auth Type: A
+  - Auth Value: {apikey-header-name}:{apikey-value} Example: ApiKeyHeader:myApiKey123456
 
 ## [Azure OpenAI Service](https://azure.microsoft.com/de-de/products/ai-services/openai-service)
+
 Create the SM59 destination type "G" with:
+
 - HOST {deployment}.cognitiveservices.azure.com
 - Port 443
 - Path Prefix /openai/deployments
@@ -52,13 +63,16 @@ Create the SM59 destination type "G" with:
 - Special Options HTTP 1.1
 
 Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
 - Implementation Class: ZCL_LLM_CLIENT_AZUREOAI
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
 
 ## [Anthropic](https://docs.anthropic.com/en/home)
+
 Create the SM59 destination type "G" with:
+
 - HOST api.anthropic.com
 - Port 443
 - Path Prefix /v1
@@ -66,7 +80,36 @@ Create the SM59 destination type "G" with:
 - Special Options HTTP 1.1
 
 Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
 - Implementation Class: ZCL_LLM_CLIENT_ANTHROPIC
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key into the first field (in case it is too long you can use the second field for the rest)
+
+## [VertexAI](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference)
+
+Configure a custon SSF Application exactly as necessary for [Google ABAP SDK](https://cloud.google.com/solutions/sap/docs/abap-sdk/on-premises-or-any-cloud/latest/authentication-jwt). As a hint you might anyhow want to install this SDK as it gives you access to a lot of great features, however it is not a prerequisite for this llm library. We just need the SSF Application and proper service account.
+
+Create the SM59 destination type "G" for Login with:
+
+- HOST oauth2.googleapis.com
+- Port 443
+- Path Prefix /token
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Create the SM59 destination type "G" for AI API calls with:
+
+- HOST europe-west3-aiplatform.googleapis.com - or any other location as documented [here](https://cloud.google.com/vertex-ai/docs/general/locations)
+- Port 443
+- Path Prefix /v1/projects/{projectId}/locations - Replace the project id with your project id
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
+- Implementation Class: ZCL_LLM_CLIENT_VERTEXAI
+- RFC Desitination: created above
+- Auth Type: B (Bearer)
+- Auth Value: {ssfapplication};{service account email} - for example ZG_JWT;serviceAccount\@projectId.iam.gserviceaccount.com
+Hint: the semikolon ";" is mandatory between the ssf application and service account email
