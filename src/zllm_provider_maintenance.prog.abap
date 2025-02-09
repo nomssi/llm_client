@@ -4,59 +4,105 @@ CLASS lcl_app DEFINITION.
   PUBLIC SECTION.
     TYPES:
       BEGIN OF provider_config,
-        provider_name   TYPE zllm_provider_name,
-        provider_class  TYPE zllm_provider,
-        rfc_destination TYPE rfcdest,
-        auth_type       TYPE zllm_auth_type,
-        auth_value      TYPE zllm_auth_value,
-        auth_encrypted  TYPE xstring,
+        provider_name        TYPE zllm_provider_name,
+        provider_class       TYPE zllm_provider,
+        rfc_destination      TYPE rfcdest,
+        auth_rfc_destination TYPE rfcdest,
+        auth_type            TYPE zllm_auth_type,
+        auth_value           TYPE zllm_auth_value,
+        auth_encrypted       TYPE xstring,
       END OF provider_config,
       provider_configs TYPE STANDARD TABLE OF provider_config WITH KEY provider_name.
 
-    METHODS:
-      constructor, "Initialize application
-      display_providers, "Display the providers in ALV
+    METHODS constructor. " Initialize application
+    METHODS display_providers. " Display the providers in ALV
 
-      handle_action_add,    "Handle adding a new provider
-      handle_action_change, "Handle updating a provider
-      handle_action_delete. "Handle deleting a provider
+    METHODS handle_action_add.    " Handle adding a new provider
+    METHODS handle_action_change. " Handle updating a provider
+    METHODS handle_action_delete. " Handle deleting a provider
 
   PRIVATE SECTION.
-    DATA:
-      providers TYPE provider_configs,
-      grid      TYPE REF TO cl_gui_alv_grid,
-      container TYPE REF TO cl_gui_custom_container,
-      enc_class TYPE REF TO zif_llm_encryption.
+    DATA providers TYPE provider_configs.
+    DATA grid      TYPE REF TO cl_gui_alv_grid.
+    DATA container TYPE REF TO cl_gui_custom_container.
+    DATA enc_class TYPE REF TO zif_llm_encryption.
 
     TYPES sval_tab TYPE STANDARD TABLE OF sval WITH EMPTY KEY.
 
-    METHODS:
-      load_providers, "Load the provider list from the database
-      save_provider IMPORTING config TYPE provider_config, "Save a provider to the database
-      encrypt_auth_value IMPORTING plain TYPE zllm_auth_value
-                         RETURNING VALUE(result) TYPE xstring, "Encrypt a value
-      decrypt_auth_value IMPORTING encrypted TYPE zllm_auth_enc
-                         RETURNING VALUE(result) TYPE zllm_auth_value,
+    METHODS load_providers. " Load the provider list from the database
+    METHODS save_provider IMPORTING config TYPE provider_config. " Save a provider to the database
 
-      build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat, "Build ALV field catalog
-      refresh_display, "Refresh displayed ALV data
-      show_popup IMPORTING title TYPE string
-               CHANGING values TYPE sval_tab
-                    RETURNING VALUE(config) TYPE provider_config, "Show user input popup
-      show_confirm_popup IMPORTING title TYPE string text TYPE string
-                         RETURNING VALUE(result) TYPE abap_bool. "Show confirm popup
+    METHODS encrypt_auth_value IMPORTING plain         TYPE zllm_auth_value
+                               RETURNING VALUE(result) TYPE xstring. " Encrypt a value
+
+    METHODS decrypt_auth_value IMPORTING encrypted     TYPE zllm_auth_enc
+                               RETURNING VALUE(result) TYPE zllm_auth_value.
+
+    METHODS build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat. " Build ALV field catalog
+    METHODS refresh_display. " Refresh displayed ALV data
+
+    METHODS show_popup IMPORTING !title        TYPE string
+                       CHANGING  !values       TYPE sval_tab
+                       RETURNING VALUE(config) TYPE provider_config. " Show user input popup
+
+    METHODS show_confirm_popup IMPORTING !title        TYPE string
+                                         !text         TYPE string
+                               RETURNING VALUE(result) TYPE abap_bool. " Show confirm popup
 ENDCLASS.
+
+CLASS lcl_popup_screen DEFINITION.
+  PUBLIC SECTION.
+    METHODS constructor IMPORTING is_provider TYPE lcl_app=>provider_config.
+    METHODS show        IMPORTING iv_title    TYPE string.
+
+    METHODS pai IMPORTING dynnr TYPE sy-dynnr
+                          ucomm TYPE sy-ucomm.
+
+    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
+
+    DATA cancelled TYPE abap_bool.
+    DATA result    TYPE lcl_app=>provider_config.
+    DATA title     TYPE string.
+
+  PRIVATE SECTION.
+    TYPES: BEGIN OF ty_textline,
+             line TYPE c LENGTH 255,
+           END OF ty_textline,
+           tt_textline TYPE STANDARD TABLE OF ty_textline WITH DEFAULT KEY.
+
+    DATA provider_name        TYPE zllm_provider_name.
+    DATA provider_class       TYPE zllm_provider.
+    DATA rfc_destination      TYPE rfcdest.
+    DATA auth_rfc_destination TYPE rfcdest.
+    DATA auth_type            TYPE zllm_auth_type.
+    DATA text_editor          TYPE REF TO cl_gui_textedit.
+    DATA custom_container     TYPE REF TO cl_gui_custom_container.
+
+    METHODS initialize_text_editor.
+    METHODS set_text_editor_content.
+    METHODS cleanup_controls.
+ENDCLASS.
+
+DATA: gr_popup_screen TYPE REF TO lcl_popup_screen.
+DATA: BEGIN OF screen_fields,
+        provider_name        TYPE zllm_provider_name,
+        provider_class       TYPE zllm_provider,
+        rfc_destination      TYPE rfcdest,
+        auth_rfc_destination TYPE rfcdest,
+        auth_type            TYPE zllm_auth_type,
+      END OF screen_fields.
 
 CLASS lcl_app IMPLEMENTATION.
   METHOD constructor.
     load_providers( ).
     DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
-    CALL BADI llm_badi->get_encryption_impl RECEIVING result = enc_class.
+    CALL BADI llm_badi->get_encryption_impl
+      RECEIVING
+        result = enc_class.
   ENDMETHOD.
 
   METHOD load_providers.
-    SELECT *
-      FROM zllm_providers
+    SELECT * FROM zllm_providers
       INTO CORRESPONDING FIELDS OF TABLE @providers.    "#EC CI_GENBUFF
   ENDMETHOD.
 
@@ -68,56 +114,35 @@ CLASS lcl_app IMPLEMENTATION.
       DATA(fieldcat) = build_field_catalog( ).
 
       " Configure ALV layout
-      DATA(layout) = VALUE lvc_s_layo(
-        sel_mode    = 'A'
-        zebra       = abap_true
-        col_opt     = abap_true
-        cwidth_opt  = abap_true
-        no_toolbar  = abap_true ).
+      DATA(layout) = VALUE lvc_s_layo( sel_mode   = 'A'
+                                       zebra      = abap_true
+                                       col_opt    = abap_true
+                                       cwidth_opt = abap_true
+                                       no_toolbar = abap_true ).
 
       " Set ALV for display
-      grid->set_table_for_first_display(
-        EXPORTING
-          is_layout        = layout
-          i_save           = 'A'
-          i_default        = 'X'
-        CHANGING
-          it_outtab        = providers
-          it_fieldcatalog  = fieldcat ).
+      grid->set_table_for_first_display( EXPORTING is_layout       = layout
+                                                   i_save          = 'A'
+                                                   i_default       = 'X'
+                                         CHANGING  it_outtab       = providers
+                                                   it_fieldcatalog = fieldcat ).
     ELSE.
       refresh_display( ).
     ENDIF.
   ENDMETHOD.
 
   METHOD handle_action_add.
-    DATA(fields) = VALUE sval_tab(
-      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Provider Name'(001) field_attr = '01' field_obl = 'X' )
-      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) field_obl = 'X' )
-      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) )
-      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) )
-      ( fieldname = 'AUTH_VALUE' tabname = '*ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) ) ).
-
     DATA title TYPE string.
+
     title = 'Add Provider Configuration'(006).
-    DATA(new_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
-    " As the field is defined twice we need to get the values directly from the fields table.
-    " The structure value will be incorrect.
-    DATA: auth_value  TYPE c LENGTH 132,
-          auth_value2 TYPE c LENGTH 132.
-    LOOP AT fields ASSIGNING FIELD-SYMBOL(<field>) WHERE fieldname = 'AUTH_VALUE'.
-      IF <field>-tabname = 'ZLLM_PROVIDER_DISP'.
-        auth_value = <field>-value.
-      ELSE.
-        auth_value2 = <field>-value.
-      ENDIF.
-    ENDLOOP.
+    gr_popup_screen = NEW #( VALUE #( ) ).
+    gr_popup_screen->result = VALUE #( ). " Clear any previous values
+    gr_popup_screen->show( title ).
 
-    IF new_config IS NOT INITIAL.
-      new_config-auth_value = |{ auth_value }{ auth_value2 }|.
-      new_config-auth_encrypted = encrypt_auth_value( new_config-auth_value ).
-      save_provider( new_config ).
+    IF gr_popup_screen->cancelled = abap_false.
+      gr_popup_screen->result-auth_encrypted = encrypt_auth_value( gr_popup_screen->result-auth_value ).
+      save_provider( gr_popup_screen->result ).
       load_providers( ).
     ENDIF.
   ENDMETHOD.
@@ -131,43 +156,16 @@ CLASS lcl_app IMPLEMENTATION.
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
     selected_provider-auth_value = decrypt_auth_value( selected_provider-auth_encrypted ).
 
-    " OpenAI Project Keys might be longer than 132.
-    DATA: auth_value  TYPE c LENGTH 132,
-          auth_value2 TYPE c LENGTH 132.
-
-    IF strlen( selected_provider-auth_value ) > 132.
-      auth_value = selected_provider-auth_value+0(132).
-      auth_value2 = selected_provider-auth_value+132.
-    ELSE.
-      auth_value = selected_provider-auth_value.
-    ENDIF.
-
-    DATA(fields) = VALUE sval_tab(
-      ( fieldname = 'PROVIDER_NAME' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Provider Name'(001) field_attr = '02' field_obl = 'X' value = selected_provider-provider_name )
-      ( fieldname = 'PROVIDER_CLASS' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Implementation Class'(002) value = selected_provider-provider_class )
-      ( fieldname = 'RFC_DESTINATION' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'RFC Destination'(003) value = selected_provider-rfc_destination )
-      ( fieldname = 'AUTH_TYPE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Type'(004) value = selected_provider-auth_type )
-      ( fieldname = 'AUTH_VALUE' tabname = 'ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = auth_value )
-      ( fieldname = 'AUTH_VALUE' tabname = '*ZLLM_PROVIDER_DISP' fieldtext = 'Auth Value'(005) value = auth_value2 ) ).
-
     DATA title TYPE string.
     title = 'Change Provider Configuration'(007).
-    DATA(updated_config) = show_popup( EXPORTING title = title CHANGING values = fields ).
 
-    " As the field is defined twice we need to get the values directly from the fields table.
-    " The structure value will be incorrect.
-    LOOP AT fields ASSIGNING FIELD-SYMBOL(<field>) WHERE fieldname = 'AUTH_VALUE'.
-      IF <field>-tabname = 'ZLLM_PROVIDER_DISP'.
-        auth_value = <field>-value.
-      ELSE.
-        auth_value2 = <field>-value.
-      ENDIF.
-    ENDLOOP.
+    gr_popup_screen = NEW #( selected_provider ).
+    gr_popup_screen->result = selected_provider. " Set the current values
+    gr_popup_screen->show( title ).
 
-    IF updated_config IS NOT INITIAL.
-      updated_config-auth_value = |{ auth_value }{ auth_value2 }|.
-      updated_config-auth_encrypted = encrypt_auth_value( updated_config-auth_value ).
-      save_provider( updated_config ).
+    IF gr_popup_screen->cancelled = abap_false.
+      gr_popup_screen->result-auth_encrypted = encrypt_auth_value( gr_popup_screen->result-auth_value ).
+      save_provider( gr_popup_screen->result ).
       load_providers( ).
     ENDIF.
   ENDMETHOD.
@@ -180,12 +178,11 @@ CLASS lcl_app IMPLEMENTATION.
 
     DATA(selected_provider) = providers[ sel_rows[ 1 ]-index ].
     DATA title TYPE string.
-    DATA text TYPE string.
+    DATA text  TYPE string.
     title = 'Confirm Deletion'(010).
     text = 'Delete provider'(011).
-    DATA(confirmed) = show_confirm_popup(
-      title = title
-      text  = |{ text } { selected_provider-provider_name }?| ).
+    DATA(confirmed) = show_confirm_popup( title = title
+                                          text  = |{ text } { selected_provider-provider_name }?| ).
 
     IF confirmed = abap_true.
       DELETE FROM zllm_providers WHERE provider_name = @selected_provider-provider_name.
@@ -232,27 +229,19 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD show_popup.
-    DATA(returncode) = ''.
-    CALL FUNCTION 'POPUP_GET_VALUES'
-      EXPORTING
-        popup_title = title
-      IMPORTING
-        returncode  = returncode
-      TABLES
-        fields      = values.
+    gr_popup_screen = NEW #( is_provider = VALUE #(
+                                 provider_name        = values[ fieldname = 'PROVIDER_NAME' ]-value
+                                 provider_class       = values[ fieldname = 'PROVIDER_CLASS' ]-value
+                                 rfc_destination      = values[ fieldname = 'RFC_DESTINATION' ]-value
+                                 auth_rfc_destination = values[ fieldname = 'AUTH_RFC_DESTINATION' ]-value
+                                 auth_type            = values[ fieldname = 'AUTH_TYPE' ]-value
+                                 auth_value           = values[ fieldname = 'AUTH_VALUE' ]-value ) ).
 
-    IF returncode = 'A'.
-      RETURN.
+    gr_popup_screen->show( title ).
+
+    IF gr_popup_screen->cancelled = abap_false.
+      config = gr_popup_screen->result.
     ENDIF.
-
-    DATA(resulting_config) = VALUE provider_config( ).
-    LOOP AT values INTO DATA(field).
-      ASSIGN COMPONENT field-fieldname OF STRUCTURE resulting_config TO FIELD-SYMBOL(<fs>).
-      IF sy-subrc = 0.
-        <fs> = field-value.
-      ENDIF.
-    ENDLOOP.
-    config = resulting_config.
   ENDMETHOD.
 
   METHOD show_confirm_popup.
@@ -276,16 +265,16 @@ CLASS lcl_app IMPLEMENTATION.
         MESSAGE 'No Authorization to decrypt!'(013) TYPE 'E'.
     ENDTRY.
   ENDMETHOD.
-
 ENDCLASS.
 
 CLASS lcl_screen DEFINITION.
   PUBLIC SECTION.
-    METHODS:
-      start,
-      pai IMPORTING dynnr TYPE sy-dynnr
-                    ucomm TYPE sy-ucomm,
-      pbo IMPORTING dynnr TYPE sy-dynnr.
+    METHODS start.
+
+    METHODS pai IMPORTING dynnr TYPE sy-dynnr
+                          ucomm TYPE sy-ucomm.
+
+    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
 
   PRIVATE SECTION.
     DATA app TYPE REF TO lcl_app.
@@ -319,6 +308,123 @@ CLASS lcl_screen IMPLEMENTATION.
   ENDMETHOD.
 ENDCLASS.
 
+CLASS lcl_popup_screen IMPLEMENTATION.
+  METHOD constructor.
+    result = is_provider.
+    provider_name = is_provider-provider_name.
+    provider_class = is_provider-provider_class.
+    rfc_destination = is_provider-rfc_destination.
+    auth_rfc_destination = is_provider-auth_rfc_destination.
+    auth_type = is_provider-auth_type.
+  ENDMETHOD.
+
+  METHOD show.
+    title = iv_title.
+    cleanup_controls( ). " Ensure clean state before showing
+    CALL SCREEN 200 STARTING AT 10 3 ENDING AT 140 28.
+  ENDMETHOD.
+
+  METHOD initialize_text_editor.
+    IF text_editor IS NOT BOUND.
+      custom_container = NEW #( container_name = 'CUSTOM_CONTROL' ).
+      text_editor = NEW #( parent            = custom_container
+                           wordwrap_mode     = 2
+                           wordwrap_position = 110 ).
+      text_editor->set_toolbar_mode( 0 ).
+      text_editor->set_statusbar_mode( 0 ).
+      text_editor->set_readonly_mode( 0 ).
+      text_editor->set_visible( abap_true ).
+      cl_gui_cfw=>flush( ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD set_text_editor_content.
+    DATA auth_value  TYPE string.
+    DATA line_length TYPE i VALUE 110.
+    DATA remaining   TYPE string.
+    DATA current_len TYPE i.
+    DATA split_pos   TYPE i.
+    DATA textlines   TYPE tt_textline.
+    DATA textline    TYPE ty_textline.
+
+    auth_value = result-auth_value.
+    remaining = auth_value.
+
+    WHILE remaining IS NOT INITIAL.
+      current_len = strlen( remaining ).
+
+      IF current_len <= line_length.
+        textline-line = remaining.
+        APPEND textline TO textlines.
+        CLEAR remaining.
+      ELSE.
+        split_pos = line_length.
+        FIND `\s` IN remaining(line_length) RESPECTING CASE MATCH OFFSET split_pos.
+        IF sy-subrc <> 0.
+          split_pos = line_length.
+        ENDIF.
+
+        textline-line = remaining(split_pos).
+        APPEND textline TO textlines.
+        remaining = remaining+split_pos.
+        SHIFT remaining LEFT DELETING LEADING ` `.
+      ENDIF.
+    ENDWHILE.
+
+    text_editor->delete_text( ).
+    text_editor->set_text_as_r3table( table = textlines ).
+    text_editor->set_focus( text_editor ).
+  ENDMETHOD.
+
+
+  METHOD pbo.
+    SET PF-STATUS 'POPUP200'.
+    SET TITLEBAR 'TITLE200' WITH title.
+
+    " Fill screen fields
+    screen_fields-provider_name   = provider_name.
+    screen_fields-provider_class  = provider_class.
+    screen_fields-rfc_destination = rfc_destination.
+    screen_fields-auth_rfc_destination = auth_rfc_destination.
+    screen_fields-auth_type       = auth_type.
+
+    " Always initialize and set content
+    initialize_text_editor( ).
+    set_text_editor_content( ).
+  ENDMETHOD.
+
+  METHOD cleanup_controls.
+    IF text_editor IS BOUND.
+      text_editor->free( ).
+    ENDIF.
+    IF custom_container IS BOUND.
+      custom_container->free( ).
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD pai.
+    CASE ucomm.
+      WHEN 'OK'.
+        DATA lt_text TYPE tt_textline.
+        text_editor->get_text_as_r3table( IMPORTING table = lt_text ).
+
+        result-provider_name   = screen_fields-provider_name.
+        result-provider_class  = screen_fields-provider_class.
+        result-rfc_destination = screen_fields-rfc_destination.
+        result-auth_type       = screen_fields-auth_type.
+        result-auth_rfc_destination = screen_fields-auth_rfc_destination.
+        result-auth_value      = concat_lines_of( lt_text ).
+        cancelled = abap_false.
+        cleanup_controls( ).
+        LEAVE TO SCREEN 0.
+      WHEN 'CANCEL'.
+        cancelled = abap_true.
+        cleanup_controls( ).
+        LEAVE TO SCREEN 0.
+    ENDCASE.
+  ENDMETHOD.
+ENDCLASS.
+
 INITIALIZATION.
   DATA(screen) = NEW lcl_screen( ).
 
@@ -336,5 +442,23 @@ ENDMODULE.
 *& Module USER_COMMAND_0100 INPUT
 *&---------------------------------------------------------------------*
 MODULE user_command_0100 INPUT.
-  screen->pai( dynnr = sy-dynnr ucomm = sy-ucomm ).
+  screen->pai( dynnr = sy-dynnr
+               ucomm = sy-ucomm ).
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*& Module STATUS_0200 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE status_0200 OUTPUT.
+  gr_popup_screen->pbo( sy-dynnr ).
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  USER_COMMAND_0200  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE user_command_0200 INPUT.
+  gr_popup_screen->pai( dynnr = sy-dynnr
+                        ucomm = sy-ucomm ).
 ENDMODULE.
