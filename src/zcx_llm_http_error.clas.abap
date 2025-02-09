@@ -44,6 +44,15 @@ public section.
       attr3 type scx_attrname value '',
       attr4 type scx_attrname value '',
     end of HTTP_OTHERS .
+  constants:
+    begin of HTTP_AUTH_PROCESSING,
+      msgid type symsgid value 'ZLLM_CLIENT',
+      msgno type symsgno value '043',
+      attr1 type scx_attrname value 'MV_ATTR1',
+      attr2 type scx_attrname value 'MV_ATTR2',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of HTTP_AUTH_PROCESSING .
   data MV_ATTR1 type STRING .
   data MV_ATTR2 type STRING .
   data MV_ATTR3 type STRING .

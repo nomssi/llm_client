@@ -21,7 +21,7 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    auth_class->check_encrypt( ).
+    auth_class->check_decrypt( ).
 
     DATA(total_bytes) = xstrlen( encrypted ).
     DATA ssfbin_tab TYPE STANDARD TABLE OF ssfbin.
@@ -86,7 +86,7 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    auth_class->check_decrypt( ).
+    auth_class->check_encrypt( ).
 
     DATA(to_encrypt) = cl_binary_convert=>string_to_xstring_utf8( unencrypted ).
     DATA(input_len) = xstrlen( to_encrypt ).
@@ -204,6 +204,70 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
           attr2  = CONV #( sy-subrc ).
     ENDIF.
 
+  ENDMETHOD.
+
+  METHOD zif_llm_encryption~sign.
+    DATA ssfbin_tab TYPE STANDARD TABLE OF ssfbin WITH EMPTY KEY.
+    DATA signed_bin TYPE STANDARD TABLE OF ssfbin WITH EMPTY KEY.
+    DATA bin_line   TYPE i VALUE 255.
+
+    DATA(total_bytes) = xstrlen( xstring_to_sign ).
+
+    ssfbin_tab = VALUE #( FOR j = 0 THEN j + bin_line WHILE j < total_bytes
+                          ( bindata = COND xstring(
+                              WHEN total_bytes - j >= bin_line
+                              THEN xstring_to_sign+j(bin_line)
+                              ELSE xstring_to_sign+j ) ) ).
+
+    DATA output_length TYPE ssflen.
+    DATA signers       TYPE STANDARD TABLE OF ssfinfo.
+    DATA profile       TYPE localfile.
+
+    CALL FUNCTION 'SSFPSE_FILENAME'
+      EXPORTING  applic        = ssf_application
+      IMPORTING  profile       = profile
+      EXCEPTIONS pse_not_found = 1
+                 OTHERS        = 2.
+    IF sy-subrc <> 0 OR profile IS INITIAL.
+      RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>sign_issue
+                                              attr1  = |SSF Application { ssf_application } invalid| ).
+    ENDIF.
+
+    APPEND VALUE #( id      = '<implicit>'
+                    result  = 28
+                    profile = profile ) TO signers.
+    CALL FUNCTION 'SSF_KRN_SIGN'
+      EXPORTING  str_format                   = 'PKCS1-V1.5'
+                 b_inc_certs                  = abap_false
+                 b_detached                   = abap_false
+                 b_inenc                      = abap_false
+                 ostr_input_data_l            = total_bytes
+                 str_hashalg                  = 'SHA256'
+      IMPORTING  ostr_signed_data_l           = output_length
+      TABLES     ostr_input_data              = ssfbin_tab
+                 signer                       = signers
+                 ostr_signed_data             = signed_bin
+      EXCEPTIONS ssf_krn_error                = 1
+                 ssf_krn_noop                 = 2
+                 ssf_krn_nomemory             = 3
+                 ssf_krn_opinv                = 4
+                 ssf_krn_nossflib             = 5
+                 ssf_krn_signer_list_error    = 6
+                 ssf_krn_input_data_error     = 7
+                 ssf_krn_invalid_par          = 8
+                 ssf_krn_invalid_parlen       = 9
+                 ssf_fb_input_parameter_error = 10.
+
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>sign_issue
+                                              attr1  = |SSF_KRN_SIGN failed with sy-subrc = { sy-subrc }| ).
+    ENDIF.
+
+    DATA(signature) = REDUCE xstring(
+        INIT r = VALUE xstring( )
+        FOR wa IN signed_bin
+        NEXT r = r && wa-bindata ).
+    result = signature(output_length).
   ENDMETHOD.
 
 ENDCLASS.

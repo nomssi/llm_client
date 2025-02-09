@@ -141,6 +141,7 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
           result = |{ result },\{"text":"{ system_message-content }","type":"text"\}|.
         ENDIF.
       ENDLOOP.
+      result = |{ result }]|.
     ENDIF.
 
     " Add structured output if available and format

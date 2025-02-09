@@ -118,12 +118,12 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     ENDIF.
 
     response-http_response = client->response.
-    client->response->get_status( IMPORTING code = response-code ).
+     client->response->get_status( IMPORTING code = response-code ).
     response-response = client->response->get_cdata( ).
 
     DATA timestamp TYPE timestamp.
-    GET TIME STAMP FIELD timestamp.
-    call_logger->add( VALUE #(
+     GET TIME STAMP FIELD timestamp.
+       call_logger->add( VALUE #(
         id = session_id
         msg = msg
         timestamp = timestamp

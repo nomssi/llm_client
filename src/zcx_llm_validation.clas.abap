@@ -89,6 +89,15 @@ public section.
       attr3 type scx_attrname value '',
       attr4 type scx_attrname value '',
     end of PROVIDER_DOES_NOT_EXIST .
+  constants:
+    begin of SIGN_ISSUE,
+      msgid type symsgid value 'ZLLM_CLIENT',
+      msgno type symsgno value '044',
+      attr1 type scx_attrname value 'MV_ATTR1',
+      attr2 type scx_attrname value '',
+      attr3 type scx_attrname value '',
+      attr4 type scx_attrname value '',
+    end of SIGN_ISSUE .
   data MV_ATTR1 type STRING .
   data MV_ATTR2 type STRING .
   data MV_ATTR3 type STRING .

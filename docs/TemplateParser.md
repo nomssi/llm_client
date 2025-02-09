@@ -1,8 +1,9 @@
-# ABAP Template Parser Documentation 
+# ABAP Template Parser Documentation
 
 A simple jinja-like template parser is available via class zcl_llm_template_parser. The main use case is to simplify template usage with the llm client and further features.
 
 ## Basic Usage
+
 ```abap
 DATA(parser) = NEW zcl_llm_template_parser( ).
 parser->add_template( 
@@ -16,6 +17,7 @@ DATA(result) = parser->render(
 ## Template Syntax
 
 ### Variables
+
 ```abap
 {{ variable }}                "Basic variable
 {{ user.name }}              "Nested property
@@ -24,7 +26,9 @@ DATA(result) = parser->render(
 ```
 
 ### Variable Filters
+
 Available filters are:
+
 ```abap
 {{ name|upper }}            "Convert to uppercase
 {{ name|lower }}            "Convert to lowercase
@@ -35,6 +39,7 @@ Available filters are:
 ### Control Structures
 
 #### If Statements
+
 ```abap
 {% if condition %}
   content
@@ -46,11 +51,13 @@ Available filters are:
 ```
 
 Supported Conditions:
+
 - Comparison Operators: `==`, `!=`, `>=`, `<=`, `>`, `<`
 - Logical Operators: `and`, `or`, `not`
 - Boolean Values: `true`, `false`, `1`, `0`, `X`, `x`
 
 Examples:
+
 ```abap
 {% if user.age > 18 %}
   Adult content
@@ -66,6 +73,7 @@ Examples:
 ```
 
 #### For Loops
+
 ```abap
 {% for item in items %}
   {{ item.name }}
@@ -73,6 +81,7 @@ Examples:
 ```
 
 Loop Context Variables:
+
 ```abap
 {{ loop.index }} "Current iteration (1-based)
 {{ loop.first }} "True if first iteration
@@ -80,6 +89,7 @@ Loop Context Variables:
 ```
 
 ### Comments
+
 ```abap
 {# This is a comment and will not appear in output #}
 ```
@@ -87,6 +97,7 @@ Loop Context Variables:
 ## Data Type Support
 
 ### Elementary Types
+
 - Strings
 - Integers
 - Dates (formatted in user format)
@@ -94,18 +105,23 @@ Loop Context Variables:
 - Boolean values (output as 'true'/'false')
 
 ### Complex Types
+
 - Structures
 - Tables
 - Nested structures and tables
 
 ### Table Output Formatting
+
 Direct table reference formatting:
+
 - Elementary tables: comma-separated list
 - Structure tables: `[KEY1: value1, KEY2: value2; KEY1: value1, KEY2: value2]`
 - Nested tables: `[NESTED TABLE]`
 
 ## Special Characters
+
 Escape sequences supported:
+
 ```abap
 \n     "Newline
 \t     "Tab
@@ -115,7 +131,9 @@ Escape sequences supported:
 ```
 
 ## Error Handling
+
 The parser raises `ZCX_LLM_TEMPLATE_PARSER` exception for:
+
 - Invalid template syntax
 - Unclosed tokens
 - Invalid variable paths
@@ -126,6 +144,7 @@ The parser raises `ZCX_LLM_TEMPLATE_PARSER` exception for:
 - Invalid table indexes
 
 ## Complete Example
+
 ```abap
 DATA(template) =
   |{% if user.active %}| &&
@@ -147,6 +166,7 @@ DATA(output) = parser->render(
 ```
 
 ## Limitations
+
 - No custom filters supported
 - No template inheritance or includes
 - No whitespace control
