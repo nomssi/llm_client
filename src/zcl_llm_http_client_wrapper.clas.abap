@@ -118,19 +118,19 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
     ENDIF.
 
     response-http_response = client->response.
-     client->response->get_status( IMPORTING code = response-code ).
+    client->response->get_status( IMPORTING code = response-code ).
     response-response = client->response->get_cdata( ).
 
     DATA timestamp TYPE timestamp.
-     GET TIME STAMP FIELD timestamp.
-       call_logger->add( VALUE #(
-        id = session_id
-        msg = msg
-        timestamp = timestamp
-        request = request
-        response = response-response
-        uname = sy-uname
-         ) ).
+    GET TIME STAMP FIELD timestamp.
+    call_logger->add( VALUE #(
+     id = session_id
+     msg = msg
+     timestamp = timestamp
+     request = request
+     response = response-response
+     uname = sy-uname
+      ) ).
 
     "Need to reset the request as otherwise the next call in this session will overwrite the
     "path prefix defined in SM59.
@@ -146,7 +146,7 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
 
 
     IF sy-subrc = 0.
-      IF response-code >= 300. "#EC CI_MAGIC
+      IF response-code >= 300.                            "#EC CI_MAGIC
         client->get_last_error( IMPORTING message = response-message ).
         IF response-message IS INITIAL.
           response-message = response-response.
@@ -174,6 +174,10 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
           attr1  = CONV #( error_code )
           attr2  = error_message.
     ENDIF.
+  ENDMETHOD.
+
+  METHOD zif_llm_http_client_wrapper~set_parmeter.
+    client->request->set_form_field( name = name value = value ).
   ENDMETHOD.
 
 ENDCLASS.

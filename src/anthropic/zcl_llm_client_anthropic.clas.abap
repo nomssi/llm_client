@@ -99,6 +99,8 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
     " implementation and simply ignore it in later stages. At a later point in time
     " we might try to solve this via a mandatory tool call instead. However I hope this is
     " a default feature with the next model generation anyhow.
+    " Initialize tool parser
+    tool_parser = create_tool_parser( ).
   ENDMETHOD.
 
   METHOD build_request_json.
