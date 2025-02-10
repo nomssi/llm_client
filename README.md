@@ -1,5 +1,7 @@
 # ABAP LLM Client
 
+[Discord](https://discord.gg/jf2FhnFvSn) - I will post regular updates and plans there.
+
 ## Release Status
 
 **BETA** - Expect bugs outside of the current test scope --> properly test before production use. Breaking changes are possible but will be documented.
@@ -88,8 +90,6 @@ Further features mid-term:
 - More providers:
   - Azure AI Foundry
   - AWS Bedrock
-  - Google Gemini Devleoper
-  - Google Vertex AI
 - Workaround to force use required tool to simulate structured output where providers miss this feature (e.g. Azure AI Foundry)
 - Better UX for the settings and customizing tasks
 - Better error- and edge-case handling
@@ -105,7 +105,7 @@ Further features mid-term:
 Feel free to:
 
 - Open issues for bug reports
-- Use discussions for feature requests
+- Use [Discord](https://discord.gg/jf2FhnFvSn) for discussions
 - Request/Implement additional provider implementations
 - Suggest concept improvements
 
