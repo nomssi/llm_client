@@ -1,6 +1,7 @@
-"! <p class="shorttext synchronized" lang="en">Vertex AI LLM Client</p>
-CLASS zcl_llm_client_vertexai DEFINITION
-  PUBLIC
+"! <p class="shorttext synchronized" lang="en">Gemini Client</p>
+"! This client uses mostly the vertex logic with a few changes
+CLASS zcl_llm_client_gemini DEFINITION
+ PUBLIC
   INHERITING FROM zcl_llm_client_base
   CREATE PUBLIC .
 
@@ -17,17 +18,18 @@ CLASS zcl_llm_client_vertexai DEFINITION
                 provider_config TYPE zllm_providers
       RAISING   zcx_llm_validation
                 zcx_llm_authorization.
-    METHODS zif_llm_client~chat REDEFINITION.
     METHODS zif_llm_client~new_request REDEFINITION.
+    METHODS zif_llm_client~chat REDEFINITION.
   PROTECTED SECTION.
     METHODS: get_http_client REDEFINITION,
       set_auth REDEFINITION,
       get_chat_endpoint REDEFINITION,
       build_request_json REDEFINITION,
       parse_message REDEFINITION,
-      handle_http_response REDEFINITION.
+      handle_http_response REDEFINITION,
+      create_structured_output REDEFINITION,
+      create_tool_parser REDEFINITION.
   PRIVATE SECTION.
-    DATA auth TYPE REF TO zcl_llm_client_vertex_auth.
 
     " VertexAI messages
     TYPES: BEGIN OF vertexai_function,
@@ -64,24 +66,29 @@ CLASS zcl_llm_client_vertexai DEFINITION
              candidates    TYPE vertexai_candidates,
              usagemetadata TYPE vertexai_usage,
            END OF vertexai_response.
+
+    DATA api_key TYPE string.
+
 ENDCLASS.
 
-
-
-CLASS zcl_llm_client_vertexai IMPLEMENTATION.
+CLASS zcl_llm_client_gemini IMPLEMENTATION.
   METHOD constructor.
     super->constructor( client_config   = client_config
                         provider_config = provider_config ).
     initialize( ).
   ENDMETHOD.
 
+  METHOD create_structured_output.
+    result = NEW zcl_llm_so_ge( ).
+  ENDMETHOD.
+
   METHOD get_client.
-    result = NEW zcl_llm_client_vertexai( client_config   = client_config
+    result = NEW zcl_llm_client_gemini( client_config   = client_config
                                             provider_config = provider_config ).
   ENDMETHOD.
 
   METHOD get_chat_endpoint.
-    result = |{ client_config-provider_model }:generateContent|.
+    result = |/{ client_config-provider_model }:generateContent|.
   ENDMETHOD.
 
   METHOD get_http_client.
@@ -90,19 +97,22 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD set_auth.
-    " We cannot set any auth header now, we need to get an active token
-    " right before every call instead. We just initialize the class.
-    IF provider_config-auth_type = 'B'.
-      auth = NEW zcl_llm_client_vertex_auth( ).
-    ENDIF.
+    " Not handled here, need to do it on every call
   ENDMETHOD.
 
   METHOD zif_llm_client~chat.
-    " Set the auth header, everything else will be handled by the base class
+    " Set the auth parameter, everything else will be handled by the base class
     TRY.
-        DATA(token) = auth->get_token( provider = provider_config ).
-        client->set_header( name  = 'Authorization'
-                            value = |Bearer { token-content }| ).
+        IF api_key IS INITIAL.
+          IF provider_config-auth_encrypted IS NOT INITIAL.
+            DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
+            CALL BADI llm_badi->get_encryption_impl
+              RECEIVING
+                result = DATA(enc_class).
+            api_key = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
+          ENDIF.
+        ENDIF.
+        client->set_parmeter( name = 'key' value = api_key ).
         response = super->zif_llm_client~chat( request = request ).
       CATCH zcx_llm_http_error
             zcx_llm_authorization INTO DATA(error).
@@ -259,11 +269,11 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
 
     " Initialize options
     request-options           = NEW zcl_llm_options_vertexai( ).
-    " Same for tool parser
-    tool_parser = create_tool_parser( ).
 
     " Initialize structured output using provider-specific implementation
     request-structured_output = create_structured_output( ).
+    " Same for tool parser
+    tool_parser = create_tool_parser( ).
 
     " Get configured default parameters and set them
     IF client_config-default_op IS NOT INITIAL.
@@ -385,6 +395,10 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
     ENDIF.
 
     result-success = abap_true.
+  ENDMETHOD.
+
+  METHOD create_tool_parser.
+    result = NEW zcl_llm_tool_parser_gemini( ).
   ENDMETHOD.
 
 ENDCLASS.

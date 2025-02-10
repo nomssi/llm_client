@@ -107,6 +107,8 @@ CLASS zcl_llm_client_base DEFINITION
       RAISING zcx_llm_validation
               zcx_llm_authorization.
 
+   methods create_tool_parser RETURNING VALUE(result) type ref to zif_llm_tool_parser.
+
   PRIVATE SECTION.
 ENDCLASS.
 
@@ -114,7 +116,6 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
   METHOD constructor.
     me->client_config   = client_config.
     me->provider_config = provider_config.
-    tool_parser = NEW zcl_llm_tool_parser( ).
     TRY.
         id = cl_system_uuid=>create_uuid_x16_static( ).
       CATCH cx_uuid_error.
@@ -368,6 +369,8 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
 
     " Initialize structured output using provider-specific implementation
     request-structured_output = create_structured_output( ).
+    " Same for tool parser
+    tool_parser = create_tool_parser( ).
 
     " Get configured default parameters and set them
     IF client_config-default_op IS NOT INITIAL.
@@ -395,6 +398,10 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
         provider_config = provider_config
       RECEIVING
         result          = response.
+  ENDMETHOD.
+
+  METHOD create_tool_parser.
+    result = new zcl_llm_tool_parser(  ).
   ENDMETHOD.
 
 ENDCLASS.
