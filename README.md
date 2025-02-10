@@ -22,6 +22,7 @@ Currently supported providers:
 - Anthropic (structured output is not supported, considering simulating this via tool calls - vote in issue for that)
 - Google Vertex AI
 - Deepseek (structured output currently not supported)
+- Google Gemini API
 
 ## Features
 

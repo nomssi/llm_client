@@ -130,3 +130,20 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key
+
+## [Gemini Developer API](https://aistudio.google.com/)
+
+Create the SM59 destination type "G" with:
+
+- HOST generativelanguage.googleapis.com
+- Port 443
+- Path Prefix /v1beta/models
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
+- Implementation Class: ZCL_LLM_CLIENT_GEMINI
+- RFC Desitination: created above
+- Auth Type: A (API Key)
+- Auth Value: Paste the API Key
