@@ -69,6 +69,24 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key
 
+## [Azure AI Foundry](https://learn.microsoft.com/en-us/azure/ai-studio/what-is-ai-studio)
+
+Note: Tests only happened with serverless deployments.\
+Create the SM59 destination type "G" with:
+
+- HOST {deployment}.services.ai.azure.com
+- Port 443
+- Path Prefix /models
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
+- Implementation Class: ZCL_LLM_CLIENT_AZUREAIF
+- RFC Desitination: created above
+- Auth Type: A (API Key)
+- Auth Value: Paste the API Key
+
 ## [Anthropic](https://docs.anthropic.com/en/home)
 
 Create the SM59 destination type "G" with:

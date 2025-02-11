@@ -20,7 +20,8 @@ Currently supported providers:
 - OLLAMA
 - OpenAI
 - OpenRouter
-- Azure OpenAI (only OpenAI Service endpoint, not AI Foundry)
+- Azure OpenAI
+- Azure AI Foundry
 - Anthropic (structured output is not supported, considering simulating this via tool calls - vote in issue for that)
 - Google Vertex AI
 - Deepseek (structured output currently not supported)
@@ -85,10 +86,9 @@ In general for most parts interfaces are available to easily use custom implemen
 ## Roadmap - Planned Features
 
 With the Beta release my focus is on using this library for further AI based topics (stay tuned) --> bug fixes have priority. Open a discussion or an issue if you have a specific requirement.
-Further features mid-term:
+Further features mid-term (check discord for short term plans and to discuss the current state):
 
 - More providers:
-  - Azure AI Foundry
   - AWS Bedrock
 - Workaround to force use required tool to simulate structured output where providers miss this feature (e.g. Azure AI Foundry)
 - Better UX for the settings and customizing tasks
