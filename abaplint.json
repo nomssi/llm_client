@@ -1,7 +1,7 @@
 {
   "global": {
     "files": "/src/**/*.*",
-    "exclude": [],
+    "exclude": [".*\\bllm_client\\.fugr\\b.*"],
     "noIssues": [],
     "skipGeneratedBOPFInterfaces": false,
     "skipGeneratedFunctionGroups": false,
