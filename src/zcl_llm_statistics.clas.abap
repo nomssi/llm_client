@@ -1,12 +1,15 @@
+"! <p class="shorttext synchronized" lang="en">LLM Statistics</p>
 CLASS zcl_llm_statistics DEFINITION
   PUBLIC
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    INTERFACES zif_llm_statistics.
 
-    INTERFACES zif_llm_statistics .
     ALIASES add FOR zif_llm_statistics~add.
+
     METHODS constructor.
+
   PROTECTED SECTION.
     DATA active TYPE sap_bool.
   PRIVATE SECTION.
@@ -18,10 +21,16 @@ CLASS zcl_llm_statistics IMPLEMENTATION.
       RETURN.
     ENDIF.
     INSERT zllm_statistics FROM @record.
+    IF sy-subrc <> 0.
+      " Intentionally do nothing
+    ENDIF.
   ENDMETHOD.
 
   METHOD constructor.
     SELECT SINGLE stat_active INTO @active FROM zllm_system.
+    IF sy-subrc <> 0.
+      " Nothing to do here
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
