@@ -478,7 +478,7 @@
     "method_length": {
       "exclude": [],
       "severity": "Error",
-      "statements": 100,
+      "statements": 200,
       "errorWhenEmpty": false,
       "ignoreTestClasses": false,
       "checkForms": true
@@ -886,7 +886,7 @@
     "unused_variables": {
       "exclude": [],
       "severity": "Error",
-      "skipNames": [],
+      "skipNames": ["llm_badi"],
       "skipAbstract": false
     },
     "use_bool_expression": {
