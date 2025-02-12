@@ -650,10 +650,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "prefer_inline": {
-      "exclude": [],
-      "severity": "Error"
-    },
     "prefer_is_not": {
       "exclude": [],
       "severity": "Error"
