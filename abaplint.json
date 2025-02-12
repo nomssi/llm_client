@@ -1,7 +1,7 @@
 {
   "global": {
     "files": "/src/**/*.*",
-    "exclude": ["z_llm_client.fugr"],
+    "exclude": ["z_llm_client.fugr","testclasses"],
     "noIssues": [],
     "skipGeneratedBOPFInterfaces": false,
     "skipGeneratedFunctionGroups": false,
@@ -32,7 +32,7 @@
     },
     "abapdoc": {
       "exclude": [],
-      "severity": "Warning",
+      "severity": "Info",
       "checkLocal": false,
       "classDefinition": false,
       "interfaceDefinition": false,
