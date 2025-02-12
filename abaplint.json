@@ -30,14 +30,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "abapdoc": {
-      "exclude": [],
-      "severity": "Info",
-      "checkLocal": false,
-      "classDefinition": false,
-      "interfaceDefinition": false,
-      "ignoreTestClasses": true
-    },
     "add_test_attributes": {
       "exclude": [],
       "severity": "Error"
