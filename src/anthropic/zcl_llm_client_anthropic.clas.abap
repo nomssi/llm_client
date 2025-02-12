@@ -63,16 +63,18 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
 
   METHOD get_client.
     result = NEW zcl_llm_client_anthropic( client_config   = client_config
-                                        provider_config = provider_config ).
+                                           provider_config = provider_config ).
   ENDMETHOD.
+
   METHOD get_chat_endpoint.
     result = '/messages'.
   ENDMETHOD.
 
   METHOD get_http_client.
     client = zcl_llm_http_client_wrapper=>get_client( client_config   = client_config
-                                                       provider_config = provider_config ).
-    client->set_header( name = 'anthropic-version' value = '2023-06-01' ).
+                                                      provider_config = provider_config ).
+    client->set_header( name  = 'anthropic-version'
+                        value = '2023-06-01' ).
   ENDMETHOD.
 
   METHOD set_auth.
@@ -146,13 +148,6 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
       result = |{ result }]|.
     ENDIF.
 
-    " Add structured output if available and format
-    IF request-use_structured_output = abap_true.
-      " Not supported, we ignore this.
-      " Comment intentionally left here for documentation. Using tool calls instead might be a future workaround.
-      " Currently not throwing an error.
-    ENDIF.
-
     " Anthropic requires tool definitions of tools used before.
     DATA(tool_definition_required) = abap_false.
     IF lines( request-tools ) > 0 AND request-tool_choice = zif_llm_chat_request=>tool_choice_none.
@@ -188,25 +183,23 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
       result = |{ result }]|.
 
       " Tool choice
-      CASE request-tool_choice.
-        WHEN zif_llm_chat_request=>tool_choice_none.
-          " Do nothing - no output needed
-        WHEN zif_llm_chat_request=>tool_choice_auto.
-          result = |{ result },"tool_choice":\{"type":"auto"\}|.
-        WHEN zif_llm_chat_request=>tool_choice_required.
-          result = |{ result },"tool_choice":\{"type":"any"\}|.
-        WHEN OTHERS.
-          result = |{ result },"tool_choice":\{"type":"tool","name":"{ request-tool_choice }"\}|.
-      ENDCASE.
+      IF request-tool_choice <> zif_llm_chat_request=>tool_choice_none.
+        CASE request-tool_choice.
+          WHEN zif_llm_chat_request=>tool_choice_auto.
+            result = |{ result },"tool_choice":\{"type":"auto"\}|.
+          WHEN zif_llm_chat_request=>tool_choice_required.
+            result = |{ result },"tool_choice":\{"type":"any"\}|.
+          WHEN OTHERS.
+            result = |{ result },"tool_choice":\{"type":"tool","name":"{ request-tool_choice }"\}|.
+        ENDCASE.
+      ENDIF.
     ENDIF.
 
     " Add options if available
     DATA(option_parameters) = request-options->get_paramters( ).
-    IF lines( option_parameters ) > 0.
-      LOOP AT option_parameters INTO DATA(parameter).
-        result = |{ result },"{ parameter-key }":{ parameter-value }|.
-      ENDLOOP.
-    ENDIF.
+    LOOP AT option_parameters INTO DATA(parameter).
+      result = |{ result },"{ parameter-key }":{ parameter-value }|.
+    ENDLOOP.
 
     result = |{ result }\}|.
   ENDMETHOD.
@@ -216,7 +209,7 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
       " Add a dummy assistant message if the output from the last call in not available
       DATA(content) = message-content.
       IF content IS INITIAL.
-        content = `tool call.`.
+        content = `tool call.` ##NO_TEXT.
       ENDIF.
 
       result = |\{"role":"{ message-role }","content":[|
@@ -284,24 +277,12 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
                              prompt_tokens     = response-usage-input_tokens
                              total_tokens      = ( response-usage-input_tokens + response-usage-output_tokens ) ).
 
-    " Structured output currently not supported
-    " IF request-use_structured_output = abap_true.
-    "  parse_structured_output( EXPORTING content  = response_choice-message-content
-    "                                     request  = request
-    "                           CHANGING  response = result ).
-    " ENDIF.
-
     " Handle tool calls
     " To minimize effort we just transfer the anthropic response structure to our internal one
     DATA(response_choice) = VALUE base_choice( finish_reason = response-stop_reason
                                                message       = VALUE #( role    = zif_llm_client=>role_assistant
                                                                         content = assistant_response ) ).
     LOOP AT tool_calls ASSIGNING FIELD-SYMBOL(<tool_call>).
-*      APPEND VALUE #( id       = <tool_call>-id
-*                      type     = 'function'
-*                      function = VALUE #( name      = <tool_call>-name
-*                                          arguments = escape( val    = <tool_call>-input
-*                                                              format = cl_abap_format=>e_json_string ) ) ) TO response_choice-message-tool_calls.,
       APPEND VALUE #( id       = <tool_call>-id
                       type     = 'function'
                       function = VALUE #( name      = <tool_call>-name

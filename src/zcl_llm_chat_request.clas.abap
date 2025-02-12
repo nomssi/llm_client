@@ -20,7 +20,7 @@ CLASS zcl_llm_chat_request DEFINITION
     ALIASES set_tool_choice FOR zif_llm_chat_request~set_tool_choice.
     ALIASES get_internal_request FOR zif_llm_chat_request~get_internal_request.
     ALIASES options FOR zif_llm_chat_request~options.
-    ALIASES add_tool_choice FOR zif_llm_chat_request~add_tool_choices.
+    ALIASES add_tool_choices FOR zif_llm_chat_request~add_tool_choices.
 
     METHODS constructor IMPORTING request TYPE zllm_request.
   PROTECTED SECTION.
@@ -30,11 +30,11 @@ ENDCLASS.
 
 CLASS zcl_llm_chat_request IMPLEMENTATION.
 
-  METHOD zif_llm_chat_request~add_choice.
+  METHOD add_choice.
     APPEND choice-message TO request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_tool_result.
+  METHOD add_tool_result.
     DATA(tool_result) = tool->get_result( ).
     APPEND VALUE #( role         = zif_llm_client=>role_tool
                     tool_call_id = tool_result-tool_call_id
@@ -42,60 +42,60 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
                     name         = tool_result-name ) TO request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_messages.
+  METHOD add_messages.
     APPEND LINES OF messages TO request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_message.
+  METHOD add_message.
     APPEND message TO request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_tool.
+  METHOD add_tool.
     APPEND tool TO request-tools.
     request-tool_choice = tool_choice.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_tools.
+  METHOD add_tools.
     APPEND LINES OF tools TO request-tools.
     request-tool_choice = tool_choice.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~clear_messages.
+  METHOD clear_messages.
     CLEAR request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~clear_tools.
+  METHOD clear_tools.
     CLEAR request-tools.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~get_messages.
+  METHOD get_messages.
     result = request-messages.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~get_tools.
+  METHOD get_tools.
     result = request-tools.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~set_structured_output.
+  METHOD set_structured_output.
     request-structured_output->set_schema( data_desc = data_desc description = descriptions ).
     IF use_structured_output = abap_true.
       request-use_structured_output = abap_true.
     ENDIF.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~set_structured_output_active.
+  METHOD set_structured_output_active.
     request-use_structured_output = active.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~set_tool_choice.
+  METHOD set_tool_choice.
     request-tool_choice = tool_choice.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~get_internal_request.
+  METHOD get_internal_request.
     result = request.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~options.
+  METHOD options.
     result = request-options.
   ENDMETHOD.
 
@@ -103,7 +103,7 @@ CLASS zcl_llm_chat_request IMPLEMENTATION.
     me->request = request.
   ENDMETHOD.
 
-  METHOD zif_llm_chat_request~add_tool_choices.
+  METHOD add_tool_choices.
     DATA msg TYPE zllm_msg.
     msg-role = zif_llm_client=>role_assistant.
     APPEND LINES OF choices TO msg-tool_calls.

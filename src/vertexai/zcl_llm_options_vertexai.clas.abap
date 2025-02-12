@@ -71,26 +71,23 @@ CLASS zcl_llm_options_vertexai IMPLEMENTATION.
 
   METHOD validate_range_float.
     IF value < min OR value > max.
-      RAISE EXCEPTION TYPE zcx_llm_validation
-        EXPORTING
+      RAISE EXCEPTION NEW zcx_llm_validation(
           textid = zcx_llm_validation=>value_out_of_range
-          attr1  = |Value { value } is out of range [{ min }, { max }]| ##NO_TEXT.
+          attr1  = |Value { value } is out of range [{ min }, { max }]| ) ##NO_TEXT.
     ENDIF.
   ENDMETHOD.
 
   METHOD validate_range_int.
     IF value < min.
-      RAISE EXCEPTION TYPE zcx_llm_validation
-        EXPORTING
+      RAISE EXCEPTION NEW zcx_llm_validation(
           textid = zcx_llm_validation=>value_out_of_range
-          attr1  = |Value { value } is below minimum { min }| ##NO_TEXT.
+          attr1  = |Value { value } is below minimum { min }| ) ##NO_TEXT.
     ENDIF.
 
     IF max IS NOT INITIAL AND value > max.
-      RAISE EXCEPTION TYPE zcx_llm_validation
-        EXPORTING
+      RAISE EXCEPTION NEW zcx_llm_validation(
           textid = zcx_llm_validation=>value_out_of_range
-          attr1  = |Value { value } is above maximum { max }| ##NO_TEXT.
+          attr1  = |Value { value } is above maximum { max }| ) ##NO_TEXT.
     ENDIF.
   ENDMETHOD.
 

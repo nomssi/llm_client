@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Ollama Client</p>
 CLASS zcl_llm_client_ollama DEFINITION
   PUBLIC
   INHERITING FROM zcl_llm_client_base
@@ -26,7 +27,6 @@ CLASS zcl_llm_client_ollama DEFINITION
     METHODS parse_message        REDEFINITION.
 
   PRIVATE SECTION.
-
     TYPES: BEGIN OF ollama_function,
              name      TYPE string,
              arguments TYPE /ui2/cl_json=>json,
@@ -43,7 +43,6 @@ CLASS zcl_llm_client_ollama DEFINITION
              content    TYPE string,
              tool_calls TYPE STANDARD TABLE OF ollama_tool_call WITH EMPTY KEY,
            END OF ollama_message.
-
 
     TYPES: BEGIN OF ollama_response,
              prompt_eval_count TYPE i,
@@ -81,7 +80,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
       CALL BADI llm_badi->get_encryption_impl
         RECEIVING
           result = DATA(enc_class).
-      auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
+      auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
       SPLIT auth_value AT ':' INTO DATA(api_header) DATA(api_key).
@@ -208,7 +207,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
                                                name    = details-name
                                                content = <tool_call>-function-arguments ).
 
-            CATCH cx_root INTO DATA(error). " TODO: variable is assigned but never used (ABAP cleaner)
+            CATCH cx_root.
               result-success = abap_false.
               MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 016 WITH <tool_call>-function-name INTO DATA(message_text).
               result-error = VALUE #( tool_parse_error = abap_true
@@ -227,10 +226,6 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
         ENDIF.
       ENDLOOP.
     ENDIF.
-    " Add the assistant's response message
-    " result-choice-message = VALUE #( BASE result-choice-message
-    "                                 role    = response-message-role
-    "                                 content = response-message-content ).
 
     result-success = abap_true.
   ENDMETHOD.
@@ -252,7 +247,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
                escape( val    = message-content
                        format = cl_abap_format=>e_json_string ) }"|.
       IF message-name IS NOT INITIAL.
-        result =  |{ result },"name":"{ message-name }"|.
+        result = |{ result },"name":"{ message-name }"|.
       ENDIF.
       IF message-tool_call_id IS NOT INITIAL.
         result = |{ result },"tool_call_id":"{ message-tool_call_id }"\}|.

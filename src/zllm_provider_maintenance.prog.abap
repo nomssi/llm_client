@@ -41,9 +41,9 @@ CLASS lcl_app DEFINITION.
     METHODS build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat. " Build ALV field catalog
     METHODS refresh_display. " Refresh displayed ALV data
 
-    METHODS show_popup IMPORTING !title        TYPE string
-                       CHANGING  !values       TYPE sval_tab
-                       RETURNING VALUE(config) TYPE provider_config. " Show user input popup
+    METHODS show_popup IMPORTING !title  TYPE string
+                       EXPORTING config  TYPE provider_config
+                       CHANGING  !values TYPE sval_tab. " Show user input popup
 
     METHODS show_confirm_popup IMPORTING !title        TYPE string
                                          !text         TYPE string
@@ -52,8 +52,8 @@ ENDCLASS.
 
 CLASS lcl_popup_screen DEFINITION.
   PUBLIC SECTION.
-    METHODS constructor IMPORTING is_provider TYPE lcl_app=>provider_config.
-    METHODS show        IMPORTING iv_title    TYPE string.
+    METHODS constructor IMPORTING provider TYPE lcl_app=>provider_config.
+    METHODS show        IMPORTING title    TYPE string.
 
     METHODS pai IMPORTING dynnr TYPE sy-dynnr
                           ucomm TYPE sy-ucomm.
@@ -65,10 +65,10 @@ CLASS lcl_popup_screen DEFINITION.
     DATA title     TYPE string.
 
   PRIVATE SECTION.
-    TYPES: BEGIN OF ty_textline,
+    TYPES: BEGIN OF textline,
              line TYPE c LENGTH 255,
-           END OF ty_textline,
-           tt_textline TYPE STANDARD TABLE OF ty_textline WITH DEFAULT KEY.
+           END OF textline,
+           textlines TYPE STANDARD TABLE OF textline WITH EMPTY KEY.
 
     DATA provider_name        TYPE zllm_provider_name.
     DATA provider_class       TYPE zllm_provider.
@@ -83,7 +83,7 @@ CLASS lcl_popup_screen DEFINITION.
     METHODS cleanup_controls.
 ENDCLASS.
 
-DATA: gr_popup_screen TYPE REF TO lcl_popup_screen.
+DATA: popup_screen TYPE REF TO lcl_popup_screen.
 DATA: BEGIN OF screen_fields,
         provider_name        TYPE zllm_provider_name,
         provider_class       TYPE zllm_provider,
@@ -102,8 +102,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD load_providers.
-    SELECT * FROM zllm_providers
-      INTO CORRESPONDING FIELDS OF TABLE @providers.    "#EC CI_GENBUFF
+    SELECT * FROM zllm_providers ORDER BY provider_name
+      INTO CORRESPONDING FIELDS OF TABLE @providers ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.
@@ -136,13 +136,13 @@ CLASS lcl_app IMPLEMENTATION.
 
     title = 'Add Provider Configuration'(006).
 
-    gr_popup_screen = NEW #( VALUE #( ) ).
-    gr_popup_screen->result = VALUE #( ). " Clear any previous values
-    gr_popup_screen->show( title ).
+    popup_screen = NEW #( VALUE #( ) ).
+    popup_screen->result = VALUE #( ). " Clear any previous values
+    popup_screen->show( title ).
 
-    IF gr_popup_screen->cancelled = abap_false.
-      gr_popup_screen->result-auth_encrypted = encrypt_auth_value( gr_popup_screen->result-auth_value ).
-      save_provider( gr_popup_screen->result ).
+    IF popup_screen->cancelled = abap_false.
+      popup_screen->result-auth_encrypted = encrypt_auth_value( popup_screen->result-auth_value ).
+      save_provider( popup_screen->result ).
       load_providers( ).
     ENDIF.
   ENDMETHOD.
@@ -159,13 +159,13 @@ CLASS lcl_app IMPLEMENTATION.
     DATA title TYPE string.
     title = 'Change Provider Configuration'(007).
 
-    gr_popup_screen = NEW #( selected_provider ).
-    gr_popup_screen->result = selected_provider. " Set the current values
-    gr_popup_screen->show( title ).
+    popup_screen = NEW #( selected_provider ).
+    popup_screen->result = selected_provider. " Set the current values
+    popup_screen->show( title ).
 
-    IF gr_popup_screen->cancelled = abap_false.
-      gr_popup_screen->result-auth_encrypted = encrypt_auth_value( gr_popup_screen->result-auth_value ).
-      save_provider( gr_popup_screen->result ).
+    IF popup_screen->cancelled = abap_false.
+      popup_screen->result-auth_encrypted = encrypt_auth_value( popup_screen->result-auth_value ).
+      save_provider( popup_screen->result ).
       load_providers( ).
     ENDIF.
   ENDMETHOD.
@@ -229,7 +229,7 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD show_popup.
-    gr_popup_screen = NEW #( is_provider = VALUE #(
+    popup_screen = NEW #( provider = VALUE #(
                                  provider_name        = values[ fieldname = 'PROVIDER_NAME' ]-value
                                  provider_class       = values[ fieldname = 'PROVIDER_CLASS' ]-value
                                  rfc_destination      = values[ fieldname = 'RFC_DESTINATION' ]-value
@@ -237,10 +237,10 @@ CLASS lcl_app IMPLEMENTATION.
                                  auth_type            = values[ fieldname = 'AUTH_TYPE' ]-value
                                  auth_value           = values[ fieldname = 'AUTH_VALUE' ]-value ) ).
 
-    gr_popup_screen->show( title ).
+    popup_screen->show( title ).
 
-    IF gr_popup_screen->cancelled = abap_false.
-      config = gr_popup_screen->result.
+    IF popup_screen->cancelled = abap_false.
+      config = popup_screen->result.
     ENDIF.
   ENDMETHOD.
 
@@ -310,16 +310,16 @@ ENDCLASS.
 
 CLASS lcl_popup_screen IMPLEMENTATION.
   METHOD constructor.
-    result = is_provider.
-    provider_name = is_provider-provider_name.
-    provider_class = is_provider-provider_class.
-    rfc_destination = is_provider-rfc_destination.
-    auth_rfc_destination = is_provider-auth_rfc_destination.
-    auth_type = is_provider-auth_type.
+    result = provider.
+    provider_name = provider-provider_name.
+    provider_class = provider-provider_class.
+    rfc_destination = provider-rfc_destination.
+    auth_rfc_destination = provider-auth_rfc_destination.
+    auth_type = provider-auth_type.
   ENDMETHOD.
 
   METHOD show.
-    title = iv_title.
+    me->title = title.
     cleanup_controls( ). " Ensure clean state before showing
     CALL SCREEN 200 STARTING AT 10 3 ENDING AT 140 28.
   ENDMETHOD.
@@ -344,8 +344,8 @@ CLASS lcl_popup_screen IMPLEMENTATION.
     DATA remaining   TYPE string.
     DATA current_len TYPE i.
     DATA split_pos   TYPE i.
-    DATA textlines   TYPE tt_textline.
-    DATA textline    TYPE ty_textline.
+    DATA textlines   TYPE textlines.
+    DATA textline    TYPE textline.
 
     auth_value = result-auth_value.
     remaining = auth_value.
@@ -367,12 +367,12 @@ CLASS lcl_popup_screen IMPLEMENTATION.
         textline-line = remaining(split_pos).
         APPEND textline TO textlines.
         remaining = remaining+split_pos.
-        SHIFT remaining LEFT DELETING LEADING ` `.
+        remaining = shift_left( remaining ).
       ENDIF.
     ENDWHILE.
 
     text_editor->delete_text( ).
-    text_editor->set_text_as_r3table( table = textlines ).
+    text_editor->set_text_as_r3table( textlines ).
     text_editor->set_focus( text_editor ).
   ENDMETHOD.
 
@@ -405,15 +405,15 @@ CLASS lcl_popup_screen IMPLEMENTATION.
   METHOD pai.
     CASE ucomm.
       WHEN 'OK'.
-        DATA lt_text TYPE tt_textline.
-        text_editor->get_text_as_r3table( IMPORTING table = lt_text ).
+        DATA text TYPE textlines.
+        text_editor->get_text_as_r3table( IMPORTING table = text ).
 
         result-provider_name   = screen_fields-provider_name.
         result-provider_class  = screen_fields-provider_class.
         result-rfc_destination = screen_fields-rfc_destination.
         result-auth_type       = screen_fields-auth_type.
         result-auth_rfc_destination = screen_fields-auth_rfc_destination.
-        result-auth_value      = concat_lines_of( lt_text ).
+        result-auth_value      = concat_lines_of( text ).
         cancelled = abap_false.
         cleanup_controls( ).
         LEAVE TO SCREEN 0.
@@ -451,7 +451,7 @@ ENDMODULE.
 *&
 *&---------------------------------------------------------------------*
 MODULE status_0200 OUTPUT.
-  gr_popup_screen->pbo( sy-dynnr ).
+  popup_screen->pbo( sy-dynnr ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *&      Module  USER_COMMAND_0200  INPUT
@@ -459,6 +459,6 @@ ENDMODULE.
 *       text
 *----------------------------------------------------------------------*
 MODULE user_command_0200 INPUT.
-  gr_popup_screen->pai( dynnr = sy-dynnr
+  popup_screen->pai( dynnr = sy-dynnr
                         ucomm = sy-ucomm ).
 ENDMODULE.

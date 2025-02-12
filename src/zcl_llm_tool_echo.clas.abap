@@ -15,7 +15,6 @@ CLASS zcl_llm_tool_echo DEFINITION
   PRIVATE SECTION.
     DATA tool_details  TYPE zif_llm_tool=>tool_details.
     DATA response_data TYPE REF TO data.
-    DATA name          TYPE string.
     DATA tool_call_id  TYPE string.
 ENDCLASS.
 

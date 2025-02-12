@@ -64,7 +64,7 @@
       <TYPE>M</TYPE>
       <NEXTSCREEN>0200</NEXTSCREEN>
       <LINES>027</LINES>
-      <COLUMNS>122</COLUMNS>
+      <COLUMNS>123</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -75,7 +75,7 @@
        <TYPE>CUST_CTRL</TYPE>
        <NAME>CUSTOM_CONTROL</NAME>
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
-       <LINE>009</LINE>
+       <LINE>008</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>114</LENGTH>
        <HEIGHT>015</HEIGHT>
@@ -88,7 +88,7 @@
        <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT001</NAME>
        <TEXT>Provider_Name</TEXT>
-       <LINE>002</LINE>
+       <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>013</LENGTH>
        <VISLENGTH>013</VISLENGTH>
@@ -103,7 +103,7 @@
        <TYPE>TEMPLATE</TYPE>
        <NAME>SCREEN_FIELDS-PROVIDER_NAME</NAME>
        <TEXT>__________________________________________________</TEXT>
-       <LINE>002</LINE>
+       <LINE>001</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>050</LENGTH>
        <VISLENGTH>050</VISLENGTH>
@@ -119,7 +119,7 @@
        <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT002</NAME>
        <TEXT>Provider_Class</TEXT>
-       <LINE>003</LINE>
+       <LINE>002</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>014</LENGTH>
        <VISLENGTH>014</VISLENGTH>
@@ -134,7 +134,7 @@
        <TYPE>TEMPLATE</TYPE>
        <NAME>SCREEN_FIELDS-PROVIDER_CLASS</NAME>
        <TEXT>______________________________</TEXT>
-       <LINE>003</LINE>
+       <LINE>002</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>030</LENGTH>
        <VISLENGTH>030</VISLENGTH>
@@ -150,7 +150,7 @@
        <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT003</NAME>
        <TEXT>RFC_Destination</TEXT>
-       <LINE>004</LINE>
+       <LINE>003</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>015</LENGTH>
        <VISLENGTH>015</VISLENGTH>
@@ -165,7 +165,7 @@
        <TYPE>TEMPLATE</TYPE>
        <NAME>SCREEN_FIELDS-RFC_DESTINATION</NAME>
        <TEXT>________________________________</TEXT>
-       <LINE>004</LINE>
+       <LINE>003</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>032</LENGTH>
        <VISLENGTH>032</VISLENGTH>
@@ -183,7 +183,7 @@
        <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT004</NAME>
        <TEXT>Auth_Type</TEXT>
-       <LINE>005</LINE>
+       <LINE>004</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>009</LENGTH>
        <VISLENGTH>009</VISLENGTH>
@@ -198,7 +198,7 @@
        <TYPE>TEMPLATE</TYPE>
        <NAME>SCREEN_FIELDS-AUTH_TYPE</NAME>
        <TEXT>_</TEXT>
-       <LINE>005</LINE>
+       <LINE>004</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>001</LENGTH>
        <VISLENGTH>001</VISLENGTH>
@@ -213,7 +213,7 @@
        <TYPE>TEXT</TYPE>
        <NAME>%#AUTOTEXT006</NAME>
        <TEXT>Auth_RFC_Destination</TEXT>
-       <LINE>006</LINE>
+       <LINE>005</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>020</LENGTH>
        <VISLENGTH>020</VISLENGTH>
@@ -227,7 +227,7 @@
        <TYPE>TEMPLATE</TYPE>
        <NAME>SCREEN_FIELDS-AUTH_RFC_DESTINATION</NAME>
        <TEXT>________________________________</TEXT>
-       <LINE>006</LINE>
+       <LINE>005</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>032</LENGTH>
        <VISLENGTH>032</VISLENGTH>
@@ -243,7 +243,7 @@
        <TYPE>FRAME</TYPE>
        <NAME>%#AUTOTEXT005</NAME>
        <TEXT>Auth_Value__________________________________________________________________________________________________________</TEXT>
-       <LINE>008</LINE>
+       <LINE>007</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>117</LENGTH>
        <VISLENGTH>117</VISLENGTH>
@@ -311,7 +311,7 @@
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_CANCEL</TEXT_NAME>
       <ICON_ID>@0W@</ICON_ID>
-      <FUN_TEXT>CANCEL</FUN_TEXT>
+      <FUN_TEXT>Cancel</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>CHANGE</CODE>

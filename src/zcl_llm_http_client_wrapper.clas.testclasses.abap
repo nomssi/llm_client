@@ -41,10 +41,8 @@ CLASS ltcl_http_client_wrapper IMPLEMENTATION.
     provider_config-rfc_destination = test_destination.
 
     TRY.
-        CREATE OBJECT http_client_wrapper
-          EXPORTING
-            client_config   = client_config
-            provider_config = provider_config.
+        http_client_wrapper = NEW #( client_config   = client_config
+               provider_config = provider_config ).
       CATCH zcx_llm_validation.
         cl_abap_unit_assert=>fail( 'Unexpected exception during setup' ).
     ENDTRY.

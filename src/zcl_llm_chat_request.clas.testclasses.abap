@@ -194,7 +194,7 @@ CLASS ltcl_chat_request IMPLEMENTATION.
       type = 'function'
       function = VALUE #( name = 'test_function' ) ) ).
 
-    chat_request->add_tool_choice( choices ).
+    chat_request->add_tool_choices( choices ).
 
     DATA(messages) = chat_request->get_messages( ).
     cl_abap_unit_assert=>assert_equals(
@@ -235,7 +235,7 @@ CLASS ltcl_tool_double IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_llm_tool~execute.
-  "do nothing
-  ENDMETHOD.
+    "do nothing
+  ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
 
 ENDCLASS.
