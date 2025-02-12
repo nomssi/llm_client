@@ -542,11 +542,6 @@
       "allowReadOnly": false,
       "ignoreTestClasses": false
     },
-    "no_yoda_conditions": {
-      "exclude": [],
-      "severity": "Error",
-      "onlyConstants": false
-    },
     "nrob_consistency": {
       "exclude": [],
       "severity": "Error"
