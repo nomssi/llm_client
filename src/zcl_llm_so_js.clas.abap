@@ -22,11 +22,11 @@ CLASS zcl_llm_so_js DEFINITION
     METHODS post_schema.
 
     METHODS pre_object
-      IMPORTING !field TYPE field_info "#EC NEEDED
+      IMPORTING !field TYPE field_info ##NEEDED
       RAISING   zcx_llm_validation.
 
     METHODS post_object
-      IMPORTING !field TYPE field_info "#EC NEEDED
+      IMPORTING !field TYPE field_info ##NEEDED
       RAISING   zcx_llm_validation.
 
     METHODS pre_array.

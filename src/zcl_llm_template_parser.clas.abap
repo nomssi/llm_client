@@ -301,8 +301,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       " Look for token start
       FIND FIRST OCCURRENCE OF REGEX `\{\{|\{%`
            IN current_chunk
-           MATCH OFFSET DATA(token_start)
-           MATCH LENGTH DATA(token_start_length).
+           MATCH OFFSET DATA(token_start).
 
       IF sy-subrc <> 0.
         " No more tokens, add remaining text
@@ -465,7 +464,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       DATA(filter_part) = condense( parts[ 2 ] ).
       FIND FIRST OCCURRENCE OF REGEX '(\w+)(?:\((.*)\))?'
            IN filter_part
-           SUBMATCHES filter_name filter_param.           "#EC CI_SUBRC
+           SUBMATCHES filter_name filter_param ##SUBRC_OK.
     ENDIF.
 
     " Split path into segments
@@ -504,15 +503,13 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
       FIND FIRST OCCURRENCE OF REGEX '(\w+)(?:\[(\d+)\])?'
            IN segment
-           SUBMATCHES component idx.                      "#EC CI_SUBRC
+           SUBMATCHES component idx ##SUBRC_OK.
 
       TRY.
           DATA(descr) = cl_abap_typedescr=>describe_by_data_ref( current_ref ).
 
           CASE descr->kind.
             WHEN cl_abap_typedescr=>kind_struct.
-              DATA(struct_ref) = CAST cl_abap_structdescr( descr ).
-
               FIELD-SYMBOLS <struct> TYPE any.
               ASSIGN current_ref->* TO <struct>.
 
@@ -711,9 +708,8 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     TRY.
         content = REF #( templates[ name = name ] ).
       CATCH cx_sy_itab_line_not_found.
-        RAISE EXCEPTION TYPE zcx_llm_template_parser
-          EXPORTING
-            textid = zcx_llm_template_parser=>zcx_llm_template_parser.
+        RAISE EXCEPTION NEW zcx_llm_template_parser(
+            textid = zcx_llm_template_parser=>zcx_llm_template_parser ).
     ENDTRY.
   ENDMETHOD.
 
