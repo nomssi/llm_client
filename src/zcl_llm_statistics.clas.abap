@@ -20,11 +20,11 @@ CLASS zcl_llm_statistics IMPLEMENTATION.
     IF active = abap_false.
       RETURN.
     ENDIF.
-    INSERT zllm_statistics FROM @record. "#EC CI_SUBRC
+    INSERT zllm_statistics FROM @record ##SUBRC_OK.
   ENDMETHOD.
 
   METHOD constructor.
-    SELECT SINGLE stat_active INTO @active FROM zllm_system. "#EC CI_SUBRC
+    SELECT SINGLE stat_active INTO @active FROM zllm_system ##SUBRC_OK.
   ENDMETHOD.
 
 ENDCLASS.

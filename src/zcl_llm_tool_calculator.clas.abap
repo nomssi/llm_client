@@ -21,13 +21,6 @@ CLASS zcl_llm_tool_calculator DEFINITION
            END OF token.
     TYPES tokens TYPE STANDARD TABLE OF token WITH EMPTY KEY.
 
-    CONSTANTS operator_plus     TYPE string VALUE '+'.
-    CONSTANTS operator_minus    TYPE string VALUE '-'.
-    CONSTANTS operator_multiply TYPE string VALUE '*'.
-    CONSTANTS operator_divide   TYPE string VALUE '/'.
-    CONSTANTS operator_power    TYPE string VALUE '**'.
-    CONSTANTS operator_mod      TYPE string VALUE 'MOD'.
-
     METHODS evaluate_expression
       IMPORTING expression    TYPE string
       RETURNING VALUE(result) TYPE string

@@ -20,7 +20,7 @@ CLASS zcl_llm_call_logger IMPLEMENTATION.
     IF active = abap_false.
       RETURN.
     ENDIF.
-    INSERT zllm_call_log FROM @entry. "#EC CI_SUBRC
+    INSERT zllm_call_log FROM @entry ##SUBRC_OK.
   ENDMETHOD.
 
   METHOD constructor.

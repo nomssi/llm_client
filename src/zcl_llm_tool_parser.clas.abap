@@ -9,24 +9,23 @@ CLASS zcl_llm_tool_parser DEFINITION
   PROTECTED SECTION.
     TYPES:
       BEGIN OF field_info,
-        name        TYPE string,
+        name        TYPE string ##NEEDED,
         path        TYPE string,
         description TYPE zif_llm_tool_parser=>def_description,
       END OF field_info.
 
     DATA descriptions TYPE zif_llm_tool_parser=>def_descriptions.
     DATA schema       TYPE string.
-    DATA data_ref     TYPE REF TO data.
 
     METHODS pre_schema.
     METHODS post_schema.
 
     METHODS pre_object
-      IMPORTING !field TYPE field_info
+      IMPORTING !field TYPE field_info ##NEEDED
       RAISING   zcx_llm_validation.
 
     METHODS post_object
-      IMPORTING !field TYPE field_info
+      IMPORTING !field TYPE field_info ##NEEDED
       RAISING   zcx_llm_validation.
 
     METHODS pre_array.
