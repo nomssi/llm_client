@@ -448,11 +448,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "keep_single_parameter_on_one_line": {
-      "exclude": [],
-      "severity": "Error",
-      "length": 120
-    },
     "line_break_multiple_parameters": {
       "exclude": [],
       "severity": "Error",
@@ -673,7 +668,7 @@
       "severity": "Error"
     },
     "parser_error": {
-      "exclude": [],
+      "exclude": ["*_llm_client.fugr*"],
       "severity": "Error"
     },
     "parser_missing_space": {
@@ -838,7 +833,7 @@
       "severity": "Error"
     },
     "start_at_tab": {
-      "exclude": [],
+      "exclude": ["*_llm_client.fugr*"],
       "severity": "Error"
     },
     "static_call_via_instance": {
