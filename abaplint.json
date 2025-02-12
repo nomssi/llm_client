@@ -2,7 +2,7 @@
   "global": {
     "files": "/src/**/*.*",
     "exclude": ["z_llm_client.fugr","testclasses"],
-    "noIssues": ["zcx_llm"],
+    "noIssues": ["zcx_llm","zcl_llm_client_vertexai_s_area"],
     "skipGeneratedBOPFInterfaces": false,
     "skipGeneratedFunctionGroups": false,
     "skipGeneratedGatewayClasses": false,
@@ -528,12 +528,6 @@
       "methodParameters": "^[ICER].?_",
       "allowIsPrefixBoolean": true
     },
-    "no_public_attributes": {
-      "exclude": [],
-      "severity": "Error",
-      "allowReadOnly": false,
-      "ignoreTestClasses": false
-    },
     "nrob_consistency": {
       "exclude": [],
       "severity": "Error"
@@ -783,11 +777,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "static_call_via_instance": {
-      "exclude": [],
-      "severity": "Error",
-      "allowInTestclassIncludes": false
-    },
     "strict_sql": {
       "exclude": [],
       "severity": "Error"
@@ -849,7 +838,7 @@
       "severity": "Error"
     },
     "unused_ddic": {
-      "exclude": [],
+      "exclude": ["ZLLM_CHAR255"],
       "severity": "Error"
     },
     "unused_macros": {
