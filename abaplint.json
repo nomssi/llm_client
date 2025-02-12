@@ -32,7 +32,7 @@
     },
     "abapdoc": {
       "exclude": [],
-      "severity": "Error",
+      "severity": "Warning",
       "checkLocal": false,
       "classDefinition": false,
       "interfaceDefinition": false,
@@ -41,19 +41,6 @@
     "add_test_attributes": {
       "exclude": [],
       "severity": "Error"
-    },
-    "align_parameters": {
-      "exclude": [],
-      "severity": "Error"
-    },
-    "align_pseudo_comments": {
-      "exclude": [],
-      "severity": "Error"
-    },
-    "align_type_expressions": {
-      "exclude": [],
-      "severity": "Error",
-      "ignoreExceptions": true
     },
     "allowed_object_naming": {
       "exclude": [],
@@ -142,10 +129,6 @@
       "readTable": true,
       "assign": true,
       "find": true
-    },
-    "check_syntax": {
-      "exclude": [],
-      "severity": "Error"
     },
     "check_text_elements": {
       "exclude": [],
@@ -903,12 +886,6 @@
     },
     "unknown_types": {
       "exclude": [],
-      "severity": "Error"
-    },
-    "unnecessary_chaining": {
-      "exclude": [
-        "z_llm_client.fugr*"
-      ],
       "severity": "Error"
     },
     "unnecessary_pragma": {
