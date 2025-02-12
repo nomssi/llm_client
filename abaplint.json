@@ -1,7 +1,7 @@
 {
   "global": {
     "files": "/src/**/*.*",
-    "exclude": ["z_llm_client.fugr","testclasses"],
+    "exclude": ["z_llm_client.fugr","testclasses","zcx_llm_"],
     "noIssues": [],
     "skipGeneratedBOPFInterfaces": false,
     "skipGeneratedFunctionGroups": false,
@@ -870,7 +870,7 @@
       "severity": "Error"
     },
     "unused_types": {
-      "exclude": ["zcx_"],
+      "exclude": [],
       "severity": "Error",
       "skipNames": []
     },
