@@ -626,9 +626,9 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
                 WHEN OTHERS.
                   result = |{ <final_value> }|.
               ENDCASE.
-            CATCH cx_sy_conversion_error INTO DATA(lx_conv).
+            CATCH cx_sy_conversion_error INTO DATA(exception).
               RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
-                                                           previous = lx_conv ).
+                                                           previous = exception ).
           ENDTRY.
       ENDCASE.
     ELSE.
@@ -1065,10 +1065,10 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
           IF <current_stack>-condition_met = abap_true.
             <current_stack>-any_condition_met = abap_true.
           ENDIF.
-        CATCH cx_root INTO DATA(lx_if).
+        CATCH cx_root INTO DATA(exception).
           RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>condition_evaluation_error
                                                        msgv1    = CONV #( condition )
-                                                       previous = lx_if ).
+                                                       previous = exception ).
       ENDTRY.
 
     ELSEIF control_content CP 'elif *' ##NO_TEXT.
@@ -1088,10 +1088,10 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
             IF <current_stack>-condition_met = abap_true.
               <current_stack>-any_condition_met = abap_true.
             ENDIF.
-          CATCH cx_root INTO DATA(lx_elif).
+          CATCH cx_root INTO exception.
             RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>condition_evaluation_error
                                                          msgv1    = CONV #( condition )
-                                                         previous = lx_elif ).
+                                                         previous = exception ).
         ENDTRY.
       ELSE.
         <current_stack>-condition_met = abap_false.
@@ -1147,9 +1147,9 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
         <current_stack>-collection = resolve_variable_ref( variable_path = collection_path
                                                            context       = context ).
 
-      CATCH cx_root INTO DATA(lx_for).
+      CATCH cx_root INTO DATA(exception).
         RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>loop_initialization_error
-                                                     previous = lx_for ).
+                                                     previous = exception ).
     ENDTRY.
   ENDMETHOD.
 
@@ -1179,10 +1179,10 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
             output_buffer = output_buffer && resolve_variable( variable_path = token-content
                                                                context       = context
                                                                control_stack = control_stack ).
-          CATCH zcx_llm_template_parser INTO DATA(lx_var).
+          CATCH zcx_llm_template_parser INTO DATA(exception).
             RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
                                                          msgv1    = CONV #( token-content )
-                                                         previous = lx_var ).
+                                                         previous = exception ).
         ENDTRY.
       ENDIF.
     ENDIF.
