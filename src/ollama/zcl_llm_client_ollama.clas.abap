@@ -1,3 +1,4 @@
+"! <p class="shorttext synchronized" lang="en">Ollama Client</p>
 CLASS zcl_llm_client_ollama DEFINITION
   PUBLIC
   INHERITING FROM zcl_llm_client_base
@@ -26,7 +27,6 @@ CLASS zcl_llm_client_ollama DEFINITION
     METHODS parse_message        REDEFINITION.
 
   PRIVATE SECTION.
-
     TYPES: BEGIN OF ollama_function,
              name      TYPE string,
              arguments TYPE /ui2/cl_json=>json,
@@ -43,7 +43,6 @@ CLASS zcl_llm_client_ollama DEFINITION
              content    TYPE string,
              tool_calls TYPE STANDARD TABLE OF ollama_tool_call WITH EMPTY KEY,
            END OF ollama_message.
-
 
     TYPES: BEGIN OF ollama_response,
              prompt_eval_count TYPE i,
@@ -227,10 +226,6 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
         ENDIF.
       ENDLOOP.
     ENDIF.
-    " Add the assistant's response message
-    " result-choice-message = VALUE #( BASE result-choice-message
-    "                                 role    = response-message-role
-    "                                 content = response-message-content ).
 
     result-success = abap_true.
   ENDMETHOD.
@@ -252,7 +247,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
                escape( val    = message-content
                        format = cl_abap_format=>e_json_string ) }"|.
       IF message-name IS NOT INITIAL.
-        result =  |{ result },"name":"{ message-name }"|.
+        result = |{ result },"name":"{ message-name }"|.
       ENDIF.
       IF message-tool_call_id IS NOT INITIAL.
         result = |{ result },"tool_call_id":"{ message-tool_call_id }"\}|.

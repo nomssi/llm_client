@@ -63,16 +63,18 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
 
   METHOD get_client.
     result = NEW zcl_llm_client_anthropic( client_config   = client_config
-                                        provider_config = provider_config ).
+                                           provider_config = provider_config ).
   ENDMETHOD.
+
   METHOD get_chat_endpoint.
     result = '/messages'.
   ENDMETHOD.
 
   METHOD get_http_client.
     client = zcl_llm_http_client_wrapper=>get_client( client_config   = client_config
-                                                       provider_config = provider_config ).
-    client->set_header( name = 'anthropic-version' value = '2023-06-01' ).
+                                                      provider_config = provider_config ).
+    client->set_header( name  = 'anthropic-version'
+                        value = '2023-06-01' ).
   ENDMETHOD.
 
   METHOD set_auth.
@@ -81,8 +83,7 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
     IF provider_config-auth_encrypted IS NOT INITIAL.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
-        RECEIVING
-          result = DATA(enc_class).
+        RECEIVING result = DATA(enc_class).
       auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
@@ -144,13 +145,6 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
         ENDIF.
       ENDLOOP.
       result = |{ result }]|.
-    ENDIF.
-
-    " Add structured output if available and format
-    IF request-use_structured_output = abap_true.
-      " Not supported, we ignore this.
-      " Comment intentionally left here for documentation. Using tool calls instead might be a future workaround.
-      " Currently not throwing an error.
     ENDIF.
 
     " Anthropic requires tool definitions of tools used before.

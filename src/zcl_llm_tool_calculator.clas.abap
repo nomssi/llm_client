@@ -107,10 +107,10 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
 
     TRY.
         output-result = evaluate_expression( input-expression ).
-      CATCH cx_sy_conversion_no_number.
-        output-result = |Error: Invalid expression: { input-expression }| ##NO_TEXT.
       CATCH cx_sy_zerodivide.
         output-result = |Error: Division by zero| ##NO_TEXT.
+      CATCH cx_sy_conversion_no_number cx_sy_arithmetic_error.
+        output-result = |Error: Invalid expression: { input-expression }| ##NO_TEXT.
     ENDTRY.
 
     me->tool_call_id = tool_call_id.

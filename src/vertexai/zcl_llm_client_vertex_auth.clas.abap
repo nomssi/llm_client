@@ -17,36 +17,38 @@ CLASS zcl_llm_client_vertex_auth DEFINITION
                       RAISING   zcx_llm_http_error zcx_llm_authorization.
 
   PRIVATE SECTION.
-    "! <p class="shorttext synchronized" lang="en">Get a token from shared memory if exists</p>
+    "! <p class="shorttext synchronized">Get a token from shared memory if exists</p>
     "!
-    "! @parameter provider_name | <p class="shorttext synchronized" lang="en">Provider Name</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Token</p>
+    "! @parameter provider_name | <p class="shorttext synchronized">Provider Name</p>
+    "! @parameter result        | <p class="shorttext synchronized">Token</p>
     METHODS get_memory_token IMPORTING provider_name TYPE zllm_provider_name
                              RETURNING VALUE(result) TYPE zcl_llm_client_vertexai_sr=>token.
 
-    "! <p class="shorttext synchronized" lang="en">Check if the token is still valid</p>
+    "! <p class="shorttext synchronized">Check if the token is still valid</p>
     "!
-    "! @parameter token | <p class="shorttext synchronized" lang="en">Token</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Validation Result</p>
-    METHODS is_valid IMPORTING token TYPE zcl_llm_client_vertexai_sr=>token RETURNING VALUE(result) TYPE sap_bool.
+    "! @parameter token  | <p class="shorttext synchronized">Token</p>
+    "! @parameter result | <p class="shorttext synchronized">Validation Result</p>
+    METHODS is_valid IMPORTING token         TYPE zcl_llm_client_vertexai_sr=>token
+                     RETURNING VALUE(result) TYPE sap_bool.
 
-    "! <p class="shorttext synchronized" lang="en">Get a new token</p>
+    "! <p class="shorttext synchronized">Get a new token</p>
     "!
-    "! @parameter provider | <p class="shorttext synchronized" lang="en">Provider Details</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Token</p>
-    "! @raising zcx_llm_http_error | <p class="shorttext synchronized" lang="en">HTTP Error</p>
-    "! @raising zcx_llm_authorization | <p class="shorttext synchronized" lang="en">Authorization Error</p>
-    METHODS new_token IMPORTING provider TYPE zllm_providers RETURNING VALUE(result) TYPE zcl_llm_client_vertexai_sr=>token RAISING zcx_llm_http_error zcx_llm_authorization.
+    "! @parameter provider              | <p class="shorttext synchronized">Provider Details</p>
+    "! @parameter result                | <p class="shorttext synchronized">Token</p>
+    "! @raising   zcx_llm_http_error    | <p class="shorttext synchronized">HTTP Error</p>
+    "! @raising   zcx_llm_authorization | <p class="shorttext synchronized">Authorization Error</p>
+    METHODS new_token IMPORTING provider      TYPE zllm_providers
+                      RETURNING VALUE(result) TYPE zcl_llm_client_vertexai_sr=>token
+                      RAISING   zcx_llm_http_error zcx_llm_authorization.
 
-    "! <p class="shorttext synchronized" lang="en">Save a new token to shared memory</p>
+    "! <p class="shorttext synchronized">Save a new token to shared memory</p>
     "!
-    "! @parameter token | <p class="shorttext synchronized" lang="en">Token</p>
-    "! @raising zcx_llm_http_error | <p class="shorttext synchronized" lang="en">HTTP Error</p>
-    METHODS save_token IMPORTING token TYPE zcl_llm_client_vertexai_sr=>token raising zcx_llm_http_error.
+    "! @parameter token              | <p class="shorttext synchronized">Token</p>
+    "! @raising   zcx_llm_http_error | <p class="shorttext synchronized">HTTP Error</p>
+    METHODS save_token IMPORTING token TYPE zcl_llm_client_vertexai_sr=>token
+                       RAISING   zcx_llm_http_error.
 
 ENDCLASS.
-
-
 
 CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
   METHOD get_token.
@@ -78,13 +80,11 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
 
   METHOD is_valid.
     DATA current_timestamp TYPE timestamp.
+
     GET TIME STAMP FIELD current_timestamp.
-    DATA(valid) = cl_abap_tstmp=>subtract( tstmp1 = token-valid_until tstmp2 = current_timestamp ).
-    IF valid > 60.
-      result = abap_true.
-    ELSE.
-      result = abap_false.
-    ENDIF.
+    DATA(valid) = cl_abap_tstmp=>subtract( tstmp1 = token-valid_until
+                                           tstmp2 = current_timestamp ).
+    result = xsdbool( valid > 60 ).
   ENDMETHOD.
 
   METHOD new_token.

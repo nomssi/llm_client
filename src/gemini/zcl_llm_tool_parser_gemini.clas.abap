@@ -17,18 +17,17 @@ CLASS zcl_llm_tool_parser_gemini DEFINITION
 
     DATA descriptions TYPE zif_llm_tool_parser=>def_descriptions.
     DATA schema       TYPE string.
-    DATA data_ref     TYPE REF TO data.
 
     METHODS pre_schema.
     METHODS post_schema.
 
     METHODS pre_object
       IMPORTING !field TYPE field_info
-      RAISING   zcx_llm_validation.
+      RAISING   zcx_llm_validation ##NEEDED.
 
     METHODS post_object
       IMPORTING !field TYPE field_info
-      RAISING   zcx_llm_validation.
+      RAISING   zcx_llm_validation ##NEEDED.
 
     METHODS pre_array.
     METHODS post_array.
@@ -74,7 +73,6 @@ CLASS zcl_llm_tool_parser_gemini DEFINITION
 ENDCLASS.
 
 
-
 CLASS zcl_llm_tool_parser_gemini IMPLEMENTATION.
   METHOD append_to_schema.
     schema = schema && content.
@@ -108,22 +106,17 @@ CLASS zcl_llm_tool_parser_gemini IMPLEMENTATION.
   METHOD post_array.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
 
-
   METHOD post_object.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
-
 
   METHOD post_schema.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
 
-
   METHOD pre_array.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
 
-
   METHOD pre_object.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
-
 
   METHOD pre_schema.
   ENDMETHOD.                                       "#EC EMPTY_PROCEDURE
@@ -173,7 +166,7 @@ CLASS zcl_llm_tool_parser_gemini IMPLEMENTATION.
       append_to_schema( |,"{ field-name }":\{| ).
       IF field-description-description IS NOT INITIAL.
         append_to_schema( |"description":"{ escape( val    = field-description-description
-                                                     format = cl_abap_format=>e_json_string ) }"| ).
+                                                    format = cl_abap_format=>e_json_string ) }"| ).
       ENDIF.
     ENDIF.
 

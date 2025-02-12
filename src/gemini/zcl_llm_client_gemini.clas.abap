@@ -191,8 +191,6 @@ CLASS zcl_llm_client_gemini IMPLEMENTATION.
 
       " Tool choice
       CASE request-tool_choice.
-        WHEN zif_llm_chat_request=>tool_choice_none.
-          " Do nothing - no output needed
         WHEN zif_llm_chat_request=>tool_choice_auto.
           result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"AUTO"\}\}|.
         WHEN zif_llm_chat_request=>tool_choice_required.

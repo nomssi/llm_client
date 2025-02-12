@@ -21,12 +21,12 @@ CLASS zcl_llm_tool_parser DEFINITION
     METHODS post_schema.
 
     METHODS pre_object
-      IMPORTING !field TYPE field_info ##NEEDED
-      RAISING   zcx_llm_validation.
+      IMPORTING !field TYPE field_info
+      RAISING   zcx_llm_validation ##NEEDED.
 
     METHODS post_object
-      IMPORTING !field TYPE field_info ##NEEDED
-      RAISING   zcx_llm_validation.
+      IMPORTING !field TYPE field_info
+      RAISING   zcx_llm_validation ##NEEDED.
 
     METHODS pre_array.
     METHODS post_array.
