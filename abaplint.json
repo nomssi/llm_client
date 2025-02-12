@@ -202,10 +202,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "easy_to_find_messages": {
-      "exclude": [],
-      "severity": "Error"
-    },
     "empty_event": {
       "exclude": [],
       "severity": "Error"
@@ -455,10 +451,6 @@
       "severity": "Error"
     },
     "many_parentheses": {
-      "exclude": [],
-      "severity": "Error"
-    },
-    "max_one_method_parameter_per_line": {
       "exclude": [],
       "severity": "Error"
     },
