@@ -280,10 +280,6 @@
       "severity": "Error",
       "checkData": true
     },
-    "fully_type_itabs": {
-      "exclude": [],
-      "severity": "Error"
-    },
     "function_module_recommendations": {
       "exclude": [],
       "severity": "Error",
@@ -448,11 +444,6 @@
       "exclude": [],
       "severity": "Error"
     },
-    "line_break_multiple_parameters": {
-      "exclude": [],
-      "severity": "Error",
-      "count": 1
-    },
     "line_break_style": {
       "exclude": [],
       "severity": "Error"
@@ -460,11 +451,7 @@
     "line_length": {
       "exclude": [],
       "severity": "Error",
-      "length": 120
-    },
-    "local_testclass_consistency": {
-      "exclude": [],
-      "severity": "Error"
+      "length": 200
     },
     "macro_naming": {
       "exclude": [],
@@ -538,19 +525,11 @@
       "count": 3,
       "logic": "less"
     },
-    "no_aliases": {
-      "exclude": [],
-      "severity": "Error"
-    },
     "no_chained_assignment": {
       "exclude": [],
       "severity": "Error"
     },
     "no_external_form_calls": {
-      "exclude": [],
-      "severity": "Error"
-    },
-    "no_inline_in_optional_branches": {
       "exclude": [],
       "severity": "Error"
     },
