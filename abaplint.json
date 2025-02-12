@@ -870,7 +870,7 @@
       "severity": "Error"
     },
     "unused_types": {
-      "exclude": [],
+      "exclude": ["ZCX_"],
       "severity": "Error",
       "skipNames": []
     },
