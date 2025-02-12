@@ -76,9 +76,6 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
   METHOD close_client.
     client->close( EXCEPTIONS http_invalid_state = 0
                               OTHERS             = 1 ).
-    IF sy-subrc <> 0.
-      " No real error handling, at that point in time we can do nothing
-    ENDIF.
   ENDMETHOD.
 
   METHOD communicate.

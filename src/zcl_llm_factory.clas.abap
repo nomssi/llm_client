@@ -19,15 +19,15 @@ ENDCLASS.
 CLASS zcl_llm_factory IMPLEMENTATION.
   METHOD zif_llm_factory~get_client.
     auth_class->check_get_client( model ).
-    SELECT SINGLE * INTO @DATA(client_configuration) FROM zllm_clnt_config WHERE model = @model.
+    SELECT SINGLE * FROM zllm_clnt_config WHERE model = @model INTO @DATA(client_configuration).
     IF sy-subrc <> 0.
       RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>model_does_not_exist
                                               attr1  = CONV string( model ) ).
     ENDIF.
 
-    SELECT SINGLE * INTO @DATA(provider_configuration)
-      FROM zllm_providers
-      WHERE provider_name = @client_configuration-provider_name.
+    SELECT SINGLE * FROM zllm_providers
+      WHERE provider_name = @client_configuration-provider_name
+      INTO @DATA(provider_configuration).
     IF sy-subrc <> 0.
       RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>provider_does_not_exist
                                               attr1  = CONV string( client_configuration-provider_name ) ).
@@ -42,7 +42,8 @@ CLASS zcl_llm_factory IMPLEMENTATION.
   METHOD class_constructor.
     DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
     CALL BADI llm_badi->get_authorization_impl
-      RECEIVING result = auth_class.
+      RECEIVING
+        result = auth_class.
   ENDMETHOD.
 
 ENDCLASS.

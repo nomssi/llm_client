@@ -21,72 +21,70 @@ CLASS zcl_llm_tool_calculator DEFINITION
            END OF token.
     TYPES tokens TYPE STANDARD TABLE OF token WITH EMPTY KEY.
 
-    CONSTANTS:
-      operator_plus     TYPE string VALUE '+',
-      operator_minus    TYPE string VALUE '-',
-      operator_multiply TYPE string VALUE '*',
-      operator_divide   TYPE string VALUE '/',
-      operator_power    TYPE string VALUE '**',
-      operator_mod      TYPE string VALUE 'MOD'.
+    CONSTANTS operator_plus     TYPE string VALUE '+'.
+    CONSTANTS operator_minus    TYPE string VALUE '-'.
+    CONSTANTS operator_multiply TYPE string VALUE '*'.
+    CONSTANTS operator_divide   TYPE string VALUE '/'.
+    CONSTANTS operator_power    TYPE string VALUE '**'.
+    CONSTANTS operator_mod      TYPE string VALUE 'MOD'.
 
-    METHODS:
-      evaluate_expression
-        IMPORTING expression    TYPE string
-        RETURNING VALUE(result) TYPE string
-        RAISING   cx_sy_zerodivide
-                  cx_sy_arithmetic_error
-                  cx_sy_conversion_no_number,
+    METHODS evaluate_expression
+      IMPORTING expression    TYPE string
+      RETURNING VALUE(result) TYPE string
+      RAISING   cx_sy_zerodivide
+                cx_sy_arithmetic_error
+                cx_sy_conversion_no_number.
 
-      tokenize
-        IMPORTING expression    TYPE string
-        RETURNING VALUE(result) TYPE tokens
-        RAISING   cx_sy_conversion_no_number,
+    METHODS tokenize
+      IMPORTING expression    TYPE string
+      RETURNING VALUE(result) TYPE tokens
+      RAISING   cx_sy_conversion_no_number.
 
-      parse_number
-        IMPORTING number_string TYPE string
-        RETURNING VALUE(result) TYPE decfloat34
-        RAISING   cx_sy_conversion_no_number,
+    METHODS parse_number
+      IMPORTING number_string TYPE string
+      RETURNING VALUE(result) TYPE decfloat34
+      RAISING   cx_sy_conversion_no_number.
 
-      get_operator_precedence
-        IMPORTING operator      TYPE string
-        RETURNING VALUE(result) TYPE i,
+    METHODS get_operator_precedence
+      IMPORTING operator      TYPE string
+      RETURNING VALUE(result) TYPE i.
 
-      evaluate_tokens
-        IMPORTING tokens        TYPE tokens
-        RETURNING VALUE(result) TYPE decfloat34
-        RAISING   cx_sy_zerodivide
-                  cx_sy_arithmetic_error
-                  cx_sy_conversion_no_number,
+    METHODS evaluate_tokens
+      IMPORTING !tokens       TYPE tokens
+      RETURNING VALUE(result) TYPE decfloat34
+      RAISING   cx_sy_zerodivide
+                cx_sy_arithmetic_error
+                cx_sy_conversion_no_number.
 
-      apply_operator
-        IMPORTING operator      TYPE string
-                  operand1      TYPE decfloat34
-                  operand2      TYPE decfloat34
-        RETURNING VALUE(result) TYPE decfloat34
-        RAISING   cx_sy_zerodivide
-                  cx_sy_arithmetic_error
-                  cx_sy_conversion_no_number,
+    METHODS apply_operator
+      IMPORTING operator      TYPE string
+                operand1      TYPE decfloat34
+                operand2      TYPE decfloat34
+      RETURNING VALUE(result) TYPE decfloat34
+      RAISING   cx_sy_zerodivide
+                cx_sy_arithmetic_error
+                cx_sy_conversion_no_number.
 
-      process_operator
-        IMPORTING operator       TYPE string
-        CHANGING  operator_stack TYPE string_table
-                  output_queue   TYPE tokens,
+    METHODS process_operator
+      IMPORTING operator       TYPE string
+      CHANGING  operator_stack TYPE string_table
+                output_queue   TYPE tokens.
 
-      evaluate_rpn
-        IMPORTING tokens        TYPE tokens
-        RETURNING VALUE(result) TYPE decfloat34
-        RAISING   cx_sy_zerodivide cx_sy_arithmetic_error
-                  cx_sy_conversion_no_number,
+    METHODS evaluate_rpn
+      IMPORTING !tokens       TYPE tokens
+      RETURNING VALUE(result) TYPE decfloat34
+      RAISING   cx_sy_zerodivide cx_sy_arithmetic_error
+                cx_sy_conversion_no_number.
 
-      pop_from_stack
-        CHANGING  stack         TYPE STANDARD TABLE
-        RETURNING VALUE(result) TYPE string,
+    METHODS pop_from_stack
+      EXPORTING result TYPE string
+      CHANGING  !stack TYPE STANDARD TABLE.
 
-      peek_stack
-        CHANGING  stack         TYPE STANDARD TABLE
-        RETURNING VALUE(result) TYPE string.
+    METHODS peek_stack
+      EXPORTING result TYPE string
+      CHANGING  !stack TYPE STANDARD TABLE.
 
-    DATA output TYPE calculation_output.
+    DATA output       TYPE calculation_output.
     DATA tool_call_id TYPE string.
 
 ENDCLASS.
@@ -109,7 +107,7 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD zif_llm_tool~execute.
-    DATA input  TYPE calculation_input.
+    DATA input TYPE calculation_input.
 
     ASSIGN data->* TO FIELD-SYMBOL(<data>).
     input = <data>.
@@ -263,6 +261,8 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   METHOD evaluate_tokens.
     DATA output_queue   TYPE tokens.
     DATA operator_stack TYPE string_table.
+    DATA peeked_operator TYPE string.  " Store result of peek_stack
+    DATA popped_operator TYPE string. "For pop_from_stack
 
     " Shunting yard algorithm
     LOOP AT tokens INTO DATA(token).
@@ -271,13 +271,16 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
       ELSEIF token-value = '('.
         APPEND token-value TO operator_stack.
       ELSEIF token-value = ')'.
-        WHILE operator_stack IS NOT INITIAL AND peek_stack( CHANGING stack = operator_stack ) <> '('.
-          APPEND VALUE #( value     = pop_from_stack( CHANGING stack = operator_stack )
+        peek_stack( IMPORTING result = peeked_operator CHANGING stack = operator_stack  ). "Get Top of stack
+        WHILE operator_stack IS NOT INITIAL AND peeked_operator <> '('.
+          pop_from_stack( IMPORTING result = popped_operator CHANGING stack = operator_stack ).
+          APPEND VALUE #( value     = popped_operator
                           is_number = abap_false )
                  TO output_queue.
+          peek_stack( IMPORTING result = peeked_operator CHANGING stack = operator_stack ). "Check Top of stack again
         ENDWHILE.
         IF operator_stack IS NOT INITIAL.
-          pop_from_stack( CHANGING stack = operator_stack ). " Remove '('
+          pop_from_stack( IMPORTING result = popped_operator CHANGING stack = operator_stack ). " Remove '('
         ENDIF.
       ELSE.
         process_operator( EXPORTING operator       = token-value
@@ -288,7 +291,8 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
 
     " Move remaining operators to output
     WHILE operator_stack IS NOT INITIAL.
-      APPEND VALUE #( value     = pop_from_stack( CHANGING stack = operator_stack )
+      pop_from_stack( IMPORTING result = popped_operator CHANGING stack = operator_stack ).
+      APPEND VALUE #( value     = popped_operator
                       is_number = abap_false )
              TO output_queue.
     ENDWHILE.
@@ -298,13 +302,19 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD process_operator.
+    DATA peeked_operator TYPE string.
+    DATA popped_operator TYPE string.
+
+    peek_stack( IMPORTING result = peeked_operator CHANGING  stack = operator_stack ).
     WHILE     operator_stack IS NOT INITIAL
-          AND peek_stack( CHANGING stack = operator_stack ) <> '('
-          AND get_operator_precedence( peek_stack( CHANGING stack = operator_stack ) ) >=
+          AND peeked_operator <> '('
+          AND get_operator_precedence( peeked_operator ) >=
               get_operator_precedence( operator ).
-      APPEND VALUE #( value     = pop_from_stack( CHANGING stack = operator_stack )
+      pop_from_stack( IMPORTING result = popped_operator CHANGING stack = operator_stack ).
+      APPEND VALUE #( value     = popped_operator
                       is_number = abap_false )
              TO output_queue.
+      peek_stack( IMPORTING result = peeked_operator CHANGING  stack = operator_stack ). "Check for next iteration
     ENDWHILE.
     APPEND operator TO operator_stack.
   ENDMETHOD.
@@ -344,15 +354,19 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   METHOD pop_from_stack.
     DATA(last_index) = lines( stack ).
     IF last_index > 0.
-      result = stack[ last_index ].
+      result = stack[ last_index ].  " Assign to the EXPORTING parameter
       DELETE stack INDEX last_index.
+    ELSE.
+      CLEAR result. "Clear in case of empty stack
     ENDIF.
   ENDMETHOD.
 
   METHOD peek_stack.
     DATA(last_index) = lines( stack ).
     IF last_index > 0.
-      result = stack[ last_index ].
+      result = stack[ last_index ]. " Assign to the EXPORTING parameter
+    ELSE.
+      CLEAR result. "Clear Result
     ENDIF.
   ENDMETHOD.
 
@@ -394,3 +408,4 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   ENDMETHOD.
 
 ENDCLASS.
+
