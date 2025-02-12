@@ -186,10 +186,10 @@ CLASS zcl_llm_template_parser DEFINITION
     "! @parameter result            | <p class="shorttext synchronized">True if token was handled</p>
     METHODS handle_nested_for_loop
       IMPORTING token             TYPE token_type
+      EXPORTING result            TYPE abap_bool
       CHANGING  control_stack     TYPE control_stack_types
                 for_nesting_level TYPE i
-                output_buffer     TYPE string
-      RETURNING VALUE(result)     TYPE abap_bool.
+                output_buffer     TYPE string. "'EC NEEDED
 
     "! <p class="shorttext synchronized">Handle conditional control structures</p>
     "! @parameter control_content         | <p class="shorttext synchronized">Control structure content</p>
@@ -285,16 +285,8 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
     CONSTANTS variable_start TYPE string VALUE '{{'.
     CONSTANTS comment_regex  TYPE string VALUE '\{#[^}]*#\}'.
 
-    TYPES: BEGIN OF token_stack_type,
-             type    TYPE string,
-             start   TYPE i,
-             content TYPE string,
-           END OF token_stack_type.
-
-    DATA template_content TYPE string.
-
     " Remove all comments in one step
-    template_content = template.
+    DATA(template_content) = template.
     REPLACE ALL OCCURRENCES OF REGEX comment_regex
             IN template_content WITH ``.
 
@@ -395,10 +387,13 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
     LOOP AT tokens ASSIGNING FIELD-SYMBOL(<token>).
       " Handle nested for loops first
-      IF handle_nested_for_loop( EXPORTING token             = <token>
+      DATA nested TYPE sap_bool.
+      handle_nested_for_loop(    EXPORTING token             = <token>
+                                 IMPORTING result = nested
                                  CHANGING  control_stack     = control_stack
                                            for_nesting_level = for_nesting_level
                                            output_buffer     = output_buffer ).
+      IF nested = abap_true.
         CONTINUE.
       ENDIF.
 
@@ -470,7 +465,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       DATA(filter_part) = condense( parts[ 2 ] ).
       FIND FIRST OCCURRENCE OF REGEX '(\w+)(?:\((.*)\))?'
            IN filter_part
-           SUBMATCHES filter_name filter_param.
+           SUBMATCHES filter_name filter_param.           "#EC CI_SUBRC
     ENDIF.
 
     " Split path into segments
@@ -509,7 +504,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
       FIND FIRST OCCURRENCE OF REGEX '(\w+)(?:\[(\d+)\])?'
            IN segment
-           SUBMATCHES component idx.
+           SUBMATCHES component idx.                      "#EC CI_SUBRC
 
       TRY.
           DATA(descr) = cl_abap_typedescr=>describe_by_data_ref( current_ref ).
@@ -845,27 +840,27 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
       " Try numeric comparison
       TRY.
-          DATA lv_left_num  TYPE i.
-          DATA lv_right_num TYPE i.
+          DATA left_num  TYPE i.
+          DATA right_num TYPE i.
 
           " Check if both values can be converted to numbers
-          lv_left_num = CONV i( left_result ).
-          lv_right_num = CONV i( right_result ).
+          left_num = CONV i( left_result ).
+          right_num = CONV i( right_result ).
 
           " Perform numeric comparison
           CASE operator.
             WHEN '=='.
-              result = xsdbool( lv_left_num = lv_right_num ).
+              result = xsdbool( left_num = right_num ).
             WHEN '!='.
-              result = xsdbool( lv_left_num <> lv_right_num ).
+              result = xsdbool( left_num <> right_num ).
             WHEN '>'.
-              result = xsdbool( lv_left_num > lv_right_num ).
+              result = xsdbool( left_num > right_num ).
             WHEN '<'.
-              result = xsdbool( lv_left_num < lv_right_num ).
+              result = xsdbool( left_num < right_num ).
             WHEN '>='.
-              result = xsdbool( lv_left_num >= lv_right_num ).
+              result = xsdbool( left_num >= right_num ).
             WHEN '<='.
-              result = xsdbool( lv_left_num <= lv_right_num ).
+              result = xsdbool( left_num <= right_num ).
           ENDCASE.
         CATCH cx_root.
           " If numeric comparison fails, do string comparison
@@ -1168,24 +1163,25 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD process_token.
-    IF token-type = token_types-text.
-      IF check_control_stack_conditions( control_stack ) = abap_true.
-        output_buffer = output_buffer && token-content.
-      ENDIF.
+    CASE token-type.
+      WHEN token_types-text.
+        IF check_control_stack_conditions( control_stack ) = abap_true.
+          output_buffer = output_buffer && token-content.
+        ENDIF.
 
-    ELSEIF token-type = token_types-variable.
-      IF check_control_stack_conditions( control_stack ) = abap_true.
-        TRY.
-            output_buffer = output_buffer && resolve_variable( variable_path = token-content
-                                                               context       = context
-                                                               control_stack = control_stack ).
-          CATCH zcx_llm_template_parser INTO DATA(exception).
-            RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
-                                                         msgv1    = CONV #( token-content )
-                                                         previous = exception ).
-        ENDTRY.
-      ENDIF.
-    ENDIF.
+      WHEN token_types-variable.
+        IF check_control_stack_conditions( control_stack ) = abap_true.
+          TRY.
+              output_buffer = output_buffer && resolve_variable( variable_path = token-content
+                                                                 context       = context
+                                                                 control_stack = control_stack ).
+            CATCH zcx_llm_template_parser INTO DATA(exception).
+              RAISE EXCEPTION NEW zcx_llm_template_parser( textid   = zcx_llm_template_parser=>variable_resolution_error
+                                                           msgv1    = CONV #( token-content )
+                                                           previous = exception ).
+          ENDTRY.
+        ENDIF.
+    ENDCASE.
   ENDMETHOD.
 
   METHOD check_control_stack_conditions.
