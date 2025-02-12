@@ -744,11 +744,6 @@
       "selectStar": true,
       "starOkayIfFewColumns": 10
     },
-    "select_single_full_key": {
-      "exclude": [],
-      "severity": "Error",
-      "allowPseudo": true
-    },
     "selection_screen_naming": {
       "exclude": [],
       "severity": "Error",
