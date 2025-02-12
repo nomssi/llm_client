@@ -230,7 +230,7 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
                  OTHERS        = 2.
     IF sy-subrc <> 0 OR profile IS INITIAL.
       RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>sign_issue
-                                              attr1  = |SSF Application { ssf_application } invalid| ).
+                                              attr1  = |SSF Application { ssf_application } invalid| ) ##NO_TEXT.
     ENDIF.
 
     APPEND VALUE #( id      = '<implicit>'
@@ -260,7 +260,7 @@ CLASS zcl_llm_encryption IMPLEMENTATION.
 
     IF sy-subrc <> 0.
       RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>sign_issue
-                                              attr1  = |SSF_KRN_SIGN failed with sy-subrc = { sy-subrc }| ).
+                                              attr1  = |SSF_KRN_SIGN failed with sy-subrc = { sy-subrc }| ) ##NO_TEXT.
     ENDIF.
 
     DATA(signature) = REDUCE xstring(

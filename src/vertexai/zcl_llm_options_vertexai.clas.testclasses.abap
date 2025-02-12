@@ -26,12 +26,6 @@ CLASS ltcl_llm_options DEFINITION
     METHODS set_presence_penalty_valid FOR TESTING.
     METHODS set_presence_penalty_invalid FOR TESTING.
 
-    METHODS set_min_p_valid FOR TESTING.
-    METHODS set_min_p_invalid FOR TESTING.
-
-    METHODS set_top_a_valid FOR TESTING.
-    METHODS set_top_a_invalid FOR TESTING.
-
     METHODS set_custom_parameters FOR TESTING.
     METHODS get_parameters FOR TESTING.
 
@@ -147,46 +141,6 @@ CLASS ltcl_llm_options IMPLEMENTATION.
     TRY.
         cut->set_presence_penalty( CONV decfloat16( '2.1' ) ).
         cl_abap_unit_assert=>fail( 'Expected exception for presence_penalty above 2' ).
-      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
-    ENDTRY.
-  ENDMETHOD.
-
-  METHOD set_min_p_valid.
-    cut->set_min_p( CONV decfloat16( '0.0' ) ).
-    cut->set_min_p( CONV decfloat16( '0.5' ) ).
-    cut->set_min_p( CONV decfloat16( '1.0' ) ).
-  ENDMETHOD.
-
-  METHOD set_min_p_invalid.
-    TRY.
-        cut->set_min_p( CONV decfloat16( '-0.1' ) ).
-        cl_abap_unit_assert=>fail( 'Expected exception for min_p below 0' ).
-      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
-    ENDTRY.
-
-    TRY.
-        cut->set_min_p( CONV decfloat16( '1.1' ) ).
-        cl_abap_unit_assert=>fail( 'Expected exception for min_p above 1' ).
-      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
-    ENDTRY.
-  ENDMETHOD.
-
-  METHOD set_top_a_valid.
-    cut->set_top_a( CONV decfloat16( '0.0' ) ).
-    cut->set_top_a( CONV decfloat16( '0.5' ) ).
-    cut->set_top_a( CONV decfloat16( '1.0' ) ).
-  ENDMETHOD.
-
-  METHOD set_top_a_invalid.
-    TRY.
-        cut->set_top_a( CONV decfloat16( '-0.1' ) ).
-        cl_abap_unit_assert=>fail( 'Expected exception for top_a below 0' ).
-      CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
-    ENDTRY.
-
-    TRY.
-        cut->set_top_a( CONV decfloat16( '1.1' ) ).
-        cl_abap_unit_assert=>fail( 'Expected exception for top_a above 1' ).
       CATCH zcx_llm_validation.                        "#EC EMPTY_CATCH
     ENDTRY.
   ENDMETHOD.

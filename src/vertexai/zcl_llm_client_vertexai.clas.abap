@@ -102,8 +102,8 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
     TRY.
         DATA(token) = auth->get_token( provider = provider_config ).
         client->set_header( name  = 'Authorization'
-                            value = |Bearer { token-content }| ).
-        response = super->zif_llm_client~chat( request = request ).
+                            value = |Bearer { token-content }| ) ##NO_TEXT.
+        response = super->zif_llm_client~chat( request ).
       CATCH zcx_llm_http_error
             zcx_llm_authorization INTO DATA(error).
         response-success = abap_false.
@@ -364,7 +364,7 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
                                                name    = details-name
                                                content = <tool_call>-args ).
 
-            CATCH cx_root INTO DATA(error). " TODO: variable is assigned but never used (ABAP cleaner)
+            CATCH cx_root.
               result-success = abap_false.
               MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 016 WITH <tool_call>-name INTO DATA(message_text).
               result-error = VALUE #( tool_parse_error = abap_true

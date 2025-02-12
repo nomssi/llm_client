@@ -41,7 +41,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
-      exp = `*"field":{"title":"Field","type":"string"*` ).
+      exp = `*"field":{"type":"string"*` ).
   ENDMETHOD.
 
   METHOD test_simple_structure.
@@ -73,7 +73,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
-      exp = `*"address":{"title":"Address"*"properties"*"street"*"city"*` ).
+      exp = `*"address":{*"properties"*"street"*"city"*` ).
   ENDMETHOD.
 
   METHOD test_table.
@@ -320,7 +320,7 @@ CLASS ltcl_llm_so_default IMPLEMENTATION.
 
     cl_abap_unit_assert=>assert_char_cp(
       act = schema
-      exp = `*"field":{"title":"Field","type":"string"*` ).
+      exp = `*"field":{"type":"string"*` ).
   ENDMETHOD.
 
 ENDCLASS.

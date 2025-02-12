@@ -86,8 +86,8 @@ CLASS zcl_llm_tool_calculator DEFINITION
         CHANGING  stack         TYPE STANDARD TABLE
         RETURNING VALUE(result) TYPE string.
 
-    DATA int_result TYPE calculation_output.
-    DATA int_tool_call_id TYPE string.
+    DATA output TYPE calculation_output.
+    DATA tool_call_id TYPE string.
 
 ENDCLASS.
 
@@ -103,14 +103,13 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
           description = 'Mathematical expression to evaluate. Supports +, -, *, /, **, MOD and parentheses' ) ) ##NO_TEXT.
 
     result = VALUE #( name        = 'calculator'
-                      description = 'Evaluates mathematical expressions. Supports +, -, *, /, **, MOD and parentheses' ##NO_TEXT
+                      description = 'Evaluates mathematical expressions. Supports +, -, *, /, **, MOD and parentheses'
                       type        = zif_llm_tool=>type_function
-                      parameters  = parameters ).
+                      parameters  = parameters ) ##NO_TEXT.
   ENDMETHOD.
 
   METHOD zif_llm_tool~execute.
     DATA input  TYPE calculation_input.
-    DATA output TYPE calculation_output.
 
     ASSIGN data->* TO FIELD-SYMBOL(<data>).
     input = <data>.
@@ -123,18 +122,15 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
         output-result = |Error: Division by zero| ##NO_TEXT.
     ENDTRY.
 
+    me->tool_call_id = tool_call_id.
     result-data         = REF #( output ).
     result-name         = `calculator`.
     result-tool_call_id = tool_call_id.
-
-    " Save internal result
-    int_result = output.
-    int_tool_call_id = tool_call_id.
   ENDMETHOD.
 
   METHOD zif_llm_tool~get_result.
-    result = VALUE #( data         = REF #( int_result )
-                      tool_call_id = int_tool_call_id
+    result = VALUE #( data         = REF #( output )
+                      tool_call_id = tool_call_id
                       name         = `calculator` ).
   ENDMETHOD.
 
@@ -267,10 +263,9 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   METHOD evaluate_tokens.
     DATA output_queue   TYPE tokens.
     DATA operator_stack TYPE string_table.
-    DATA token          TYPE token.
 
     " Shunting yard algorithm
-    LOOP AT tokens INTO token.
+    LOOP AT tokens INTO DATA(token).
       IF token-is_number = abap_true.
         APPEND token TO output_queue.
       ELSEIF token-value = '('.

@@ -310,7 +310,6 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       FIND FIRST OCCURRENCE OF REGEX `\{\{|\{%`
            IN current_chunk
            MATCH OFFSET DATA(token_start)
-           " TODO: variable is assigned but never used (ABAP cleaner)
            MATCH LENGTH DATA(token_start_length).
 
       IF sy-subrc <> 0.
@@ -350,23 +349,21 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
       IF sy-subrc <> 0.
         RAISE EXCEPTION NEW zcx_llm_template_parser( textid = zcx_llm_template_parser=>unclosed_token
                                                      msgv1  = COND #( WHEN token_type = token_types-variable
-                                                                      THEN 'Variable' ##NO_TEXT
+                                                                      THEN 'Variable'
                                                                       ELSE substring( val = current_chunk+token_start
                                                                                       off = 2
-                                                                                      len = 20 ) ) ).
+                                                                                      len = 20 ) ) ) ##NO_TEXT.
       ENDIF.
 
       " Extract and process token content
       DATA(token_length) = token_end_pos + token_end_length.
-      " TODO: variable is assigned but never used (ABAP cleaner)
-      DATA(full_token) = current_chunk+token_start(token_length).
       DATA(token_start_corrected) = token_start + 2.
       DATA(token_end_corrected) = token_end_pos - 2.
       DATA(token_content) = current_chunk+token_start_corrected(token_end_corrected).
 
       " Control tokens need to be trimmed
       IF token_type = token_types-control.
-        CONDENSE token_content.
+        token_content = condense( token_content ).
       ENDIF.
 
       APPEND VALUE #( type    = token_type
@@ -520,8 +517,6 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
           CASE descr->kind.
             WHEN cl_abap_typedescr=>kind_struct.
               DATA(struct_ref) = CAST cl_abap_structdescr( descr ).
-              " TODO: variable is assigned but never used (ABAP cleaner)
-              DATA(components) = struct_ref->get_components( ).
 
               FIELD-SYMBOLS <struct> TYPE any.
               ASSIGN current_ref->* TO <struct>.
@@ -557,8 +552,6 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
               ENDIF.
 
             WHEN cl_abap_typedescr=>kind_table.
-              " TODO: variable is assigned but never used (ABAP cleaner)
-              DATA(table_ref) = CAST cl_abap_tabledescr( descr ).
 
               FIELD-SYMBOLS <table> TYPE STANDARD TABLE.
               ASSIGN current_ref->* TO <table>.
@@ -663,7 +656,7 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
           DATA(elem_str) = |{ <line> }|.  " Convert to string first
           APPEND elem_str TO result_table.
         ENDLOOP.
-        CONCATENATE LINES OF result_table INTO result SEPARATED BY `, `.
+        result = concat_lines_of( table = result_table sep = `, ` ).
 
       WHEN cl_abap_typedescr=>kind_struct.
         " For structures, create a list of key-value pairs
@@ -861,22 +854,34 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
           " Perform numeric comparison
           CASE operator.
-            WHEN '=='. result = xsdbool( lv_left_num = lv_right_num ).
-            WHEN '!='. result = xsdbool( lv_left_num <> lv_right_num ).
-            WHEN '>'. result = xsdbool( lv_left_num > lv_right_num ).
-            WHEN '<'. result = xsdbool( lv_left_num < lv_right_num ).
-            WHEN '>='. result = xsdbool( lv_left_num >= lv_right_num ).
-            WHEN '<='. result = xsdbool( lv_left_num <= lv_right_num ).
+            WHEN '=='.
+              result = xsdbool( lv_left_num = lv_right_num ).
+            WHEN '!='.
+              result = xsdbool( lv_left_num <> lv_right_num ).
+            WHEN '>'.
+              result = xsdbool( lv_left_num > lv_right_num ).
+            WHEN '<'.
+              result = xsdbool( lv_left_num < lv_right_num ).
+            WHEN '>='.
+              result = xsdbool( lv_left_num >= lv_right_num ).
+            WHEN '<='.
+              result = xsdbool( lv_left_num <= lv_right_num ).
           ENDCASE.
         CATCH cx_root.
           " If numeric comparison fails, do string comparison
           CASE operator.
-            WHEN '=='. result = xsdbool( left_result = right_result ).
-            WHEN '!='. result = xsdbool( left_result <> right_result ).
-            WHEN '>'. result = xsdbool( left_result > right_result ).
-            WHEN '<'. result = xsdbool( left_result < right_result ).
-            WHEN '>='. result = xsdbool( left_result >= right_result ).
-            WHEN '<='. result = xsdbool( left_result <= right_result ).
+            WHEN '=='.
+              result = xsdbool( left_result = right_result ).
+            WHEN '!='.
+              result = xsdbool( left_result <> right_result ).
+            WHEN '>'.
+              result = xsdbool( left_result > right_result ).
+            WHEN '<'.
+              result = xsdbool( left_result < right_result ).
+            WHEN '>='.
+              result = xsdbool( left_result >= right_result ).
+            WHEN '<='.
+              result = xsdbool( left_result <= right_result ).
           ENDCASE.
       ENDTRY.
 
@@ -990,15 +995,21 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
 
       " Copy original context data
       ASSIGN context->* TO FIELD-SYMBOL(<ctx_data>).
-      MOVE-CORRESPONDING <ctx_data> TO <new_ctx>.
+      <new_ctx> = CORRESPONDING #( <ctx_data> ).
 
       " Set loop variable
       ASSIGN <table>[ current_index ] TO FIELD-SYMBOL(<current_item>).
       ASSIGN COMPONENT loop_var OF STRUCTURE <new_ctx> TO FIELD-SYMBOL(<loop_var>).
+      IF sy-subrc <> 0.
+        RETURN.
+      ENDIF.
       <loop_var> = <current_item>.
 
       " Set loop metadata
       ASSIGN COMPONENT 'LOOP' OF STRUCTURE <new_ctx> TO FIELD-SYMBOL(<loop_meta>).
+      IF sy-subrc <> 0.
+        RETURN.
+      ENDIF.
       <loop_meta> = VALUE loop_meta_type( index = current_index
                                           first = xsdbool( current_index = 1 )
                                           last  = xsdbool( current_index = total_items ) ).
@@ -1010,8 +1021,6 @@ CLASS zcl_llm_template_parser IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_nested_for_loop.
-    " TODO: parameter OUTPUT_BUFFER is never used or assigned (ABAP cleaner)
-
     result = abap_false.
 
     ASSIGN control_stack[ lines( control_stack ) ] TO FIELD-SYMBOL(<current_stack>).

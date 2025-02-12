@@ -68,7 +68,7 @@ CLASS lcl_popup_screen DEFINITION.
     TYPES: BEGIN OF ty_textline,
              line TYPE c LENGTH 255,
            END OF ty_textline,
-           tt_textline TYPE STANDARD TABLE OF ty_textline WITH DEFAULT KEY.
+           tt_textline TYPE STANDARD TABLE OF ty_textline WITH EMPTY KEY.
 
     DATA provider_name        TYPE zllm_provider_name.
     DATA provider_class       TYPE zllm_provider.
@@ -367,12 +367,12 @@ CLASS lcl_popup_screen IMPLEMENTATION.
         textline-line = remaining(split_pos).
         APPEND textline TO textlines.
         remaining = remaining+split_pos.
-        SHIFT remaining LEFT DELETING LEADING ` `.
+        remaining = shift_left( remaining ).
       ENDIF.
     ENDWHILE.
 
     text_editor->delete_text( ).
-    text_editor->set_text_as_r3table( table = textlines ).
+    text_editor->set_text_as_r3table( textlines ).
     text_editor->set_focus( text_editor ).
   ENDMETHOD.
 

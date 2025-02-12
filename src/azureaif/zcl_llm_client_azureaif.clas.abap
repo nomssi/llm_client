@@ -63,7 +63,7 @@ CLASS zcl_llm_client_azureaif IMPLEMENTATION.
       CALL BADI llm_badi->get_encryption_impl
         RECEIVING
           result = DATA(enc_class).
-      auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
+      auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
       client->set_header( name  = 'api-key'
@@ -118,7 +118,7 @@ CLASS zcl_llm_client_azureaif IMPLEMENTATION.
       first_line = abap_true.
       LOOP AT request-tools ASSIGNING FIELD-SYMBOL(<tool>).
         DATA(details) = <tool>->get_tool_details( ).
-        IF first_line = abap_true..
+        IF first_line = abap_true.
           result = |{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
                 && tool_parser->parse( data_desc    = details-parameters-data_desc
@@ -147,11 +147,9 @@ CLASS zcl_llm_client_azureaif IMPLEMENTATION.
 
     " Add options if available
     DATA(option_parameters) = request-options->get_paramters( ).
-    IF lines( option_parameters ) > 0.
-      LOOP AT option_parameters INTO DATA(parameter).
-        result = |{ result },"{ parameter-key }":{ parameter-value }|.
-      ENDLOOP.
-    ENDIF.
+    LOOP AT option_parameters INTO DATA(parameter).
+      result = |{ result },"{ parameter-key }":{ parameter-value }|.
+    ENDLOOP.
 
     result = |{ result }\}|.
   ENDMETHOD.

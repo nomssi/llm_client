@@ -81,7 +81,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
       CALL BADI llm_badi->get_encryption_impl
         RECEIVING
           result = DATA(enc_class).
-      auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
+      auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
       SPLIT auth_value AT ':' INTO DATA(api_header) DATA(api_key).
@@ -208,7 +208,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
                                                name    = details-name
                                                content = <tool_call>-function-arguments ).
 
-            CATCH cx_root INTO DATA(error). " TODO: variable is assigned but never used (ABAP cleaner)
+            CATCH cx_root.
               result-success = abap_false.
               MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 016 WITH <tool_call>-function-name INTO DATA(message_text).
               result-error = VALUE #( tool_parse_error = abap_true

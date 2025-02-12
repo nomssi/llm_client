@@ -50,7 +50,7 @@ CLASS zcl_llm_client_openai IMPLEMENTATION.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
         RECEIVING result = DATA(enc_class).
-      auth_value = enc_class->decrypt( encrypted = provider_config-auth_encrypted ).
+      auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
       client->set_header( name  = 'Authorization'

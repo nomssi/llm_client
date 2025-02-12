@@ -48,12 +48,10 @@ CLASS zcl_llm_client_vertexai_sr IMPLEMENTATION.
   METHOD if_shm_build_instance~build.
     DATA area  TYPE REF TO zcl_llm_client_vertexai_s_area.
     DATA root  TYPE REF TO zcl_llm_client_vertexai_sr.
-    DATA excep TYPE REF TO cx_root.
 
     TRY.
         area = zcl_llm_client_vertexai_s_area=>attach_for_write( ).
-
-      CATCH cx_shm_error INTO excep.
+      CATCH cx_shm_error INTO DATA(excep).
         RAISE EXCEPTION NEW cx_shm_build_failed( previous = excep ).
     ENDTRY.
 

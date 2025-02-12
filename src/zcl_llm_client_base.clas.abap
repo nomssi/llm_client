@@ -107,7 +107,7 @@ CLASS zcl_llm_client_base DEFINITION
       RAISING zcx_llm_validation
               zcx_llm_authorization.
 
-   methods create_tool_parser RETURNING VALUE(result) type ref to zif_llm_tool_parser.
+    METHODS create_tool_parser RETURNING VALUE(result) TYPE REF TO zif_llm_tool_parser.
 
   PRIVATE SECTION.
 ENDCLASS.
@@ -159,7 +159,7 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
       first_line = abap_true.
       LOOP AT request-tools ASSIGNING FIELD-SYMBOL(<tool>).
         DATA(details) = <tool>->get_tool_details( ).
-        IF first_line = abap_true..
+        IF first_line = abap_true.
           result = |{ result }\{"type":"{ details-type }","{ details-type }":\{"name":"{ details-name }"|
                 && |,"description":"{ details-description }","parameters":|
                 && tool_parser->parse( data_desc    = details-parameters-data_desc
@@ -188,11 +188,9 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
 
     " Add options if available
     DATA(option_parameters) = request-options->get_paramters( ).
-    IF lines( option_parameters ) > 0.
-      LOOP AT option_parameters INTO DATA(parameter).
-        result = |{ result },"{ parameter-key }":{ parameter-value }|.
-      ENDLOOP.
-    ENDIF.
+    LOOP AT option_parameters INTO DATA(parameter).
+      result = |{ result },"{ parameter-key }":{ parameter-value }|.
+    ENDLOOP.
 
     result = |{ result }\}|.
   ENDMETHOD.
@@ -271,7 +269,7 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
                                                 arguments     = func_result
                                                 json_response = <tool_call>-function-arguments ) )
                    TO result-choice-tool_calls.
-          CATCH cx_root INTO DATA(error). " TODO: variable is assigned but never used (ABAP cleaner)
+          CATCH cx_root.
             MESSAGE ID 'ZLLM_CLIENT' TYPE 'E' NUMBER 016
                     WITH <tool_call>-function-name INTO DATA(message_text) ##NEEDED.
         ENDTRY.
@@ -401,7 +399,7 @@ CLASS zcl_llm_client_base IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create_tool_parser.
-    result = new zcl_llm_tool_parser(  ).
+    result = NEW zcl_llm_tool_parser(  ).
   ENDMETHOD.
 
 ENDCLASS.

@@ -211,15 +211,12 @@ CLASS ltcl_calculator_tool IMPLEMENTATION.
 
     LOOP AT test_cases INTO DATA(test_case).
       DATA(input) = VALUE zcl_llm_tool_calculator=>calculation_input( expression = test_case-expression ).
-
       DATA(data) = REF #( input ).
       DATA(result) = calculator->zif_llm_tool~execute( data         = data
                                                        tool_call_id = 'test_id' ).
-
       DATA output TYPE zcl_llm_tool_calculator=>calculation_output.
       ASSIGN result-data->* TO FIELD-SYMBOL(<output>).
       output = <output>.
-
       cl_abap_unit_assert=>assert_equals( exp = test_case-expected
                                           act = output-result
                                           msg = |Expression: { test_case-expression }| ).
