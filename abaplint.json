@@ -1,7 +1,7 @@
 {
   "global": {
     "files": "/src/**/*.*",
-    "exclude": [".*\\bllm_client\\.fugr\\b.*"],
+    "exclude": ["z_llm_client.fugr"],
     "noIssues": [],
     "skipGeneratedBOPFInterfaces": false,
     "skipGeneratedFunctionGroups": false,
@@ -668,7 +668,7 @@
       "severity": "Error"
     },
     "parser_error": {
-      "exclude": [".*\\bllm_client\\.fugr\\b.*"],
+      "exclude": [],
       "severity": "Error"
     },
     "parser_missing_space": {
@@ -817,7 +817,7 @@
       "severity": "Error"
     },
     "space_before_dot": {
-      "exclude": [".*\\bllm_client\\.fugr\\b.*"],
+      "exclude": [],
       "severity": "Error",
       "ignoreGlobalDefinition": true,
       "ignoreExceptions": true
@@ -831,7 +831,7 @@
       "severity": "Error"
     },
     "start_at_tab": {
-      "exclude": [".*\\bllm_client\\.fugr\\b.*"],
+      "exclude": [],
       "severity": "Error"
     },
     "static_call_via_instance": {
