@@ -83,7 +83,8 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
     IF provider_config-auth_encrypted IS NOT INITIAL.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
-        RECEIVING result = DATA(enc_class).
+        RECEIVING
+          result = DATA(enc_class).
       auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
     IF provider_config-auth_type = 'A'.
@@ -182,14 +183,16 @@ CLASS zcl_llm_client_anthropic IMPLEMENTATION.
       result = |{ result }]|.
 
       " Tool choice
-      CASE request-tool_choice.
-        WHEN zif_llm_chat_request=>tool_choice_auto.
-          result = |{ result },"tool_choice":\{"type":"auto"\}|.
-        WHEN zif_llm_chat_request=>tool_choice_required.
-          result = |{ result },"tool_choice":\{"type":"any"\}|.
-        WHEN OTHERS.
-          result = |{ result },"tool_choice":\{"type":"tool","name":"{ request-tool_choice }"\}|.
-      ENDCASE.
+      IF request-tool_choice <> zif_llm_chat_request=>tool_choice_none.
+        CASE request-tool_choice.
+          WHEN zif_llm_chat_request=>tool_choice_auto.
+            result = |{ result },"tool_choice":\{"type":"auto"\}|.
+          WHEN zif_llm_chat_request=>tool_choice_required.
+            result = |{ result },"tool_choice":\{"type":"any"\}|.
+          WHEN OTHERS.
+            result = |{ result },"tool_choice":\{"type":"tool","name":"{ request-tool_choice }"\}|.
+        ENDCASE.
+      ENDIF.
     ENDIF.
 
     " Add options if available

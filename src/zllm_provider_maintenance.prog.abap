@@ -103,7 +103,7 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD load_providers.
     SELECT * FROM zllm_providers ORDER BY provider_name
-      INTO CORRESPONDING FIELDS OF TABLE @providers ##SUBRC_OK. "#EC CI_GENBUFF
+      INTO CORRESPONDING FIELDS OF TABLE @providers ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.

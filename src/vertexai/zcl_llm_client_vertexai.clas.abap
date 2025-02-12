@@ -180,14 +180,16 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
       result = |{ result }]\}]|.
 
       " Tool choice
-      CASE request-tool_choice.
-        WHEN zif_llm_chat_request=>tool_choice_auto.
-          result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"AUTO"\}\}|.
-        WHEN zif_llm_chat_request=>tool_choice_required.
-          result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"ANY"\}\}|.
-        WHEN OTHERS.
-          result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"ANY","allowedFunctionNames":["{ request-tool_choice }"]\}\}|.
-      ENDCASE.
+      IF request-tool_choice <> zif_llm_chat_request=>tool_choice_none.
+        CASE request-tool_choice.
+          WHEN zif_llm_chat_request=>tool_choice_auto.
+            result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"AUTO"\}\}|.
+          WHEN zif_llm_chat_request=>tool_choice_required.
+            result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"ANY"\}\}|.
+          WHEN OTHERS.
+            result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"ANY","allowedFunctionNames":["{ request-tool_choice }"]\}\}|.
+        ENDCASE.
+      ENDIF.
     ENDIF.
 
     " Add options if available
