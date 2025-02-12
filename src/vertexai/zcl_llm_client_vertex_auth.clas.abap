@@ -140,10 +140,10 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
     payload_body-exp = payload_body-iat + 3600.
 
     " Create the JSON strings inside the concatenation using string templates
-    DATA(json_header) = zcl_llm_common=>to_json( data = payload_header ).
-    DATA(json_body) = zcl_llm_common=>to_json( data = payload_body ).
-    DATA(header_encoded) = cl_http_utility=>encode_base64( unencoded = json_header ).
-    DATA(body_encoded) = cl_http_utility=>encode_base64( unencoded = json_body ).
+    DATA(json_header) = zcl_llm_common=>to_json( payload_header ).
+    DATA(json_body) = zcl_llm_common=>to_json( payload_body ).
+    DATA(header_encoded) = cl_http_utility=>encode_base64( json_header ).
+    DATA(body_encoded) = cl_http_utility=>encode_base64( json_body ).
 
     " Concatenate with '.'
     DATA(payload_encoded) = |{ header_encoded }.{ body_encoded }|.

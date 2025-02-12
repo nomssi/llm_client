@@ -100,7 +100,7 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
   METHOD zif_llm_client~chat.
     " Set the auth header, everything else will be handled by the base class
     TRY.
-        DATA(token) = auth->get_token( provider = provider_config ).
+        DATA(token) = auth->get_token( provider_config ).
         client->set_header( name  = 'Authorization'
                             value = |Bearer { token-content }| ) ##NO_TEXT.
         response = super->zif_llm_client~chat( request ).
@@ -181,8 +181,6 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
 
       " Tool choice
       CASE request-tool_choice.
-        WHEN zif_llm_chat_request=>tool_choice_none.
-          " Do nothing - no output needed
         WHEN zif_llm_chat_request=>tool_choice_auto.
           result = |{ result },"toolConfig":\{"functionCallingConfig":\{"mode":"AUTO"\}\}|.
         WHEN zif_llm_chat_request=>tool_choice_required.
