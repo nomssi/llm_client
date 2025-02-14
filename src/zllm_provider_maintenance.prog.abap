@@ -24,7 +24,6 @@ CLASS lcl_app DEFINITION.
   PRIVATE SECTION.
     DATA providers TYPE provider_configs.
     DATA grid      TYPE REF TO cl_gui_alv_grid.
-    DATA container TYPE REF TO cl_gui_custom_container.
     DATA enc_class TYPE REF TO zif_llm_encryption.
 
     TYPES sval_tab TYPE STANDARD TABLE OF sval WITH EMPTY KEY.
@@ -41,10 +40,6 @@ CLASS lcl_app DEFINITION.
     METHODS build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat. " Build ALV field catalog
     METHODS refresh_display. " Refresh displayed ALV data
 
-    METHODS show_popup IMPORTING !title  TYPE string
-                       EXPORTING config  TYPE provider_config
-                       CHANGING  !values TYPE sval_tab. " Show user input popup
-
     METHODS show_confirm_popup IMPORTING !title        TYPE string
                                          !text         TYPE string
                                RETURNING VALUE(result) TYPE abap_bool. " Show confirm popup
@@ -55,10 +50,9 @@ CLASS lcl_popup_screen DEFINITION.
     METHODS constructor IMPORTING provider TYPE lcl_app=>provider_config.
     METHODS show        IMPORTING title    TYPE string.
 
-    METHODS pai IMPORTING dynnr TYPE sy-dynnr
-                          ucomm TYPE sy-ucomm.
+    METHODS pai IMPORTING ucomm TYPE sy-ucomm.
 
-    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
+    METHODS pbo.
 
     DATA cancelled TYPE abap_bool.
     DATA result    TYPE lcl_app=>provider_config.
@@ -229,22 +223,6 @@ CLASS lcl_app IMPLEMENTATION.
     grid->refresh_table_display( ).
   ENDMETHOD.
 
-  METHOD show_popup.
-    popup_screen = NEW #( provider = VALUE #(
-                                 provider_name        = values[ fieldname = 'PROVIDER_NAME' ]-value
-                                 provider_class       = values[ fieldname = 'PROVIDER_CLASS' ]-value
-                                 rfc_destination      = values[ fieldname = 'RFC_DESTINATION' ]-value
-                                 auth_rfc_destination = values[ fieldname = 'AUTH_RFC_DESTINATION' ]-value
-                                 auth_type            = values[ fieldname = 'AUTH_TYPE' ]-value
-                                 auth_value           = values[ fieldname = 'AUTH_VALUE' ]-value ) ).
-
-    popup_screen->show( title ).
-
-    IF popup_screen->cancelled = abap_false.
-      config = popup_screen->result.
-    ENDIF.
-  ENDMETHOD.
-
   METHOD show_confirm_popup.
     DATA(answer) = ''.
     CALL FUNCTION 'POPUP_TO_CONFIRM'
@@ -272,10 +250,9 @@ CLASS lcl_screen DEFINITION.
   PUBLIC SECTION.
     METHODS start.
 
-    METHODS pai IMPORTING dynnr TYPE sy-dynnr
-                          ucomm TYPE sy-ucomm.
+    METHODS pai IMPORTING ucomm TYPE sy-ucomm.
 
-    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
+    METHODS pbo.
 
   PRIVATE SECTION.
     DATA app TYPE REF TO lcl_app.
@@ -436,15 +413,14 @@ START-OF-SELECTION.
 *& Module STATUS_0100 OUTPUT
 *&---------------------------------------------------------------------*
 MODULE status_0100 OUTPUT.
-  screen->pbo( sy-dynnr ).
+  screen->pbo( ).
 ENDMODULE.
 
 *&---------------------------------------------------------------------*
 *& Module USER_COMMAND_0100 INPUT
 *&---------------------------------------------------------------------*
 MODULE user_command_0100 INPUT.
-  screen->pai( dynnr = sy-dynnr
-               ucomm = sy-ucomm ).
+  screen->pai( ucomm = sy-ucomm ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *& Module STATUS_0200 OUTPUT
@@ -452,7 +428,7 @@ ENDMODULE.
 *&
 *&---------------------------------------------------------------------*
 MODULE status_0200 OUTPUT.
-  popup_screen->pbo( sy-dynnr ).
+  popup_screen->pbo( ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *&      Module  USER_COMMAND_0200  INPUT
@@ -460,6 +436,5 @@ ENDMODULE.
 *       text
 *----------------------------------------------------------------------*
 MODULE user_command_0200 INPUT.
-  popup_screen->pai( dynnr = sy-dynnr
-                        ucomm = sy-ucomm ).
+  popup_screen->pai( ucomm = sy-ucomm ).
 ENDMODULE.
