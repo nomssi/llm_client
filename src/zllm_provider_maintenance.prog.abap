@@ -102,8 +102,7 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD load_providers.
-    SELECT * FROM zllm_providers ORDER BY provider_name
-      INTO CORRESPONDING FIELDS OF TABLE @providers ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
+    SELECT * FROM zllm_providers INTO CORRESPONDING FIELDS OF TABLE @providers ORDER BY provider_name ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.
@@ -148,7 +147,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_action_change.
-    grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
+    DATA sel_rows TYPE lvc_t_row.
+    grid->get_selected_rows( IMPORTING et_index_rows = sel_rows ).
     IF lines( sel_rows ) <> 1.
       MESSAGE 'Select one row'(014) TYPE 'E'.
     ENDIF.
@@ -171,7 +171,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_action_delete.
-    grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
+    DATA sel_rows TYPE lvc_t_row.
+    grid->get_selected_rows( IMPORTING et_index_rows = sel_rows ).
     IF lines( sel_rows ) <> 1.
       MESSAGE 'Select one row'(014) TYPE 'E'.
     ENDIF.
