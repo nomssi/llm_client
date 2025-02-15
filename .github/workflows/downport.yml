@@ -40,7 +40,7 @@ jobs:
         labels: "auto-merge"
 
     - name: Auto merge downport
-      if: ${{ steps.cpr.outputs.pull-request-number }} != ''
+      if: ${{ steps.cpr.outputs.pull-request-number != '' }} && ${{ steps.cpr.outputs.pull-request-number != ' ' }}
       run: |
         echo "Pull Request Number: ${{ steps.cpr.outputs.pull-request-number }}"
     #gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
