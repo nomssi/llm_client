@@ -37,7 +37,7 @@ Currently supported providers:
 
 ## Known Limitations
 
-- Tested only on 7.52 & ABAP 2022
+- Tested only on 7.52 & ABAP 2022 - **experimental** downport available in branch 702
 - Supports only API-Key authentication (further ones likely based on provider requirements)
 - No advanced parsing to compensate LLM output errors especially in structured output and tool calls
 
@@ -45,7 +45,6 @@ Currently supported providers:
 
 The following topics are currently not considered but feel free to challenge that in discussions if you have a specific use case.
 
-- Downport lower than 7.52 due to efforts to test this
 - Port to ABAP Cloud - if you use BTP you might aswell consider using Python or other languages with better GenAI library support
 - Non-Chat (e.g. image, audio, video) support
 

@@ -24,10 +24,7 @@ CLASS lcl_app DEFINITION.
   PRIVATE SECTION.
     DATA providers TYPE provider_configs.
     DATA grid      TYPE REF TO cl_gui_alv_grid.
-    DATA container TYPE REF TO cl_gui_custom_container.
     DATA enc_class TYPE REF TO zif_llm_encryption.
-
-    TYPES sval_tab TYPE STANDARD TABLE OF sval WITH EMPTY KEY.
 
     METHODS load_providers. " Load the provider list from the database
     METHODS save_provider IMPORTING config TYPE provider_config. " Save a provider to the database
@@ -41,10 +38,6 @@ CLASS lcl_app DEFINITION.
     METHODS build_field_catalog RETURNING VALUE(fieldcat) TYPE lvc_t_fcat. " Build ALV field catalog
     METHODS refresh_display. " Refresh displayed ALV data
 
-    METHODS show_popup IMPORTING !title  TYPE string
-                       EXPORTING config  TYPE provider_config
-                       CHANGING  !values TYPE sval_tab. " Show user input popup
-
     METHODS show_confirm_popup IMPORTING !title        TYPE string
                                          !text         TYPE string
                                RETURNING VALUE(result) TYPE abap_bool. " Show confirm popup
@@ -55,10 +48,9 @@ CLASS lcl_popup_screen DEFINITION.
     METHODS constructor IMPORTING provider TYPE lcl_app=>provider_config.
     METHODS show        IMPORTING title    TYPE string.
 
-    METHODS pai IMPORTING dynnr TYPE sy-dynnr
-                          ucomm TYPE sy-ucomm.
+    METHODS pai IMPORTING ucomm TYPE sy-ucomm.
 
-    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
+    METHODS pbo.
 
     DATA cancelled TYPE abap_bool.
     DATA result    TYPE lcl_app=>provider_config.
@@ -102,8 +94,7 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD load_providers.
-    SELECT * FROM zllm_providers ORDER BY provider_name
-      INTO CORRESPONDING FIELDS OF TABLE @providers ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
+    SELECT * FROM zllm_providers INTO CORRESPONDING FIELDS OF TABLE @providers ORDER BY provider_name ##SUBRC_OK. "#EC CI_BYPASS "#EC CI_GENBUFF
   ENDMETHOD.
 
   METHOD display_providers.
@@ -148,7 +139,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_action_change.
-    grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
+    DATA sel_rows TYPE lvc_t_row.
+    grid->get_selected_rows( IMPORTING et_index_rows = sel_rows ).
     IF lines( sel_rows ) <> 1.
       MESSAGE 'Select one row'(014) TYPE 'E'.
     ENDIF.
@@ -171,7 +163,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD handle_action_delete.
-    grid->get_selected_rows( IMPORTING et_index_rows = DATA(sel_rows) ).
+    DATA sel_rows TYPE lvc_t_row.
+    grid->get_selected_rows( IMPORTING et_index_rows = sel_rows ).
     IF lines( sel_rows ) <> 1.
       MESSAGE 'Select one row'(014) TYPE 'E'.
     ENDIF.
@@ -194,7 +187,10 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD save_provider.
-    MODIFY zllm_providers FROM @( CORRESPONDING #( config ) ).
+    " Using a two step corresponding to avoid abaplint donwport issues
+    DATA provider TYPE zllm_providers.
+    provider = CORRESPONDING #( config ).
+    MODIFY zllm_providers FROM @provider.
     IF sy-subrc = 0.
       MESSAGE 'Provider configuration saved successfully'(009) TYPE 'S'.
     ENDIF.
@@ -209,6 +205,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD build_field_catalog.
+    " This definition ensures I do not accidentially delete it as unused again ;-)
+    DATA ensure_ddic_ref TYPE zllm_provider_disp ##NEEDED.
     CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
       EXPORTING
         i_structure_name = 'ZLLM_PROVIDER_DISP'
@@ -226,22 +224,6 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD refresh_display.
     grid->refresh_table_display( ).
-  ENDMETHOD.
-
-  METHOD show_popup.
-    popup_screen = NEW #( provider = VALUE #(
-                                 provider_name        = values[ fieldname = 'PROVIDER_NAME' ]-value
-                                 provider_class       = values[ fieldname = 'PROVIDER_CLASS' ]-value
-                                 rfc_destination      = values[ fieldname = 'RFC_DESTINATION' ]-value
-                                 auth_rfc_destination = values[ fieldname = 'AUTH_RFC_DESTINATION' ]-value
-                                 auth_type            = values[ fieldname = 'AUTH_TYPE' ]-value
-                                 auth_value           = values[ fieldname = 'AUTH_VALUE' ]-value ) ).
-
-    popup_screen->show( title ).
-
-    IF popup_screen->cancelled = abap_false.
-      config = popup_screen->result.
-    ENDIF.
   ENDMETHOD.
 
   METHOD show_confirm_popup.
@@ -271,10 +253,9 @@ CLASS lcl_screen DEFINITION.
   PUBLIC SECTION.
     METHODS start.
 
-    METHODS pai IMPORTING dynnr TYPE sy-dynnr
-                          ucomm TYPE sy-ucomm.
+    METHODS pai IMPORTING ucomm TYPE sy-ucomm.
 
-    METHODS pbo IMPORTING dynnr TYPE sy-dynnr.
+    METHODS pbo.
 
   PRIVATE SECTION.
     DATA app TYPE REF TO lcl_app.
@@ -435,15 +416,14 @@ START-OF-SELECTION.
 *& Module STATUS_0100 OUTPUT
 *&---------------------------------------------------------------------*
 MODULE status_0100 OUTPUT.
-  screen->pbo( sy-dynnr ).
+  screen->pbo( ).
 ENDMODULE.
 
 *&---------------------------------------------------------------------*
 *& Module USER_COMMAND_0100 INPUT
 *&---------------------------------------------------------------------*
 MODULE user_command_0100 INPUT.
-  screen->pai( dynnr = sy-dynnr
-               ucomm = sy-ucomm ).
+  screen->pai( sy-ucomm ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *& Module STATUS_0200 OUTPUT
@@ -451,7 +431,7 @@ ENDMODULE.
 *&
 *&---------------------------------------------------------------------*
 MODULE status_0200 OUTPUT.
-  popup_screen->pbo( sy-dynnr ).
+  popup_screen->pbo( ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *&      Module  USER_COMMAND_0200  INPUT
@@ -459,6 +439,5 @@ ENDMODULE.
 *       text
 *----------------------------------------------------------------------*
 MODULE user_command_0200 INPUT.
-  popup_screen->pai( dynnr = sy-dynnr
-                        ucomm = sy-ucomm ).
+  popup_screen->pai( sy-ucomm ).
 ENDMODULE.

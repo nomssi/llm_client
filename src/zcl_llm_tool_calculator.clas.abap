@@ -71,11 +71,11 @@ CLASS zcl_llm_tool_calculator DEFINITION
 
     METHODS pop_from_stack
       EXPORTING result TYPE string
-      CHANGING  !stack TYPE STANDARD TABLE.
+      CHANGING  !stack TYPE string_table.
 
     METHODS peek_stack
       EXPORTING result TYPE string
-      CHANGING  !stack TYPE STANDARD TABLE.
+      CHANGING  !stack TYPE string_table.
 
     DATA output       TYPE calculation_output.
     DATA tool_call_id TYPE string.
@@ -227,7 +227,10 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
 
         WHEN OTHERS.
           " Raise exception for invalid characters
-          RAISE EXCEPTION NEW cx_sy_conversion_no_number( value = CONV #( current_char ) ).
+          " Simplify the logic to support downports which fail with CONV # at this location
+          DATA value TYPE string.
+          value = current_char.
+          RAISE EXCEPTION NEW cx_sy_conversion_no_number( value = value ).
       ENDCASE.
       index = index + 1.
     ENDWHILE.
@@ -355,6 +358,7 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD peek_stack.
+
     DATA(last_index) = lines( stack ).
     IF last_index > 0.
       result = stack[ last_index ]. " Assign to the EXPORTING parameter
