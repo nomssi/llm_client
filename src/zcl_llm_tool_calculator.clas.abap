@@ -227,7 +227,10 @@ CLASS zcl_llm_tool_calculator IMPLEMENTATION.
 
         WHEN OTHERS.
           " Raise exception for invalid characters
-          RAISE EXCEPTION NEW cx_sy_conversion_no_number( value = CONV #( current_char ) ).
+          " Simplify the logic to support downports which fail with CONV # at this location
+          DATA value TYPE string.
+          value = current_char.
+          RAISE EXCEPTION NEW cx_sy_conversion_no_number( value = value ).
       ENDCASE.
       index = index + 1.
     ENDWHILE.
