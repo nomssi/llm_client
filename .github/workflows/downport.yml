@@ -39,8 +39,9 @@ jobs:
         body: "Automated downport of changes from main"
         labels: "auto-merge"
 
-    - name: Auto merge downport
-      if: ${{ steps.cpr.outputs.pull-request-number != '' }} && ${{ steps.cpr.outputs.pull-request-number != ' ' }}
+    - name: Check outputs
+      if: ${{ steps.cpr.outputs.pull-request-number }}
       run: |
-        echo "Pull Request Number: ${{ steps.cpr.outputs.pull-request-number }}"
+        echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+        echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
     #gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
