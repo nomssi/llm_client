@@ -1,9 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">Agent Interface</p>
 INTERFACE zif_llm_agent
   PUBLIC.
-
-  "! Collection of agents
-  TYPES agents TYPE STANDARD TABLE OF REF TO zif_llm_agent WITH EMPTY KEY.
   TYPES:
     "! Agent status
     BEGIN OF status,

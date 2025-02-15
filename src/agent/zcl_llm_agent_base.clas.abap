@@ -43,7 +43,7 @@ CLASS zcl_llm_agent_base DEFINITION
     METHODS process_structured_output
       IMPORTING !response     TYPE zllm_response
       RETURNING VALUE(result) TYPE zllm_response
-      RAISING   zcx_llm_agent_error.
+      RAISING   zcx_llm_agent_error ##CALLED.
 
     METHODS process_tool_calls
       IMPORTING !response     TYPE zllm_response
@@ -262,9 +262,6 @@ CLASS zcl_llm_agent_base IMPLEMENTATION.
                        msg-name    = <tool_call>-function-name ) ) ##NO_TEXT.
       ENDTRY.
     ENDLOOP.
-
-    " Disable tool usage for the next request
-    " chat_request->set_tool_choice( zif_llm_chat_request=>tool_choice_none ).
   ENDMETHOD.
 
   METHOD zif_llm_agent_internal~execute_tool.
