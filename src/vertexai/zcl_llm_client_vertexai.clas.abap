@@ -104,10 +104,14 @@ CLASS zcl_llm_client_vertexai IMPLEMENTATION.
         client->set_header( name  = 'Authorization'
                             value = |Bearer { token-content }| ) ##NO_TEXT.
         response = super->zif_llm_client~chat( request ).
-      CATCH zcx_llm_http_error
-            zcx_llm_authorization INTO DATA(error).
+        " We use two different catch entries due to downport issues
+      CATCH zcx_llm_http_error INTO DATA(http_error).
         response-success = abap_false.
-        response-error-error_text = error->get_text( ).
+        response-error-error_text = http_error->get_text( ).
+        response-error-retrieable = abap_false.
+      CATCH zcx_llm_authorization INTO DATA(auth_error).
+        response-success = abap_false.
+        response-error-error_text = auth_error->get_text( ).
         response-error-retrieable = abap_false.
     ENDTRY.
   ENDMETHOD.
