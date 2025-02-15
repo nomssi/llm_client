@@ -40,4 +40,5 @@ jobs:
         labels: "auto-merge"
 
     - name: Auto merge downport
+      if: ${{ steps.cpr.outputs.pull-request-number }} != ''
       run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
