@@ -27,7 +27,7 @@ jobs:
     - run: npm run prepare_downport
     - run: npm run delete_testclasses
     - run: npm run update_xml_files
-    - run: npm run donwpport
+    - run: npm run downport
     
     - name: Create Pull Request
       id: cpr
