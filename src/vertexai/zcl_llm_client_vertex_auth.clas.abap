@@ -79,7 +79,7 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD is_valid.
-    DATA current_timestamp TYPE timestamp.
+    DATA current_timestamp TYPE timestampl.
 
     GET TIME STAMP FIELD current_timestamp.
     DATA(valid) = cl_abap_tstmp=>subtract( tstmp1 = token-valid_until
@@ -93,7 +93,8 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
     IF provider-auth_encrypted IS NOT INITIAL.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
-        RECEIVING result = DATA(enc_class).
+        RECEIVING
+          result = DATA(enc_class).
       auth_config = enc_class->decrypt( provider-auth_encrypted ).
     ELSE.
       RAISE EXCEPTION NEW zcx_llm_http_error( textid = zcx_llm_http_error=>http_auth_processing
@@ -126,7 +127,8 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
     payload_body-scope = 'https://www.googleapis.com/auth/cloud-platform'.
     payload_body-aud   = 'https://oauth2.googleapis.com/token'.
 
-    GET TIME STAMP FIELD DATA(timestamp).
+    DATA timestamp TYPE timestampl.
+    GET TIME STAMP FIELD timestamp.
     CONVERT TIME STAMP timestamp TIME ZONE 'UTC' INTO DATE DATA(date) TIME DATA(time).
     DATA unix_time TYPE string.
     cl_pco_utility=>convert_abap_timestamp_to_java( EXPORTING iv_date      = date
@@ -246,8 +248,8 @@ CLASS zcl_llm_client_vertex_auth IMPLEMENTATION.
     zcl_llm_common=>from_json( EXPORTING json = response
                                CHANGING  data = oauth_response ).
     result-valid_until = timestamp.
-    result-valid_until = cl_abap_tstmp=>add_to_short( tstmp = result-valid_until
-                                                      secs  = oauth_response-expires_in ).
+    result-valid_until = cl_abap_tstmp=>add( tstmp = result-valid_until
+                                             secs  = oauth_response-expires_in ).
     result-content     = oauth_response-access_token.
 
     IF result-content IS INITIAL.

@@ -26,8 +26,6 @@ CLASS lcl_app DEFINITION.
     DATA grid      TYPE REF TO cl_gui_alv_grid.
     DATA enc_class TYPE REF TO zif_llm_encryption.
 
-    TYPES sval_tab TYPE STANDARD TABLE OF sval WITH EMPTY KEY.
-
     METHODS load_providers. " Load the provider list from the database
     METHODS save_provider IMPORTING config TYPE provider_config. " Save a provider to the database
 
@@ -189,7 +187,10 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD save_provider.
-    MODIFY zllm_providers FROM @( CORRESPONDING #( config ) ).
+    " Using a two step corresponding to avoid abaplint donwport issues
+    DATA provider TYPE zllm_providers.
+    provider = CORRESPONDING #( config ).
+    MODIFY zllm_providers FROM @provider.
     IF sy-subrc = 0.
       MESSAGE 'Provider configuration saved successfully'(009) TYPE 'S'.
     ENDIF.
@@ -204,6 +205,8 @@ CLASS lcl_app IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD build_field_catalog.
+    " This definition ensures I do not accidentially delete it as unused again ;-)
+    DATA ensure_ddic_ref TYPE zllm_provider_disp ##NEEDED.
     CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
       EXPORTING
         i_structure_name = 'ZLLM_PROVIDER_DISP'
@@ -420,7 +423,7 @@ ENDMODULE.
 *& Module USER_COMMAND_0100 INPUT
 *&---------------------------------------------------------------------*
 MODULE user_command_0100 INPUT.
-  screen->pai( ucomm = sy-ucomm ).
+  screen->pai( sy-ucomm ).
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *& Module STATUS_0200 OUTPUT
@@ -436,5 +439,5 @@ ENDMODULE.
 *       text
 *----------------------------------------------------------------------*
 MODULE user_command_0200 INPUT.
-  popup_screen->pai( ucomm = sy-ucomm ).
+  popup_screen->pai( sy-ucomm ).
 ENDMODULE.
