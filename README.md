@@ -26,6 +26,7 @@ Currently supported providers:
 - Google Vertex AI
 - Deepseek (structured output currently not supported)
 - Google Gemini API
+- AWS Bedrock via Converse API Endpoint
 
 ## Features
 
@@ -87,10 +88,7 @@ In general for most parts interfaces are available to easily use custom implemen
 With the Beta release my focus is on using this library for further AI based topics (stay tuned) --> bug fixes have priority. Open a discussion or an issue if you have a specific requirement.
 Further features mid-term (check discord for short term plans and to discuss the current state):
 
-- More providers:
-  - AWS Bedrock
 - Workaround to force use required tool to simulate structured output where providers miss this feature (e.g. Azure AI Foundry)
-- Better UX for the settings and customizing tasks
 - Better error- and edge-case handling
 - Optional auto-retry for expected error cases (e.g. 429 HTTP Error)
 - Optimizations:
