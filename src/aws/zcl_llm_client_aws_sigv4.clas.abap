@@ -93,7 +93,7 @@ CLASS zcl_llm_client_aws_sigv4 IMPLEMENTATION.
                                     input = string_to_sign ).
     DATA temp TYPE string.
     temp = |{ signature }|.
-    result = |{ algorithm } Credential={ auth_data-access_key }/{ get_credential_scope( request_time = request_time ) }, |
+    result = |{ algorithm } Credential={ auth_data-access_key }/{ get_credential_scope( request_time ) }, |
           && |SignedHeaders={ get_signed_headers( headers ) }, Signature={ to_lower( temp ) }| ##NO_TEXT.
   ENDMETHOD.
 
