@@ -165,3 +165,20 @@ Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
 - RFC Desitination: created above
 - Auth Type: A (API Key)
 - Auth Value: Paste the API Key
+
+## [AWS Bedrock](https://aws.amazon.com/bedrock)
+
+Create the SM59 destination type "G" with:
+
+- HOST - use the endpoint as per [AWS Documentation](https://docs.aws.amazon.com/general/latest/gr/bedrock.html), e.g. bedrock.us-east-1.amazonaws.com
+- Port 443
+- Path Prefix /model
+- SSL Active & SSL Certificate as the usual SSL Client that has the required certificates (by default use the DFAUL SSL Client)
+- Special Options HTTP 1.1
+
+Provider configuration via Transaction ZLLM_PROVIDER_CONFIG:
+
+- Implementation Class: ZCL_LLM_CLIENT_AWS
+- RFC Desitination: created above
+- Auth Type: A (API Key)
+- Auth Value: {AWS Credential},{host from above},{region} for example credentialxyz,secret345345asdfsa,bedrock.us-east-1.amazonaws.com,us-east-1

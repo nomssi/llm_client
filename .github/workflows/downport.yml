@@ -41,6 +41,8 @@ jobs:
 
     - name: Check outputs
       if: ${{ steps.cpr.outputs.pull-request-number }}
+      env:
+        GH_TOKEN: ${{ secrets.PAT }}
       run: |
         echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
         echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"

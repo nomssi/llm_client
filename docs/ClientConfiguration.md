@@ -21,6 +21,10 @@ The table has the following fields which can be maintained as customzing:
 For models the internal model name must follow the format: /{location}/publishers/{publisher}/models/{modelid}
 Example: /europe-west3/publishers/google/models/gemini-1.5-flash
 
+### AWS Bedrock
+
+Make sure to use proper model names, especially taking [cross-region](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html) inference profiles into account. Note that tool use currently seems flaky with differnt models using the converse API in a different way.
+
 ## Recommendations
 
 Your feedback and experience is highly appreciated to extend this list:
