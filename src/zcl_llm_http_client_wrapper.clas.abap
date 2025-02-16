@@ -45,7 +45,6 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
                                                       plugin_not_active        = 4
                                                       internal_error           = 5
                                                       OTHERS                   = 6 ).
-
     IF sy-subrc <> 0.
       RAISE EXCEPTION NEW zcx_llm_validation( textid = zcx_llm_validation=>http_destination_error
                                               attr1  = CONV #( provider_config-rfc_destination )
@@ -156,6 +155,10 @@ CLASS zcl_llm_http_client_wrapper IMPLEMENTATION.
   METHOD zif_llm_http_client_wrapper~set_parmeter.
     client->request->set_form_field( name  = name
                                      value = value ).
+  ENDMETHOD.
+
+  METHOD zif_llm_http_client_wrapper~get_req_headers.
+    client->request->get_header_fields( CHANGING fields = result ).
   ENDMETHOD.
 
 ENDCLASS.
