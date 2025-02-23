@@ -8,7 +8,7 @@ CLASS zcl_llm_client_aws DEFINITION
     CLASS-METHODS get_client
       IMPORTING client_config   TYPE zllm_clnt_config
                 provider_config TYPE zllm_providers
-      RETURNING VALUE(result)   TYPE REF TO zif_llm_client
+      RETURNING VALUE(result)   TYPE REF TO zif_llm_client_int
       RAISING   zcx_llm_validation
                 zcx_llm_authorization.
 
@@ -18,7 +18,7 @@ CLASS zcl_llm_client_aws DEFINITION
       RAISING   zcx_llm_validation
                 zcx_llm_authorization.
 
-    METHODS zif_llm_client~chat REDEFINITION.
+    METHODS zif_llm_client_int~chat REDEFINITION.
 
   PROTECTED SECTION.
     METHODS: get_http_client REDEFINITION,
@@ -93,8 +93,7 @@ CLASS zcl_llm_client_aws IMPLEMENTATION.
     IF provider_config-auth_encrypted IS NOT INITIAL.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
-        RECEIVING
-          result = DATA(enc_class).
+        RECEIVING result = DATA(enc_class).
       auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
 
@@ -106,12 +105,10 @@ CLASS zcl_llm_client_aws IMPLEMENTATION.
     credentials-secret_key = secret_key.
     credentials-region     = region.
     credentials-service    = 'bedrock'.
-    IF provider_config-auth_type = 'A'.
-      auth = NEW zcl_llm_client_aws_sigv4( credentials = credentials ).
-    ENDIF.
+    auth = NEW zcl_llm_client_aws_sigv4( credentials = credentials ).
   ENDMETHOD.
 
-  METHOD zif_llm_client~chat.
+  METHOD zif_llm_client_int~chat.
     " Set the aws headers including auth, rest handled by base class
     DATA(uri) = |/model/{ escape( val    = client_config-provider_model
                                   format = cl_abap_format=>e_url_full ) }/converse|.
@@ -269,7 +266,7 @@ CLASS zcl_llm_client_aws IMPLEMENTATION.
 
   METHOD parse_message.
     IF lines( message-tool_calls ) > 0.
-      result = |\{"role":"{ zif_llm_client=>role_assistant }","content":[|.
+      result = |\{"role":"{ zif_llm_client_int=>role_assistant }","content":[|.
       LOOP AT message-tool_calls ASSIGNING FIELD-SYMBOL(<tool_call>).
         IF sy-tabix <> 1.
           result = |{ result },|.
@@ -279,8 +276,8 @@ CLASS zcl_llm_client_aws IMPLEMENTATION.
       ENDLOOP.
       result = |{ result }]\}|.
     ELSE.
-      IF message-role = zif_llm_client=>role_tool.
-        result = |\{"role":"{ zif_llm_client=>role_user }","content":[\{"toolResult":\{|
+      IF message-role = zif_llm_client_int=>role_tool.
+        result = |\{"role":"{ zif_llm_client_int=>role_user }","content":[\{"toolResult":\{|
               && |"content":[\{"json":{ message-content }\}]|.
         result = |{ result },"toolUseId":"{ message-tool_call_id }"\}\}]\}|.
       ELSE.

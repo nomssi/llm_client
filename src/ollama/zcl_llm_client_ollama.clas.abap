@@ -8,7 +8,7 @@ CLASS zcl_llm_client_ollama DEFINITION
     CLASS-METHODS get_client
       IMPORTING client_config   TYPE zllm_clnt_config
                 provider_config TYPE zllm_providers
-      RETURNING VALUE(result)   TYPE REF TO zif_llm_client
+      RETURNING VALUE(result)   TYPE REF TO zif_llm_client_int
       RAISING   zcx_llm_validation
                 zcx_llm_authorization.
 
@@ -78,11 +78,10 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
     IF provider_config-auth_encrypted IS NOT INITIAL.
       DATA(llm_badi) = zcl_llm_common=>get_llm_badi( ).
       CALL BADI llm_badi->get_encryption_impl
-        RECEIVING
-          result = DATA(enc_class).
+        RECEIVING result = DATA(enc_class).
       auth_value = enc_class->decrypt( provider_config-auth_encrypted ).
     ENDIF.
-    IF provider_config-auth_type = 'A'.
+    IF auth_value IS NOT INITIAL.
       SPLIT auth_value AT ':' INTO DATA(api_header) DATA(api_key).
       client->set_header( name  = api_header
                           value = api_key ).
@@ -203,7 +202,7 @@ CLASS zcl_llm_client_ollama IMPLEMENTATION.
 
               " For Ollama, we need to use the unescaped JSON directly
               result-choice-message = VALUE #( BASE result-choice-message
-                                               role    = zif_llm_client=>role_tool
+                                               role    = zif_llm_client_int=>role_tool
                                                name    = details-name
                                                content = <tool_call>-function-arguments ).
 
