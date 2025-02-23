@@ -46,4 +46,4 @@ jobs:
       run: |
         echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
         echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
-        gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto
+        gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --squash --auto --delete-branch
