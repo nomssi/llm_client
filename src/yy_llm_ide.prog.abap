@@ -275,8 +275,6 @@ CLASS lcl_source IMPLEMENTATION.
           exception_name = 'ERROR_CNTL_INIT'.
       ENDCASE.
       RAISE EXCEPTION TYPE cx_coverage_api_adapter.
-*        EXPORTING
-*          exception_name = exception_name.
     ENDIF.
 
     set_source_type( c_source_type ).
