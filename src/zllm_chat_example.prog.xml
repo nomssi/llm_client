@@ -19,7 +19,7 @@
       <TYPE>N</TYPE>
       <NEXTSCREEN>0100</NEXTSCREEN>
       <LINES>038</LINES>
-      <COLUMNS>213</COLUMNS>
+      <COLUMNS>214</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -81,23 +81,6 @@
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
-       <TYPE>PUSH</TYPE>
-       <NAME>SEND</NAME>
-       <TEXT>SEND___</TEXT>
-       <ICON_NAME>ICON_MAIL</ICON_NAME>
-       <WITH_ICON>X</WITH_ICON>
-       <LINE>001</LINE>
-       <COLUMN>112</COLUMN>
-       <LENGTH>012</LENGTH>
-       <VISLENGTH>010</VISLENGTH>
-       <HEIGHT>001</HEIGHT>
-       <PUSH_FCODE>SEND</PUSH_FCODE>
-       <FORMAT>CHAR</FORMAT>
-       <REQU_ENTRY>N</REQU_ENTRY>
-      </RPY_DYFATC>
-      <RPY_DYFATC>
-       <CONT_TYPE>SCREEN</CONT_TYPE>
-       <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>FRAME</TYPE>
        <NAME>USERMESSAGE</NAME>
        <TEXT>User_Message_______________________________________________________________________________</TEXT>
@@ -127,6 +110,7 @@
        <CONT_TYPE>SCREEN</CONT_TYPE>
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>OKCODE</TYPE>
+       <NAME>G_OK_CODE</NAME>
        <TEXT>____________________</TEXT>
        <LENGTH>020</LENGTH>
        <VISLENGTH>020</VISLENGTH>
@@ -140,7 +124,7 @@
    <CUA>
     <ADM>
      <ACTCODE>000001</ACTCODE>
-     <MENCODE>000001</MENCODE>
+     <MENCODE>000003</MENCODE>
      <PFKCODE>000001</PFKCODE>
     </ADM>
     <STA>
@@ -157,22 +141,86 @@
      <RSMPE_FUNT>
       <CODE>BACK</CODE>
       <TEXTNO>001</TEXTNO>
+      <TYPE>E</TYPE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Back</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>CANCEL</CODE>
       <TEXTNO>001</TEXTNO>
+      <TYPE>E</TYPE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <FUN_TEXT>Exit</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
+      <CODE>CLEAR</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_DELETE</TEXT_NAME>
+      <ICON_ID>@11@</ICON_ID>
+      <FUN_TEXT>Refresh</FUN_TEXT>
+      <ICON_TEXT>Refresh</ICON_TEXT>
+      <INFO_TEXT>Refresh</INFO_TEXT>
+      <PATH>E</PATH>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>EVALUATE</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Evaluate</FUN_TEXT>
+      <PATH>V</PATH>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>EXECUTE</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_SYSTEM_PLAY</TEXT_NAME>
+      <ICON_ID>@I6@</ICON_ID>
+      <FUN_TEXT>Send</FUN_TEXT>
+      <ICON_TEXT>Evaluate</ICON_TEXT>
+      <INFO_TEXT>Evaluate</INFO_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
       <CODE>EXIT</CODE>
       <TEXTNO>001</TEXTNO>
+      <TYPE>E</TYPE>
       <TEXT_TYPE>S</TEXT_TYPE>
       <TEXT_NAME>ICON_CANCEL</TEXT_NAME>
       <ICON_ID>@0W@</ICON_ID>
       <FUN_TEXT>Cancel</FUN_TEXT>
+      <PATH>A</PATH>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>MODELS</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Modell Configuration</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>NEXT</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_ARROW_RIGHT</TEXT_NAME>
+      <ICON_ID>@9T@</ICON_ID>
+      <FUN_TEXT>Next</FUN_TEXT>
+      <ICON_TEXT>Next</ICON_TEXT>
+      <INFO_TEXT>Next query</INFO_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>PREV</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT_NAME>ICON_ARROW_LEFT</TEXT_NAME>
+      <ICON_ID>@9S@</ICON_ID>
+      <FUN_TEXT>Previous</FUN_TEXT>
+      <ICON_TEXT>Previous</ICON_TEXT>
+      <INFO_TEXT>Previous query</INFO_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>PROVIDERS</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Providers</FUN_TEXT>
      </RSMPE_FUNT>
      <RSMPE_FUNT>
       <CODE>SEND</CODE>
@@ -181,13 +229,72 @@
       <FUN_TEXT>SEND</FUN_TEXT>
       <PATH>S</PATH>
      </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>SM59</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>RFC Destinations</FUN_TEXT>
+     </RSMPE_FUNT>
+     <RSMPE_FUNT>
+      <CODE>STATS</CODE>
+      <TEXTNO>001</TEXTNO>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <FUN_TEXT>Statistics / Logs</FUN_TEXT>
+     </RSMPE_FUNT>
     </FUN>
     <MEN>
      <RSMPE_MEN>
       <CODE>000001</CODE>
       <NO>01</NO>
       <REF_TYPE>F</REF_TYPE>
-      <REF_CODE>SEND</REF_CODE>
+      <REF_CODE>EVALUATE</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>02</NO>
+      <REF_TYPE>S</REF_TYPE>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>03</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>CLEAR</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000001</CODE>
+      <NO>04</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>EXIT</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000003</CODE>
+      <NO>01</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>SM59</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000003</CODE>
+      <NO>02</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>PROVIDERS</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000003</CODE>
+      <NO>03</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>MODELS</REF_CODE>
+      <REF_NO>001</REF_NO>
+     </RSMPE_MEN>
+     <RSMPE_MEN>
+      <CODE>000003</CODE>
+      <NO>04</NO>
+      <REF_TYPE>F</REF_TYPE>
+      <REF_CODE>STATS</REF_CODE>
       <REF_NO>001</REF_NO>
      </RSMPE_MEN>
     </MEN>
@@ -195,8 +302,19 @@
      <RSMPE_MNLT>
       <CODE>000001</CODE>
       <TEXT_TYPE>S</TEXT_TYPE>
-      <TEXT>SEND</TEXT>
-      <PATH>S</PATH>
+      <TEXT>User Interface</TEXT>
+      <PATH>U</PATH>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000002</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Modell</TEXT>
+      <PATH>M</PATH>
+     </RSMPE_MNLT>
+     <RSMPE_MNLT>
+      <CODE>000003</CODE>
+      <TEXT_TYPE>S</TEXT_TYPE>
+      <TEXT>Customizing</TEXT>
      </RSMPE_MNLT>
     </MTX>
     <ACT>
@@ -205,12 +323,54 @@
       <NO>01</NO>
       <MENUCODE>000001</MENUCODE>
      </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>02</NO>
+      <MENUCODE>000002</MENUCODE>
+     </RSMPE_ACT>
+     <RSMPE_ACT>
+      <CODE>000001</CODE>
+      <NO>03</NO>
+      <MENUCODE>000003</MENUCODE>
+     </RSMPE_ACT>
     </ACT>
+    <BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>01</NO>
+      <PFNO>08</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>02</NO>
+      <PFNO>13</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>03</NO>
+      <PFNO>14</PFNO>
+     </RSMPE_BUT>
+     <RSMPE_BUT>
+      <PFK_CODE>000001</PFK_CODE>
+      <CODE>0001</CODE>
+      <NO>04</NO>
+      <PFNO>16</PFNO>
+     </RSMPE_BUT>
+    </BUT>
     <PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
       <PFNO>03</PFNO>
       <FUNCODE>BACK</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>08</PFNO>
+      <FUNCODE>EXECUTE</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
      <RSMPE_PFK>
@@ -221,8 +381,26 @@
      </RSMPE_PFK>
      <RSMPE_PFK>
       <CODE>000001</CODE>
+      <PFNO>13</PFNO>
+      <FUNCODE>PREV</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>14</PFNO>
+      <FUNCODE>NEXT</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
       <PFNO>15</PFNO>
       <FUNCODE>CANCEL</FUNCODE>
+      <FUNNO>001</FUNNO>
+     </RSMPE_PFK>
+     <RSMPE_PFK>
+      <CODE>000001</CODE>
+      <PFNO>16</PFNO>
+      <FUNCODE>CLEAR</FUNCODE>
       <FUNNO>001</FUNNO>
      </RSMPE_PFK>
     </PFK>
@@ -237,11 +415,47 @@
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
+      <FUNCTION>CLEAR</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>EVALUATE</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>EXECUTE</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
       <FUNCTION>EXIT</FUNCTION>
      </RSMPE_STAF>
      <RSMPE_STAF>
       <STATUS>0100</STATUS>
+      <FUNCTION>MODELS</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>NEXT</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>PREV</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>PROVIDERS</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
       <FUNCTION>SEND</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>SM59</FUNCTION>
+     </RSMPE_STAF>
+     <RSMPE_STAF>
+      <STATUS>0100</STATUS>
+      <FUNCTION>STATS</FUNCTION>
      </RSMPE_STAF>
     </SET>
     <DOC>
@@ -295,6 +509,13 @@
      <ID>R</ID>
      <ENTRY>LLM Chat Example report</ENTRY>
      <LENGTH>23</LENGTH>
+    </item>
+    <item>
+     <ID>S</ID>
+     <KEY>MODEL</KEY>
+     <ENTRY>.</ENTRY>
+     <LENGTH>9</LENGTH>
+     <SPLIT>D</SPLIT>
     </item>
    </TPOOL>
   </asx:values>
