@@ -32,6 +32,8 @@ Currently supported providers:
 - Multiple provider integration
 - Customizable
 
+![image](https://github.com/user-attachments/assets/7e3bd46a-08f7-4778-8b56-2648388d6fb5)
+
 ## Known Limitations
 
 - Tested only on 7.52 & ABAP 2022 - **experimental** downport available in branch 702
