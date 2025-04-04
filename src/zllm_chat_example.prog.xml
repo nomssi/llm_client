@@ -326,11 +326,6 @@
      <RSMPE_ACT>
       <CODE>000001</CODE>
       <NO>02</NO>
-      <MENUCODE>000002</MENUCODE>
-     </RSMPE_ACT>
-     <RSMPE_ACT>
-      <CODE>000001</CODE>
-      <NO>03</NO>
       <MENUCODE>000003</MENUCODE>
      </RSMPE_ACT>
     </ACT>
@@ -482,7 +477,7 @@
     <TIT>
      <RSMPE_TITT>
       <CODE>0100</CODE>
-      <TEXT>Chat Example</TEXT>
+      <TEXT>Chat Example - Model &amp;1</TEXT>
      </RSMPE_TITT>
     </TIT>
    </CUA>

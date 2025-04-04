@@ -3,7 +3,7 @@
 *&---------------------------------------------------------------------*
 
 CONSTANTS:
-  c_llm_untitled    TYPE programm VALUE 'Untitled lLM Query',
+  c_llm_untitled    TYPE programm VALUE 'Untitled LLM Model',
   c_new_abap_editor TYPE flag VALUE abap_true,
   c_source_type     TYPE string VALUE 'LISP'.
 
@@ -454,6 +454,7 @@ CLASS lcl_app DEFINITION.
     DATA mo_console TYPE REF TO lcl_console.
     DATA ms_settings TYPE ts_settings.
 
+    CLASS-METHODS call_transaction IMPORTING id_transaction TYPE tcode.
     METHODS welcome RETURNING VALUE(text) TYPE string.
     METHODS console_header RETURNING VALUE(text) TYPE string.
     METHODS refresh.
@@ -492,6 +493,7 @@ CLASS lcl_app IMPLEMENTATION.
 
   METHOD constructor.
     super->constructor( ).
+    mv_title = model.
 
     CREATE OBJECT:
       mo_cont,
@@ -628,29 +630,27 @@ CLASS lcl_app IMPLEMENTATION.
             MESSAGE lx_error TYPE 'I' DISPLAY LIKE 'E'.
         ENDTRY.
       WHEN 'PROVIDERS'.
-        TRY.
-            CALL TRANSACTION 'ZLLM_PROVIDER_CONFIG' WITH AUTHORITY-CHECK.
-          CATCH cx_sy_authorization_error INTO lx_error.
-            MESSAGE lx_error TYPE 'I' DISPLAY LIKE 'E'.
-        ENDTRY.
+        call_transaction( 'ZLLM_PROVIDER_CONFIG' ).
+
       WHEN 'MODELS'.
-        TRY.
-            CALL TRANSACTION 'ZLLM_CLIENT_CONFIG' WITH AUTHORITY-CHECK.
-          CATCH cx_sy_authorization_error INTO lx_error.
-            MESSAGE lx_error TYPE 'I' DISPLAY LIKE 'E'.
-        ENDTRY.
+        call_transaction( 'ZLLM_CLIENT_CONFIG' ).
+
       WHEN 'STATS'.
-        TRY.
-            CALL TRANSACTION 'ZLLM_SYSTEM_CONF' WITH AUTHORITY-CHECK.
-          CATCH cx_sy_authorization_error INTO lx_error.
-            MESSAGE lx_error TYPE 'I' DISPLAY LIKE 'E'.
-        ENDTRY.
+        call_transaction( 'ZLLM_SYSTEM_CONF' ).
 
       WHEN OTHERS.
         RETURN.
     ENDCASE.
 
     rd_flag = abap_true.
+  ENDMETHOD.
+
+  METHOD call_transaction.
+    TRY.
+        CALL TRANSACTION id_transaction WITH AUTHORITY-CHECK.
+      CATCH cx_sy_authorization_error INTO DATA(lx_error).
+        MESSAGE lx_error TYPE 'I' DISPLAY LIKE 'E'.
+    ENDTRY.
   ENDMETHOD.
 
   METHOD evaluate.
